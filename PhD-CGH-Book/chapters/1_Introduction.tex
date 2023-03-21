@@ -1,0 +1,153 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% 
+% Generic template for TFC/TFM/TFG/Tesis
+% 
+% By:
+% + Javier Macías-Guarasa. 
+% Departamento de Electrónica
+% Universidad de Alcalá
+% + Roberto Barra-Chicote. 
+% Departamento de Ingeniería Electrónica
+% Universidad Politécnica de Madrid   
+% 
+% Based on original sources by Roberto Barra, Manuel Ocaña, Jesús Nuevo,
+% Pedro Revenga, Fernando Herránz and Noelia Hernández. Thanks a lot to
+% all of them, and to the many anonymous contributors found (thanks to
+% google) that provided help in setting all this up.
+% 
+% See also the additionalContributors.txt file to check the name of
+% additional contributors to this work.
+% 
+% If you think you can add pieces of relevant/useful examples,
+% improvements, please contact us at (macias@depeca.uah.es)
+% 
+% You can freely use this template and please contribute with
+% comments or suggestions!!!
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\chapter{Introduction}
+\label{cha:introduction}
+
+\begin{FraseCelebre}
+  \begin{Frase}
+    Aaay, el oro, la fama, el poder.  \\
+    Todo lo tuvo el hombre que en su día se autoproclamó  \\
+    el rey de los piratas, ¡GOLD ROGER!  \\
+    Mas sus últimas palabras no fueron muy afortunadas:  \\
+    "¿¡MI TESORO!? Lo dejé todo allí, buscadlo si queréis,  \\
+    ojalá se le atragante al rufián que lo encuentre.
+  \end{Frase}
+  \begin{Fuente}
+    Opening 1 de One Piece: "We are" \\
+    Autor original: Hiroshi Kitadani
+  \end{Fuente}
+\end{FraseCelebre}
+
+\section{Motivation}
+\label{sec:1_motivation}
+
+Autonomous Vehicles (AVs) have held the attention of technology enthusiasts and futurists
+for some time as evidenced by the continuous development and research in Autonomous
+Vehicle Technologies (AVT) over the past two decades, being one of the emerging
+technologies of the Fourth Industrial Revolution, and particularly of the Industry 4.0.
+The phrase Fourth Industrial Revolution was first introduced by Klaus Schwab, CEO (Chief
+Executive Officer) of the World Economic Forum, in a 2015 article in Foreign Affairs
+(American magazine of international relations and United States foreign policy). A
+technological revolution is defined as a period in which one or more technologies are
+replaced by other kinds of technologies in a short amount of time. Hence, it is an era of
+accelerated technological progress featured by Researching, Development and Innovation
+whose rapid application and diffusion cause an abrupt change in society. In particular, the
+Fourth Industrial Revolution is expected to be marked by breakthroughs in emerging
+technologies in fields such as Artificial Intelligence (AI), Computer Vision, Internet of Things
+(IoT), fifth-generation wireless technologies (5G), Robotics, 3D printing and the scope of
+this master thesis, fully autonomous vehicles. The sum of all these advances are resulting in
+machines that can potentially see, hear and what is more important, think, moving more
+deftly than humans.
+Moreover, Industry 4.0 is the subset of the Fourth Industrial Revolution that concerns
+industry, that is, this concept focuses the existence of factories in which machines are
+enhanced with sensors and wireless connectivity, connected to a system that can visualize
+the whole production line and make decision on its own. In fact, if it is substituted “the whole
+production” by the environment, the concept refers to a self-driving car.
+A self-driving car (also known as driverless car or autonomous car) is a vehicle that can
+sense its environment and moving safely with little or even no human input. They combine
+a variety of sensors to recognize their environments, such as GPS, camera, Inertial
+Measurements Units (IMUs), radar, sonar or LiDAR (Light Detection and Ranging). Then,
+advanced control systems process this sensory information in order to calculate in a proper
+way navigation paths, traffic signs or detect and track the road obstacles (which is the main
+purpose of this thesis) to ensure a safe driving.
+Furthermore, statistics show that 69 % of the population in the European Union (EU),
+including associated states, lives in urban areas. According to the World Health
+Organization, nearly one third of the world population will live in cities by 2030, leading to
+an overpopulation in most of them. Aware of this problem, the Transport White Paper published by the European Commission in 2011 indicated that new forms of mobility ought
+to be proposed so as to provide sustainable solutions for people and goods safely. For
+example, regarding safety, it sets the ambitious goal of halving the overall number of road
+deaths in the EU between 2010 and 2020. Nevertheless, this goal does not seem to be easy
+since only in 2014 more than 25,700 people died on the roads in the EU, many of them
+caused by an improper behaviour of the driver on the road.
+Autonomous driving is considered as one of the solutions to the before mentioned problems
+and one of the greatest challenges of the automotive industry today. The existence of
+reliable and economically affordable autonomous vehicles will create a huge impact on
+society affecting social, demographic, environmental and economic aspects. Besides this, it
+is estimated to cause a reduction in road deaths, reduce fuel consumption and harmful
+emission associated and improve traffic flow, as well as an improvement in the overall
+driver comfort and mobility in groups with impaired faculties, such as disable or elderly
+people. Other industrial applications of autonomous vehicles are agriculture, retail,
+manufacturing, commercial and freight transport or mining.
+
+\section{Historical Context}
+\label{sec:1_historical_context}
+
+\section{Problem Statement}
+\label{sec:1_problem_statement}
+
+\cite{huang2022survey}
+
+\section{Objectives and Structure of this work}
+\label{sec:1_objectives_and_structure}
+
+Most of the current tracking systems are based on traditional techniques. In that sense, the
+main scope of this work is to study the state-of-the-art of Deep Learning based Multi-Object
+Tracking approaches and implement and validate an optimal architecture both in
+simulation and real world, mainly focused on the Autonomous Vehicles paradigm. It is a
+hard issue due to the lack of literature in this specific branch of deep-learning based object
+tracking applications, as shown in [2] [3] [4]. Moreover, in order to achieve the main scope,
+the following objectives will be met:
+1. Researching of current Deep-Learning based Multi-Object Tracking approaches.
+2. Study of state-of-the-art software technologies and sensors to perform the MOT
+problem both in simulation and real-world.
+3. Explanation of a real-world project named SmartElderlyCar, including its hardware and
+software architecture.
+4. Propose an architecture for Deep-Learning based Multi-Object Tracking.
+5. Validate the proposed architecture for MOT both in CARLA simulator and real world
+
+The organization of this document has been done as follows:
+• Chapter 2 presents a technical background about current object tracking
+approaches, including Visual Object Tracking, LiDAR based and sensor fusion. Then,
+as this master thesis focuses of 2D tracking, challenges in Visual Object Tracking are
+shown. Then, Deep Learning in MOT is studied in addition to some state-of-the-art
+approaches.
+• Chapter 3 focuses on the software technologies used in this master thesis, that is,
+ROS for sensor communication, PCL as point cloud processing, Docker as a tool to
+increase the portability and testability of the project and CARLA as simulator
+environment.
+• Chapter 4 presents the SmartElderlyCar project, an autonomous electric car able to
+drive in the University of Alcalá campus, as the reference to develop the architecture
+proposal of this work.
+• Chapter 5 shows the Deep Learning based Multi-Object Tracking architecture
+proposal. This is the main chapter of this master thesis.
+• Chapter 6 shows the validation of the architecture proposal in the KITTI benchmark
+as well as quantitative and qualitative results both in CARLA simulator, KITTI
+benchmark and in the real prototype of the SmartElderlyCar.
+• Chapter 7 illustrates the conclusions and future works of this project.
+• Appendix A details how Kalman filter works in the object tracking context.
+• Appendix B shows the Artificial Intelligence paradigm, including Machine Learning
+and Deep Learning concepts. In addition, a brief explanation of how CNNs and RNNs
+work due to its tight relation with object detection and tracking.
+• Appendix C shows some interesting parts of the code created and developed in order
+to perform most of exposed tasks throughout this master thesis.
+• Appendix D illustrates the user’s manual so as to install the system requirements and
+reproduce the obtained results.
+• Appendix E represents the main hardware and software specifications used in this
+project.
+• Appendix F illustrated an estimation of the required budget to develop this thesis.

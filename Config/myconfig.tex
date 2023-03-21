@@ -1,0 +1,271 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Generic template for TFC/TFM/TFG/Tesis
+%
+% $Id: myconfig.tex,v 1.39 2020/03/24 17:33:24 macias Exp $
+%
+% By:
+%  + Javier Macías-Guarasa. 
+%    Departamento de Electrónica
+%    Universidad de Alcalá
+%  + Roberto Barra-Chicote. 
+%    Departamento de Ingeniería Electrónica
+%    Universidad Politécnica de Madrid   
+% 
+% Based on original sources by Roberto Barra, Manuel Ocaña, Jesús Nuevo,
+% Pedro Revenga, Fernando Herránz and Noelia Hernández. Thanks a lot to
+% all of them, and to the many anonymous contributors found (thanks to
+% google) that provided help in setting all this up.
+%
+% See also the additionalContributors.txt file to check the name of
+% additional contributors to this work.
+%
+% If you think you can add pieces of relevant/useful examples,
+% improvements, please contact us at (macias@depeca.uah.es)
+%
+% You can freely use this template and please contribute with
+% comments or suggestions!!!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% Contents of this file:
+% + Definition of variables controlling compilation flavours
+% + Definition of your own commands (samples provided)
+%
+% You must edit it to suit to your specific case
+%
+% Specially important are the definition of your variables (title of the
+% book, your degree, author name, email, advisors, keywords (in Spanish
+% and English), year, ... They will be used in generating the adequate
+% front and cover pages, etc. automagically...
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% BEGIN Set my own variables (control compilation for different flavours)
+
+% Control language specific modifications
+% This can be english or spanish
+\newcommand{\myLanguage}{english}
+
+% Control compilation flavour (for PFCs, TFMs, TFGs, Thesis, etc...)
+% Degree (titulación), can be:
+% GITT   - Grado en Ingeniería en Tecnologías de la Telecomunicación
+% GIEC   - Grado en Ingeniería Electrónica de Comunicaciones
+% GIT    - Grado en Ingeniería Telemática
+% GIST   - Grado en Ingeniería en Sistemas de Telecomunicación
+% GIC    - Grado en Ingeniería de Computadores
+% GII    - Grado en Ingeniería Informática
+% GSI    - Grado en Sistemas de Información
+% GISI   - Grado en Ingeniería en Sistemas de Información
+% GIEAI  - Grado en Ingeniería en Electrónica y Automática Industrial
+% GITI   - Grado en Ingeniería en Tecnologías Industriales
+% MUSEA  - Máster Universitario en Sistemas Electrónicos Avanzados. Sistemas Inteligentes
+% MUIT   - Máster Universitario en Ingeniería de Telecomunicación
+% MUII   - Máster Universitario en Ingeniería Industrial
+% MUIE   - Máster Universitario en Ingeniería Electrónica
+% MUCTE  - Máster Universitario en Ciencia y Tecnología desde el Espacio
+% PHDUAH - Doctorado UAH
+% PHDUPM - Doctorado UPM
+%
+% GEINTRARR - Geintra Research Report (alpha support)
+%
+% And the already deprecated pre-Bologna degrees (still active for
+% sentimental reasons :-)):
+% IT     - Ingeniería de Telecomunicación
+% IE     - Ingeniería Electrónica
+% ITTSE  - Ingeniería Técnica de Telecomunicación, Sistemas Electrónicos
+% ITTST  - Ingeniería Técnica de Telecomunicación, Sistemas de Telecomunicación
+% ITI    - Ingeniería Técnica Industrial, Electrónica Industrial 
+%
+% You can include additional degrees and modify Config/myconfig.tex
+% Config/postamble.tex and Book/cover/cover.tex, generating new specific
+% cover files if needed. Contact me if you want additional details
+\newcommand{\myDegree}{PHDUAH}
+
+\newcommand{\myFlagSplittedAdvisors}{true} % if false it will set
+                                % "Tutores/Advisors" in the cover
+                                % pages. Otherwise it will split in
+                                % Tutor/Cotutor Advisor/Co-advisor
+
+
+\newcommand{\mySpecialty}{} % New in TFGs from 20151218!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% General document information
+\newcommand{\myBookTitleSpanish}{Plantilla unificada para la generación de memorias de PFCs, TFGs, TFMs y tesis doctorales}
+\newcommand{\myBookTitleEnglish}{Predictive Techniques for Scene Understanding by using Deep Learning in Autonomous Driving applications}
+\newcommand{\myThesisKeywords}{Autonomous Driving, Deep Learning, Motion Prediction, Scene Understanding} % (máximo de cinco)
+\newcommand{\myThesisKeywordsEnglish}{Autonomous Driving, Deep Learning, Motion Prediction, Scene Understanding} % (up to a maximum of five)
+\newcommand{\myConfidentialContent}{No} % This can be Yes or No, used
+                                % in MUII as of July 2021
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author data
+\newcommand{\myAuthorName}{Carlos}
+\newcommand{\myAuthorSurname}{Gómez Huélamo}
+\newcommand{\myAuthorFullName}{\myAuthorName{} \myAuthorSurname{}}
+\newcommand{\myAuthorGender}{male} 
+\newcommand{\myAuthorEmail}{carlos.gomezh@uah.es}
+\newcommand{\myAuthorDNI}{TBD} 
+% Personal details for the anteproyecto request
+% Not required in some cases
+\newcommand{\myAuthorStreet}{TBD}
+\newcommand{\myAuthorCity}{TBD}
+\newcommand{\myAuthorPostalCode}{TBD}
+\newcommand{\myAuthorProvince}{TBD}
+\newcommand{\myAuthorTelephone}{TBD}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Advisor data
+\newcommand{\myAcademicTutorFullName}{Luis Miguel Bergasa Pascual} 
+\newcommand{\myAcademicTutorGender}{male}
+\newcommand{\myAcademicTutorDNI}{72781902N}
+\newcommand{\myAcademicTutorDepartmentOrInstitution}{Universidad de Alcalá} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CoAdvisor data
+\newcommand{\myCoTutorFullName}{Rafael Barea Navarro} 
+\newcommand{\myCoTutorGender}{male}
+\newcommand{\myCoTutorDNI}{18432564L}
+\newcommand{\myCoTutorDepartmentOrInstitution}{Universidad de Alcalá} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Affiliation
+\newcommand{\mySchool}{Escuela Politécnica Superior}
+\newcommand{\myUniversity}{Universidad de Alcalá}
+\newcommand{\myUniversityAcronym}{UAH}
+
+\newcommand{\myDepartment}{Departamento de Electrónica}
+\newcommand{\myDepartmentEnglish}{Departament of Electronics}
+
+\newcommand{\myPhDProgram}{Programa de Doctorado en Electrónica: Sistemas Electrónicos Avanzados. Sistemas Inteligentes}
+\newcommand{\myPhDProgramEnglish}{PhD. Program in Electronics: Advanced Electronic Systems. Intelligent Systems}
+
+\newcommand{\myResearchGroup}{RobeSafe}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tribunal members & department staff
+\newcommand{\myTribunalPresident}{TBD}
+\newcommand{\myTribunalFirstSpokesperson}{TBD}
+\newcommand{\myTribunalSecondSpokesperson}{TBD} 
+\newcommand{\myTribunalAlternateMember}{TBD}
+\newcommand{\myTribunalSecretary}{TBD}
+\newcommand{\myDepartmentSecretary}{TBD} % Por TFGs & TFMs & MUSEA-TFMs paperwork
+\newcommand{\myDepartmentSecretaryGender}{TBD}                 % Por TFGs & TFMs & MUSEA-TFMs paperwork
+\newcommand{\myTFMComisionPresident}{TBD}      % Por MUIE TFMs, no need to define gender... presidentE always
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calendar dates 
+
+\newcommand{\myThesisProposalDate}{TBD} % "Anteproyecto" date
+
+\newcommand{\myThesisDepositDate}{TBD}
+\newcommand{\myThesisDepositDateEnglish}{TBD}
+
+% For RR, myThesisDefenseDate is date to be shown in the cover
+\newcommand{\myThesisDefenseYear}{2023}
+\newcommand{\myThesisDefenseDate}{TBD}
+\newcommand{\myThesisdefenseDateEnglish}{TBD}
+% If you prefer British English for the date, use this:
+% \newcommand{\myThesisdefenseDateEnglish}{6\textsuperscript{th} of January, 2018}
+
+\newcommand{\myPaperworkDate}{TBD}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Open publication details
+\newcommand{\myAuthorizationOpenPublishing}{Yes}
+\newcommand{\myAuthorizationOpenPublishingEmbargoMonths}{24} % Can be 
+                                                          %  0,  6, 12,
+                                                          % 18, 24 
+
+%\newcommand{\myResearchVicerrector}{Excma. Sra. María Luisa Marina Alegre}
+\newcommand{\myResearchVicerrector}{Excmo. Sr. Francisco J. de la Mata de la Mata}
+\newcommand{\myResearchVicerrectorGender}{male}
+
+% Copyright related issues
+\newcommand{\myCopyrightStatement}{\myAuthorFullName{}. Some rights reserved. This document is under terms of Creative Commons license Attribution - Non Commercial - Non Derivatives.}
+\newcommand{\myLicenseURL}{http://creativecommons.org/licenses/by-nc-nd/3.0/es/}
+
+\newcommand{\myResearchReportID}{RR-2021-01}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Link color definition
+% Color links of the toc/lot/lof entries
+%\newcommand{\mytoclinkcolor}{blue}
+\newcommand{\mytoclinkcolor}{black}
+%\newcommand{\myloflinkcolor}{red}
+\newcommand{\myloflinkcolor}{black}
+%\newcommand{\mylotlinkcolor}{green}
+\newcommand{\mylotlinkcolor}{black}
+
+% This is used in cover/extralistings.tex
+%\newcommand{\myothertoclinkcolor}{magenta}
+\newcommand{\myothertoclinkcolor}{black}
+
+% Other color links in the document
+\newcommand{\mylinkcolor}{blue}
+%\newcommand{\mylinkcolor}{black}
+
+% Color links to urls and cites
+\newcommand{\myurlcolor}{blue}
+%\newcommand{\myurlcolor}{black}
+\newcommand{\mycitecolor}{green}
+%\newcommand{\mycitecolor}{black}
+
+% END Set my own variables (control compilation for different flavours)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% BEGIN My own commands section 
+% Define your own commands here
+
+% This one is to define a specific format for english text in a Spanish
+% document
+\DeclareRobustCommand{\texten}[1]{\textit{#1}}
+
+\def\ci{\perp\!\!\!\perp}
+
+% Various examples of commonly used commands
+\newcommand{\circulo}{\large $\circ$}
+\newcommand{\asterisco}{$\ast$}
+\newcommand{\cuadrado}{\tiny $\square$}
+\newcommand{\triangulo}{\scriptsize $\vartriangle$}
+\newcommand{\triangv}{\scriptsize $\triangledown$}
+\newcommand{\diamante}{\large $\diamond$}
+
+\newcommand{\new}[1]{\textcolor{magenta}{#1 }}
+\newcommand{\argmax}[1]{\underset{#1}{\operatorname{argmax}}}
+
+% This is an example used in the sample chapters
+\newcommand{\verticalSpacingSRPMaps}{-0.3cm}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Deprecated and less useful definitions, just keep them...
+\newcommand{\myFirstAdvisorFullName}{\myAcademicTutorFullName} % This is deprecated: set to academic tutor
+\newcommand{\mySecondAdvisorFullName}{\myCoTutorFullName} % This is deprecated: set to cotutor
+\newcommand{\myFirstAdvisorDNI}{\myAcademicTutorDNI} % Deprecated: set to that of academic tutor
+\newcommand{\mySecondAdvisorDNI}{\myCoTutorDNI} % Deprecated set to that of cotutor
+\newcommand{\mybookFigure}{alumno} % Deprecated, was required
+                                % for TFG's: the type of adscription of
+                                % the author signing the agreement
+                                % (should be "alumno" in most cases)
+
+\newcommand{\myUPMdegree}{Ingeniero de Telecomunicación} % Used in UPM
+
+% END My own commands section 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%% Local Variables:
+%%% TeX-master: "../book"
+%%% End:
+
+

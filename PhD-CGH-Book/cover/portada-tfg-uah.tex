@@ -1,0 +1,154 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% 
+% Generic template for TFC/TFM/TFG/Tesis
+% 
+% $Id: portada-tfg-uah.tex,v 1.14 2018/12/12 15:30:46 macias Exp $
+% 
+% By:
+% + Javier Macías-Guarasa. 
+% Departamento de Electrónica
+% Universidad de Alcalá
+% + Roberto Barra-Chicote. 
+% Departamento de Ingeniería Electrónica
+% Universidad Politécnica de Madrid   
+% 
+% Based on original sources by Roberto Barra, Manuel Ocaña, Jesús Nuevo,
+% Pedro Revenga, Fernando Herránz and Noelia Hernández. Thanks a lot to
+% all of them, and to the many anonymous contributors found (thanks to
+% google) that provided help in setting all this up.
+% 
+% See also the additionalContributors.txt file to check the name of
+% additional contributors to this work.
+% 
+% If you think you can add pieces of relevant/useful examples,
+% improvements, please contact us at (macias@depeca.uah.es)
+% 
+% You can freely use this template and please contribute with
+% comments or suggestions!!!
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\thispagestyle{empty}
+
+% To add background watermark
+\BgThispage
+
+% Nice example of tikz
+% \begin{tikzpicture}[remember picture,overlay]
+%   \node [xshift=1cm,yshift=1cm] at (current page.south west)
+%   [text width=7cm,fill=red!20,rounded corners,above right]
+%   {
+%   This is an absolutely positioned text in the
+%   lower left corner. No shipout-hackery is used.
+% };
+% \end{tikzpicture}
+
+% Add opacity here explicitly see:
+% https://tex.stackexchange.com/questions/649514/how-to-produce-a-transparent-image-with-xelatex/649518#649518
+% https://tex.stackexchange.com/questions/640574/using-a-tikzpicture-disables-opacity-for-first-bgthispage-how-can-i-fix-this
+% Remember to also change the default value in Config/preamble.tex if you need
+% to modify it.
+\begin{tikzpicture}[remember picture,overlay]
+  \node[yshift=-5cm] at (current page.north west)
+  {
+    \begin{tikzpicture}[remember picture, overlay]
+      \draw[fill=headingPortadaTFG,headingPortadaTFG, fill opacity=1] (0,0) rectangle (\paperwidth,5cm);
+      \node [yshift=3cm, xshift=0.5\paperwidth, font=\Huge, text centered, midway] {\color{textoHeadingPortadaTFM}\textbf{\myUniversity}};
+      \node [yshift=2cm, xshift=0.5\paperwidth, font=\Huge, text centered, midway] {\color{textoHeadingPortadaTFM}\textbf{\mySchool}};
+    \end{tikzpicture}
+  };
+\end{tikzpicture}
+
+\large
+\vspace{5cm}
+\begin{center}
+
+  % titulación a la que se opta
+  \LARGE\textbf{\myDegreefull}
+
+  \vspace{25mm}
+
+  \LARGE\textbf{\myWorkTypeFull}
+
+  \LARGE{\myBookTitle}
+
+  \vspace{5cm}
+
+  \ifthenelse{\equal{\myLanguage}{english}}
+  {
+    \textbf{Author:}  \myAuthorFullName 
+  }
+  {
+    \textbf{Autor:}  \myAuthorFullName 
+  }
+
+  \vspace{0.5cm}
+
+  % If also director: add corresponding line (mybookDirectors IS NOT DEFINED AS FOR ME (JMG)
+  % \ifthenelse{\equal{\myLanguage}{english}}
+  % {
+  % \textbf{\expandafter\makefirstuc\expandafter{\wordAdvisorOrAdvisors}:} \myAdvisors
+  % }
+  %   {
+  %   \textbf{\expandafter\makefirstuc\expandafter{\wordTutorOrTutores}:}  \myAdvisors
+  % %   \textbf{\expandafter\makefirstuc\expandafter{\wordDirectorOrDirectores}:}  \mybookdirectors
+  % }
+
+  %   ---
+  \ifthenelse{\equal{\myFlagSplittedAdvisors}{true}}
+  {
+    \ifthenelse{\equal{\myLanguage}{english}}
+    {
+      % \expandafter\makefirstuc\expandafter{\wordAdvisorOrAdvisors}: \myAdvisors
+      \textbf{\expandafter\makefirstuc\expandafter{\wordAdvisor}:} \myAcademicTutorFullName{}
+
+      \ifthenelse{\equal{\myCoTutorFullName}{}}
+      {
+      }
+      {
+        \textbf{\expandafter\makefirstuc\expandafter{\wordCoAdvisor}:} \myCoTutorFullName{}
+      }
+
+    }
+    {%
+      % \expandafter\makefirstuc\expandafter{\wordDirectorOrDirectores}: \myAdvisors
+      % \expandafter\makefirstuc\expandafter{\wordTutorOrTutores}: \myAdvisors
+      \textbf{\expandafter\makefirstuc\expandafter{\wordTutorOrTutora}:}    \myAcademicTutorFullName{}
+
+      \ifthenelse{\equal{\myCoTutorFullName}{}}
+      {
+      }
+      {
+        \textbf{\expandafter\makefirstuc\expandafter{\wordCoTutorOrCoTutora}:} \myCoTutorFullName{}
+      }
+    }
+  }
+  {
+    \ifthenelse{\equal{\myLanguage}{english}}
+    {
+      \textbf{\expandafter\makefirstuc\expandafter{\wordAdvisorOrAdvisors}:} \myAdvisors
+    }
+    {
+      \textbf{\expandafter\makefirstuc\expandafter{\wordTutorOrTutores}:} \myAdvisors
+    }
+  }  
+
+
+  % ---
+
+
+\end{center}
+
+\begin{bottomparagraph}
+  \begin{center}
+    \huge{\myThesisDefenseYear}
+  \end{center}
+\end{bottomparagraph}
+
+% \newpage
+\clearemptydoublepage
+
+
+%%% Local Variables:
+%%% TeX-master: "../book"
+%%% End:
