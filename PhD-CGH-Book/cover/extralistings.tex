@@ -28,21 +28,29 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Include acronyms (CGH)
+
+\ifthenelse{\equal{\myLanguage}{english}}
+{
+	\listof{codefloat}{List of Acronyms}
+	\addcontentsline{toc}{chapter}{List of Acronyms}
+}
+{
+	\listof{codefloat}{Índice de listado de acrónimos}    
+	\addcontentsline{toc}{chapter}{Índice de listado de acrónimos}
+}
+
 % Include the list of source code listings (if this is the case)
-\begin{comment}
-	\hypersetup{linkcolor=\myothertoclinkcolor}
-	\ifthenelse{\equal{\myLanguage}{english}}
-	{
-		\listof{codefloat}{List of source code listings}
-		\addcontentsline{toc}{chapter}{List of source code listings}
-	}
-	{
-		\listof{codefloat}{Índice de listados de código fuente}    
-		\addcontentsline{toc}{chapter}{Índice de listados de código fuente}
-	}
-\end{comment}
-
-
+\hypersetup{linkcolor=\myothertoclinkcolor}
+\ifthenelse{\equal{\myLanguage}{english}}
+{
+	\listof{codefloat}{List of Source Code}
+	\addcontentsline{toc}{chapter}{List of Source Code}
+}
+{
+	\listof{codefloat}{Índice de listados de código fuente}    
+	\addcontentsline{toc}{chapter}{Índice de listados de código fuente}
+}
 
 \ifthenelse{\equal{\myLanguage}{english}}
 {
@@ -69,7 +77,7 @@
 
 }
 
-\listofalgorithms
+%\listofalgorithms
 
 \hypersetup{linkcolor=\mylinkcolor}
 

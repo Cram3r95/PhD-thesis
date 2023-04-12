@@ -33,8 +33,7 @@
 % rubber: onchange book.glo 'makeglossaries book'
 % rubber: watch book.glo book.acr book.sym book.slg book.alg
 
-
-\documentclass[spanish,openright]{book}
+\documentclass[english,openright]{book}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % BEGIN Preamble and configuration section
@@ -55,7 +54,7 @@
 \input{../Config/glossaries.tex}  % EDIT THIS FILE to include your glossaries
 
 \input{../Config/postamble.tex}   % DO NOT TOUCH THIS LINE. Yes, I know,
-                               % "postamble" is not a valid word... :-)
+                                  % "postamble" is not a valid word... :-)
 
 % path to directories containing images
 \graphicspath{{./logos/}{./figures/}{./diagrams/}} % Edit this to your
@@ -82,7 +81,7 @@
 
 % Set Language dependent issues that must be set after \begin{document}
 \input{../Config/setlanguagedependentissues.tex} % DO NOT TOUCH THIS LINE
-                                              % NOR THE FILE
+                                                 % NOR THE FILE
 
 % This will include front page (if needed), and cover pages. Selection
 % of the adequate one is done automagically depending on values set by
@@ -117,6 +116,7 @@
 % Dedication+ackowledgements (dedicatorias+agradecimientos)
 \input{dedication/dedicatoria.tex}            % EDIT this file or
                                               % comment it out
+                                              
 \input{acknowledgements/agradecimientos.tex}  % EDIT this file or
                                               % comment it out
 
@@ -161,13 +161,11 @@
 % END within-document configuration, frontpage and cover pages generation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Now start text and numbering for mainmatter (chapter+appendices)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \mainmatter                                       % DO NOT TOUCH THIS LINE!
 \deactivatetilden                                 % DO NOT TOUCH THIS LINE!
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -211,7 +209,6 @@
 % Bibliography
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{biblio/bibliography.tex}               % EDIT this file if required
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % BEGIN Appendices. Edit/modify all within this section

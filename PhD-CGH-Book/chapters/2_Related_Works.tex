@@ -48,12 +48,31 @@
 	\end{Fuente}
 \end{FraseCelebre}
 
-
 \section{Introduction}
 \label{sec:2_introduction}
 
+https://www2.eecs.berkeley.edu/Pubs/TechRpts/2020/EECS-2020-111.pdf
+
+\cite{huang2022survey}
+
 \section{Physic-based Motion Prediction}
 \label{sec:2_physic_based_mp}
+
+Physics-based trajectory prediction (PTP) methods represent the motion of vehicles with dynamic or kinematic motion models compliant with the laws of physics. A future trajectory is predicted via state evolution based on these models. Linear models (constant velocity (CV) and constant acceleration (CA) models), which assume straight motion, are the simplest models. The straight motion assumption of
+CV and CA oversimplifies vehicular motion because of rotation ignorance. Curvilinear models take into consideration the turn rate (TR) of the vehicle. Similar to
+linear models, curvilinear models contain two types, namely Constant Turn Rate
+and Velocity (CTRV) and Constant Turn Rate and Acceleration (CTRA) models. Coupling steering angle and velocity leads to Constant Steering Angle and
+Velocity (CSAV) and Constant t Steering Angle and Acceleration (CSAA) models.
+Authors of [25] compare and evaluate these models. More details of these models
+can be found in their work. These models can be used for physics-based trajectory
+prediction in many ways.
+Inspired by the taxonomies provided in [23, 24], we subdivide physics-based methods into state retention-based methods, reachable set-based methods, Monte Carlo
+simulation-based methods, and state estimation-based methods. State retention
+methods produce a single trajectory according to the target vehicle’s current states,
+while reachable set-based methods produce a union of all reachable states. Monte
+Carlo simulation-based methods try to approximate the distribution of the target
+vehicle’s future motion, and state estimation-based methods introduce uncertainty
+estimation into physics-based methods
 
 \section{Deep Learning based Motion Prediction}
 \label{sec:2_dl_based_mp}
