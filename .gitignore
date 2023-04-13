@@ -535,3 +535,6 @@ xcuserdata/
 # Zipped files with the template distribution
 00*zip
 00*tgz
+
+# PhD thesis Carlos Gómez-Huélamo
+references/**
