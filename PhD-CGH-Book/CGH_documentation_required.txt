@@ -19,7 +19,7 @@ Qué me falta:
 
 a 
 
-"Predictive Techniques for Scene Understanding by using Deep Learning in Autonomous Driving applications"
+"Predictive Techniques for Scene Understanding by using Deep Learning in Autonomous Driving"
 
 2. Redacción: TBD (en inglés)
 3. Expertos internacionales: TBD
@@ -31,5 +31,5 @@ a
 2. Related Works
 3. Theoretical background
 4. Predictive Techniques for Scene Understanding
-5. Applications
+5. Autonomous Driving applications
 6. Conclusions and Future Works
