@@ -31,5 +31,8 @@ a
 2. Related Works
 3. Theoretical background
 4. Predictive Techniques for Scene Understanding
+	Para escribir mejor la GCN, recurrir a:
+		Dynamic_Scenario_Representation_Learning_for_Motion_Forecasting_with_Heterogeneous_Graph_Convolutional_Recurrent_Networks
 5. Autonomous Driving applications
 6. Conclusions and Future Works
+
