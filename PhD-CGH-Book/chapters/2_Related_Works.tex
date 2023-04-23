@@ -48,24 +48,23 @@ begin{FraseCelebre}
 \end{Fuente}
 \end{FraseCelebre}
 
-\begin{comment}
-	TODO:
-	1. Hacer intro general
-	2. CBP vs PMP (https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9981524)
-	3. Problem Formulation
-	4. Contextual
-	5. Classification
-	5.1. Physics  (1)
-	5.2. Machine Learning (1)
-	5.2. Deep Learning (4)
-	5.3. Reinforcement Learning (1)
-	5.4. Comparison
-	6. Some particular methods of interest of DL (CRAT-PRED, LaneGCN, GANet) -> Destacar puntos débiles
-\end{comment}
+One of the crucial tasks that \acp{ADS} must face during navigation, specially in arbitrarily complex urban scenarios, is to predict the behaviour of dynamic obstacles \cite{chang2019argoverse, salzmann2020trajectron++}. In a similar way to humans that pay more attention to nearby obstacles and upcoming turns than considering the obstacles far away, the perception layer of an \ac{ADS} must focus more on the salient regions of the scene, particularly on the more relevant dynamic agents to predict their future behaviour before conducting a maneuver, such as lane changing or accelerating. In that sense, before proceeding with the study of the different methods of the \ac{SOTA} of \ac{MP} in the field of \ac{AD}, one important thing to note is that this thesis is focused on non-conditional motion prediction, also referred as Passive Motion Prediction (PMP), where the prediction of surrounding agents is not influenced by the future decisions of the ego-vehicle or even other agents, referred as Conditional Motion Prediction (CMP) in the literature. Most existing works \cite{gilles2021home, gilles2022gohome, varadarajan2022multipath++, wang2022ganet, schmidt2022crat, liang2020learning} focus on a passive prediction scheme, where the future states of a particular agent are predicted given its past information, other surrounding agents information and interactions as well as the physical context. Then, downstream planning modules, specially the behaviour planning module (also referred as decision-making layer, as stated in Section \ref{sec:1_ad_architecture}), the ego-vehicle (our vehicle) future actions are computed according to the predicted trajectories in a passive manner, that is, without modifying the output of the prediction model, and the global route previously calculated. \\
 
-One of the crucial tasks that \acp{ADS} must face during navigation, specially in arbitrarily complex urban scenarios, is to predict the behaviour of dynamic obstacles \cite{chang2019argoverse, salzmann2020trajectron++}. In a similar way to humans that pay more attention to nearby obstacles and upcoming turns than considering the obstacles far away, the perception layer of an \ac{ADS} must focus more on the salient regions of the scene, particularly on the more relevant dynamic agents to predict their future behaviour before conducting a maneuver, such as lane changing or accelerating. \\ 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\linewidth]{2_cmp_vs_pmp.pdf}
+	\caption{Example of a Conditional Motion Prediction (CMP) network. We \textcolor{magenta}highlight the influence of the \ac{AD} in the prediction of surrounding agents}
+	Source: \textit{Conditional Predictive Behavior Planning with Inverse Reinforcement Learning for Human-like Autonomous Driving} \cite{huang2023conditional}
+	\label{fig:2_cmp_vs_pmp}
+\end{figure}
 
-CONTINUAR
+Nevertheless, to ensure safety under various predicted trajectories of the surrounding agents, our \ac{ADS} must overly conservative with inefficient maneuvers, specifically in arbitrarily complex traffic scenarios, because passive \ac{MP} models ignore the fact that the future states of an agent can influence the future actions of other agents, what is the most realistic situation. To this end, researchers recently started to explore a more coherent interactive prediction and planning framework which relies on predicting the surrounding agents future trajectories conditioned on the ego-vehicle future actions \cite{tang2019multiple} \cite{rhinehart2019precog} \cite{khandelwal2020if}, as a preliminary state to implement a fully-interaction graph where the future states of all agents (either autonomous prototypes or human-driven) influence in the decision of all agents. Under such frameworks, the \acs{ADS} can reason over potential actions while considering its influence on surrounding agents, as observed in Figure \ref{fig:2_cmp_vs_pmp}, inducing less conservative and more efficient maneuvers in highly interactive scenarios. \cite{huang2023conditional} propose a learning-based behaviour planning framework that learns to predict conditional multi-agent future trajectories, evaluating decisions from real-world human data. Moreover, they propose a two-stage learning process where the prediction model is trained first conditioned on the \ac{ADS} future actions, and then used as an environment model in the learning of the cost function with maximum entropy Inverse Reinforcement Learning (IRL). \cite{tang2022interventional} argue that CMP-based models essentially learns the posterior distribution of future trajectories conditioned on the future states of the ego-vehicle, where this future trajectory is treated as an observation, whilst safe and realistic prediction models should build the \ac{MP} to approximate the future trajectory distribution under the intervention of enforcing the \ac{ADS} future states, referring this new task as Interventional Behaviour Prediction (IBP). As aforementioned, the algorithms developed throughout this thesis do not focus on the joint study of the prediction and behaviour planning modules, but on studying efficient and powerful PMP algorithms without considering the future states of the autonomous agents as an additional condition. \\
+
+Once the difference between CMP and PMP is stated
+
+
+
+
 
 
 
@@ -178,92 +177,7 @@ After classifying main SOTA methods, we conclude this section presenting the mai
 \section{Problem Formulation of Motion Prediction}
 \label{sec:2_problem_formulation_mp}
 
-Given a sequence of past trajectories $a_{P}=[a_{-T^{'}+1},a_{-T^{'}+2},...,a_{0}]$ for an agent, we aim to predict its future steps $a_{F}=[a_{1},a_{2},...,a_{T}]$ up to a fixed time step $T$. Running in a specific traffic scenario, each actor will interact with static HD maps $m$ and the other dynamic actors, meeting the corresponding traffic and social rules. Therefore, the probabilistic distribution that we want to capture is $p(a_F|m, a_P, a^O_P)$, where $a^O_P$ denotes the other actors' observed states. One important thing to note is that this thesis is focused on non-conditional motion prediction, different to Conditional Behaviour Prediction (CBP). Most existing works focus on a passive prediction scheme, where the future states of a particular agent are predicted given its past information, other surrounding agents information and interactions as well as the physical context. However, when using such a \ac{MP} model, downstream planning modules, specially the behaviour planning (also referred as decision-making, as stated in Section \ref{sec:1_ad_architecture}), determine the ego-vehicle (our vehicle) action according to the predicted trajectories in a passive manner, that is, without modifying the output of the prediction model. Nevertheless, to ensure safety under various predicted trajectories of the surrounding agents, our vehicle must overly conservative with inefficient maneuvers, especially un highly interactive scenarios, because passive \ac{MP} models ignore the fact that the future actions of an agent can influence the future actions of other agents, what is the most realistic situation. To this end, researchers started to investigate a more coherent interactive prediction and planning framework which relies on predicting the surrounding agents future trajectories conditioned on the ego-vehicle future actions \cite{tang2019multiple} \cite{rhinehart2019precog} \cite{khandelwal2020if}. Under such frameworks, the \acs{ADS} can reason 
-
-surrounding agents’ future trajectories conditioned on the
-ego agent’s future actions [3], [4], [5], [6], [7], [8], [9], [10].
-Under such frameworks, the autonomous agents can reason
-over potential actions while considering their influence on
-surrounding agents. It can then induce more efficient and
-less conservative maneuvers in interactive scenes. Some of
-these prior works merely demonstrated that their models are
-able to support conditional prediction from the perspective
-of architecture [4], [6]. Another line of works focused on
-
-More interestingly, some existing works formulated an
-alternative prediction task to evaluate the prediction module
-in a self-contained way [8], [7], [10]. We follow [10] to
-refer to this task as conditional behavior prediction (CBP). In
-the CBP task, the future trajectories of the target agents are
-predicted conditioned on the ground-truth future trajectory
-of an assigned ego agent. Standard prediction metrics are
-adopted to quantify the performance. It allows us to leverage
-large-scale naturalistic traffic datasets to develop and validate
-a conditional prediction model before closed-loop testings. In
-those works, a model that can achieve the smallest prediction
-error after granted the additional future information of the
-ego agent is considered the best. However, we can only
-evaluate the prediction accuracy given the actual future
-trajectory of the ego agent with a static offline dataset. It
-is impossible to quantify the model performance when it is
-queried by an arbitrary plan of the ego agent. Therefore, we
-should be careful when interpreting the evaluation results.
-In particular, we argue that it is risky to train and evaluate
-the model for conditional inference. In the current CBP
-task, the prediction model essentially learns the posterior
-distribution of future trajectories conditioned on the future
-trajectory of the ego agent. In this way, the ego agent’s
-future trajectory is treated as an observation. Since the actual
-ego agents in the offline dataset make decisions according to
-the states of the surrounding agents, the surrounding agents
-under CBP are implicitly assumed to get additional hints
-on the future behavior of the ego agents. With such an
-unrealistic assumption, it is natural to consider the CBP
-model with the lowest prediction error as the best option
-for the CBP task. However, the surrounding agents in the
-real world are not informed of the planned trajectories of
-the ego agents. Consequently, as illustrated in Fig. 1, there
-will be a discrepancy between: 1) what an autonomous agent
-is informed by querying a CBP model with a potential plan;
-and 2) how the others will actually react if the agent executes
-the plan. As we will show later, this discrepancy may lead
-to overly confident anticipation on the ego agent’s influence
-on the surroundings, resulting in potential safety hazards.
-This discrepancy is formally captured in the theory of
-causality [11] by the difference between observation and
-intervention. With an intervention to a set of random vari-
-ables, we enforce the value of a random variable without
-treating it as the consequence of other random variables.
-The resulting distribution of the remaining random variables
-under the intervention is consistent with what will actually
-happen if we have the privilege to manipulate the target
-random variable as desired. Consequently, we argue that we
-should build the prediction model to approximate the future
-trajectory distribution under the intervention of enforcing
-the ego agent’s future trajectory. We refer to this new
-task as the interventional behavior prediction (IBP) task.
-In IBP, we still want to train and evaluate the model with
-an offline dataset. The task setting is essentially the same
-as CBP, except for learning an interventional distribution
-instead of a conditional one. The remaining issue is then
-how to properly evaluate an IBP model with an offline
-dataset. Without knowing the ground-truth distribution under
-intervention, we can only compare the model’s output against
-the ground-truth future trajectories for evaluation. However,
-such evaluation metrics are naturally biased toward a CBP
-model. The dataset is collected without intervention. The
-ego agent in the dataset follows an internal reactive policy.
-Therefore, the distribution of ground-truth labels given the
-same input essentially follows a conditional distribution. As
-a result, a CBP model will always outperform an IBP model
-if prediction accuracy is the only evaluation metric with an
-offline dataset.
-To this end, we propose to verify the inherent temporal
-independence of a prediction model before comparing the
-prediction performance to ensure a proper evaluation for the
-IBP task. Under the interventional distribution, the predicted
-states of the target agents at earlier timesteps should be
-independent from the ego agent’s states at latter timesteps.
+Given a sequence of past trajectories $a_{P}=[a_{-T^{'}+1},a_{-T^{'}+2},...,a_{0}]$ for an agent, we aim to predict its future steps $a_{F}=[a_{1},a_{2},...,a_{T}]$ up to a fixed time step $T$. Running in a specific traffic scenario, each actor will interact with static HD maps $m$ and the other dynamic actors, meeting the corresponding traffic and social rules. Therefore, the probabilistic distribution that we want to capture is $p(a_F|m, a_P, a^O_P)$, where $a^O_P$ denotes the other actors' observed states. 
 
 
 
