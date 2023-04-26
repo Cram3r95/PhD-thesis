@@ -110,9 +110,10 @@
 \usepackage{booktabs}
 \usepackage{adjustbox}
 \usepackage{graphicx}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 
 %% FIXING PROBLEM WITH ALL PAGES PRINTED IN COLOR
-\usepackage{xcolor}
+% \usepackage{xcolor}
 % \usepackage[RGB,rgb]{xcolor}
 % \usepackage{color}
 % Pantone 160
@@ -134,6 +135,8 @@
 %   \definecolor{textoHeadingPortadaTFM}{cmyk}{0,0.0144,0.51,0.184}
 % }
 
+% http://latexcolor.com/
+
 \definecolor{pantone293}{RGB}{35,91,168}
 
 \definecolor{headingPortadaTFG}{RGB}{152,118,52}
@@ -145,8 +148,8 @@
 \definecolor{gray75}{gray}{.75}
 \definecolor{gray45}{gray}{.45}
 
-
-
+\definecolor{ForestGreen}{RGB}{34,139,34}
+\definecolor{YellowOrange}{rgb}{1.0, 0.75, 0.0}
 
 % To draw rectagles in tfm cover
 \usepackage{tikz}

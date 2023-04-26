@@ -46,9 +46,32 @@
 \section{Kalman Filtering}
 \label{sec:3_kf}
 
-https://arxiv.org/pdf/1710.04055.pdf
+% https://arxiv.org/pdf/1710.04055.pdf
+% https://github.com/NickNair/Multiple-Object-Tracking-using-Kalman-Filter
 
-\section{Physic-based Motion models}
+Let's say we have a physical, dynamic system
+\begin{itemize}
+	\item Normally, we want to measure the states
+	\item This can be problematic, due to real-world limitations on sensors
+	\item So we use filters and observers
+\end{itemize}
+
+Unfortunate things about the real world we are all familiar with
+\begin{itemize}
+	\item Not all quantities can be directly measured
+	\item Size \& Cost
+	\item Noise \& Biases
+\end{itemize}
+
+
+	%\frametitle{History of the Kalman Filter}
+	Developed around 1960 mainly by Rudolf E. Kalman.  It was originally designed for aerospace guidance applications.  
+	While it is the optimal observer for system with noise, this only true for the linear case.  
+	A non-linear Kalman Filter can not be proven to be optimal.
+	
+
+
+\section{State Transition Equations of Physic-based Models}
 
 The estimation of a vehicle's dynamic state is one of the most fundamental data fusion tasks for intelligent traffic applications. For that, motion models are applied in order to increase the accuracy and robustness of the estimation. This paper surveys numerous (especially curvilinear) models and compares their performance using a tracking tasks which includes the fusion of GPS and odometry data with an Unscented Kalman Filter. For evaluation purposes, a highly accurate reference trajectory has been recorded using an RTK-supported DGPS receiver. With this ground truth data, the performance of the models is evaluated in different scenarios and driving situations.
 
@@ -69,14 +92,6 @@ A second level of complexity can be defined by taking rotations around the $z$-a
 ${ }^{1}$ However, note that the measurement equation is necessarily nonlinear if the orientation angle is included in the state vector.
 
 ${ }^{2}$ Note that in literature, this model is sometimes referred to as CTR However, in order to obtain a consistent nomenclature, CTRV will be consequently used throughout this paper.
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.8\linewidth]{3_linear_curvilinear_mp.pdf}
-	\caption{Overview about linear and curvilinear motion models. Every sophisticated model can be transformed into a simpler one by setting one state veriable to zero}
-	Source: \textit{Comparison and evaluation of advanced motion models for vehicle tracking} \cite{schubert2008comparison}
-	\label{fig:3_linear_curvilinear_mp}
-\end{figure}
 
 Fig. 1. Overview about linear and curvilinear motion models. Every sophisticated model can be transformed into a simpler one by setting one state veriable to zero.
 
