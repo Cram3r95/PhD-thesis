@@ -44,6 +44,39 @@
 \section{Motion Prediction Datasets}
 \label{sec:5_datasets}
 
+\begin{table}[t]
+	\caption{Comparison between the Argoverse 2 Motion Forecasting dataset and other recent motion forecasting datasets. Hyphens "-" indicate that attributes are either not applicable, or not available. We define ``mined for interestingness'' to be true if interesting scenarios/actors are mined \textit{after data collection}, instead of taking all/random samples. $\dagger$ Public leaderboard counts as retrieved on Aug. 27, 2021.}
+	\label{forecasting-comparison}
+	\centering
+	\begin{adjustbox}{max width=\columnwidth}
+		\begingroup
+		\renewcommand{\arraystretch}{1.25} %
+		\begin{tabular}{rccccccc}
+			\toprule
+			& \textsc{Argoverse 1}~\cite{chang2019argoverse} & \textsc{Interaction}~\cite{zhan2019interaction} & \textsc{Lyft}~\cite{john2020one} & \textsc{Waymo}~\cite{ettinger2021large} & \textsc{NuScenes}~\cite{caesar2020nuscenes} & \textsc{Yandex}~\cite{malinin2021shifts} & \textsc{Argoverse 2}~\cite{malinin2021shifts} \\
+			\midrule
+			\textsc{\# Scenarios} & 324k & - & 170k & 104k & 41k & 600k & 250k \\
+			\textsc{\# Unique Tracks} & 11.7M  & 40k & 53.4M & 7.6M & - & 17.4M & 13.9M  \\
+			\textsc{Average Track Length} & 2.48 s & 19.8 s & 1.8 s & 7.04 s & - & - & 5.16 s  \\
+			\textsc{Total Time} & 320 h & 16.5 h & 1118 h & 574 h & 5.5 h & 1667 h & 763 h \\
+			\textsc{Scenario Duration} & 5 s & - & 25 s & 9.1 s & 8 s & 10 s & 11 s \\
+			\textsc{Test Forecast Horizon} & 3 s & 3 s & 5 s & 8 s & 6 s & 5 s & 6 s \\
+			\textsc{Sampling Rate} & 10 Hz & 10 Hz & 10 Hz & 10 Hz & 2 Hz & 5 Hz & 10 Hz \\
+			\textsc{\# Cities} & 2 & 6 & 1 & 6 & 2 & 6 & 6  \\
+			\textsc{Unique Roadways} & 290 km & 2 km & 10 km & 1750 km & - & - & 2220 km \\
+			\textsc{Avg. \# tracks per scenario} & 50 & - & 79 & - & 75 & 29 & 73\\
+			\textsc{\# Evaluated object categories} & 1 & 1 & 3 & 3 & 1 & 2 & 5 \\
+			\textsc{Multi-agent evaluation} & $\times$ & \checkmark & \checkmark & \checkmark & $\times$ & \checkmark &\checkmark \\
+			\textsc{Mined for Interestingness} & \checkmark & $\times$ & - & \checkmark & $\times$ & $\times$ & \checkmark \\
+			\textsc{Vector Map} & \checkmark & $\times$ & $\times$ & \checkmark & \checkmark & $\times$ &\checkmark \\
+			\textsc{Download Size} & 4.8 GB  & -  & 22 GB  & 1.4 TB  & 48 GB & 120 GB & 58 GB \\
+			\textsc{\# Public Leaderboard Entries}$^\dagger$ & 194  & -  & 935  & 23 & 18 & 3 & - \\
+			\bottomrule
+		\end{tabular}
+		\endgroup
+	\end{adjustbox}
+\end{table}
+
 \section{Multi-Object Tracking}
 \label{sec:5_mot}
 
