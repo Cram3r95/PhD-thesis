@@ -225,11 +225,13 @@ As aforementioned, SVM can be effective in classification problems, but in the f
 
 In real life, we can only observe the distinct state that is exposed on the surface, but no intuitive representation of its hidden states exists. Therefore, it is necessary to establish a Markov process with hidden states and get the essential states of events through the observable states set related to the hidden states probability, which is the so-called Hidden Markov Model. HMM is represented by $(S, O, A, B, \pi)[50]$, as shown in Figure \ref{fig:2_hmm_mp}:
 
-- $S=\left\{S_1, S_2, \cdots S_N\right\}$ represents the hidden states sequence.
-- $O=\left\{O_1, O_2, \cdots O_M\right\}$ represents the observation sequence.
-- $A$ represents the transition probability matrix between hidden states.
-- $B$ is the output matrix, representing the transition probability of hidden states to output states.
-- $\pi$ is the initial probability matrix, representing the initial probability distribution in hidden states.
+\begin{itemize}
+	\item $S=\left\{S_1, S_2, \cdots S_N\right\}$ represents the hidden states sequence
+	\item $O=\left\{O_1, O_2, \cdots O_M\right\}$ represents the observation sequence
+	\item $A$ represents the transition probability matrix between hidden states
+	\item $B$ is the output matrix, representing the transition probability of hidden states to output states
+	\item $\pi$ is the initial probability matrix, representing the initial probability distribution in hidden states
+\end{itemize}
 
 When HMM is used in the trajectory prediction, the historical states of traffic participants are represented by observation sequence $O$, and HMM solves the most likely future observation sequence. \cite{deng2018improved} combine HMM with Fuzzy Logic for driver maneuver prediction. In \cite{wang2021decision}, HMM is used for trajectory prediction and risk assessment, and the results of are fed into the decision-making and planning system. Although traditional HMM methods have achieved a great success in predicting driver’s maneuvers, they do not consider the impact of interaction-related factors in the prediction process, such that its prediction results are not accurate enough in actual traffic scenes. To solve this issue, \cite{deo2018would} propose a vehicle trajectory prediction model based on HMM and Variational Gaussian Mixture Models (GMM) considering interaction-related factors. The vehicle interaction information is obtained by finding the optimal solution of the energy function.
 
@@ -292,7 +294,7 @@ where $r$ is the approximation of reward function; $\Phi$ is a function to outpu
 \subsubsection{Generative Adversarial Imitation Learning (GAIL)}
 \label{subsubsec:2_gail_mp}
 
-Instead of learning the reward function from experts’ demonstration with IRL, Generative Adversarial Imitation Learning (GAIL) \cite{ho2016generative} uses the method of GAN to do imitation learning in RL. GAIL directly extracts policies from data where, as proposed by a \ac{GAN} \cite{goodfellow2020generative}, the core idea of GAIL is that the generator generates a trajectory similar to the expert trajectory as much as possible, and the discriminator tries to judge whether it is an expert trajectory as much as possible. Many articles use GAIL to complete trajectory prediction for \ac{AD}. \cite{kuefler2017imitating} extend GAIL to the optimization of RNN to demonstrate human driver behaviors, and policies and actions are evaluated by the discriminator. In \cite{bhattacharyya2022modeling}, a parameter-sharing extension of GAIL is proposed to model the interaction between multi-agent and can provide agents with domain-specific knowledge. To overcome the shortcomings of GAIL, which only models the next state using the current state, \cite{choi2021trajgail} propose a method combining a partially observable Markov decision process (POMDP) within the GAIL framework, and the model is trained using the reward function from the discriminator.
+Instead of learning the reward function from experts’ demonstration with IRL, Generative Adversarial Imitation Learning (GAIL) \cite{torabi2018generative} uses the method of GAN to do imitation learning in RL. GAIL directly extracts policies from data where, as proposed by a \ac{GAN} \cite{goodfellow2020generative}, the core idea of GAIL is that the generator generates a trajectory similar to the expert trajectory as much as possible, and the discriminator tries to judge whether it is an expert trajectory as much as possible. Many articles use GAIL to complete trajectory prediction for \ac{AD}. \cite{kuefler2017imitating} extend GAIL to the optimization of RNN to demonstrate human driver behaviors, and policies and actions are evaluated by the discriminator. In \cite{bhattacharyya2022modeling}, a parameter-sharing extension of GAIL is proposed to model the interaction between multi-agent and can provide agents with domain-specific knowledge. To overcome the shortcomings of GAIL, which only models the next state using the current state, \cite{choi2021trajgail} propose a method combining a partially observable Markov decision process (POMDP) within the GAIL framework, and the model is trained using the reward function from the discriminator.
 
 \subsubsection{Deep Inverse Reinforcement Learning (DIRL)}
 \label{subsubsec:2_dirl_mp}

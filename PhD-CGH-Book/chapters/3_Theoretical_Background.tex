@@ -31,11 +31,13 @@
 
 \begin{FraseCelebre}
 	\begin{Frase}
-		Desde que el mundo cambió, estamos mucho más unidos \\
-		con los Digimon, luchamos juntos contra el mal. \\ 
+		Desde que el mundo cambió, \\
+		estamos mucho más unidos con los Digimon, \\
+		luchamos juntos contra el mal. \\ 
 
-		Algo extraño pasaba, Digievolucionaban, \\
-		en tamaño y color, ellos son los Digimon. \\
+		Algo extraño pasaba, \\
+		Digievolucionaban, en tamaño y color, \\
+		Ellos son los Digimon. \\
 	\end{Frase}
 	\begin{Fuente}
 		Opening 1 de Digimon: "Butterfly" \\
@@ -141,7 +143,7 @@ The Hungarian algorithm has a time complexity of O($n^3$), which makes it one of
 			}
 		}
 	}
-	\caption{The Hungarian algorithm for solving the minimum cost perfect matching problem.}
+	\caption{The Hungarian algorithm for solving the minimum cost perfect matching problem}
 	\label{alg:3_ha}
 \end{algorithm}
 
@@ -162,274 +164,87 @@ As stated in Chapter \ref{cha:related_works} Section \ref{subsubsec:2_single_tra
 	\label{fig:3_linear_curvilinear_mp}
 \end{figure}
 
-As illustrated in Figure \ref{fig:3_linear_curvilinear_mp}, several single-trajectory prediction models have been proposed in the literature, including Constant Velocity (CV), Constant Acceleration (CA), Constant Turn Rate and Velocity (CTRV), Constant Turn Rate and Acceleration (CTRA), Constant Speed and Angular Velocity (CSAV), and Constant Curvature Acceleration (CCA)/Constant Speed and Angular Acceleration (CSAA). In this Section we focus on the state transition equations of the different methods and how a sophisticated model (e.g. CTRA) can be transformed into a simpler one by setting one state veriable to zero. For example, CTRA is transformed to CTRV if the agent acceleration $a$ is set to zero. Similarly, CTRA is transformed to CA if the angular speed $\omega$ is set to 0.
+Several single-trajectory prediction models have been proposed in the literature, including Constant Velocity (CV), Constant Acceleration (CA), Constant Turn Rate and Velocity (CTRV), Constant Turn Rate and Acceleration (CTRA), Constant Speed and Angular Velocity (CSAV), and Constant Curvature Acceleration (CCA)/Constant Speed and Angular Acceleration (CSAA), as illustrated in Figure \ref{fig:3_linear_curvilinear_mp}:
 
-\subsubsection{Constant Velocity (CV)}
-\label{subsubsec:3_CV}
+\begin{itemize}
+	\item Constant Velocity (CV) model assumes that the object moves at a constant velocity and its future position can be predicted by simply extrapolating its current velocity vector. This model is simple and computationally efficient, but it may not accurately capture the object's motion if it changes its velocity.
+	\item Constant Acceleration (CA) model is an extension of the CV model, assuming that the object can also change its acceleration in a linear manner. This model can provide more accurate predictions of the object's future position and velocity, but it may not be suitable for objects with more complex motion patterns.
+	\item Constant Turn Rate and Velocity (CTRV) model assumes that the object moves in a circular trajectory with a constant turn rate and velocity magnitude. This model is useful for predicting the motion of objects such as drones or missiles, but it may not accurately represent the motion of objects with more complex trajectories.
+	\item Constant Turn Rate and Acceleration (CTRA) model is an extension of the CTRV model, allowing the object to change its acceleration while maintaining a constant turn rate. This model is often used in applications such as autonomous driving or aircraft navigation, where objects can accelerate or decelerate.
+	\item Constant Speed and Acceleration Vector (CSAV) model assumes that the object moves along a straight line with a constant speed and acceleration vector. This model can be useful for predicting the motion of objects such as trains or boats.
+	\item Constant Acceleration and Angle (CAA) model assumes that the object moves along a constant heading angle and can change its acceleration in a linear manner. This model can be useful for predicting the motion of objects such as bicycles or motorcycles.
+\end{itemize}
 
-The Constant Velocity (CV) model is a popular single-trajectory prediction model used in the field of motion planning and control. It assumes that the object moves at a constant velocity in a straight line. The state vector of this model includes position and velocity. This means that the position of the object at time $t$ can be calculated by adding the product of the velocity and time to the position at time $t-1$. The velocity at time $t$ is assumed to be the same as the velocity at time $t-1$.
-
-The state vector for the CV model includes position and velocity:
-
-\begin{equation}
-	x = \begin{bmatrix}x \\
-		               y \\
-		               v_x \\
-		               v_y
-	    \end{bmatrix}
-\end{equation}
-
-where $(x,y)$ is the position of the object and $(v_x,v_y)$ is the velocity of the object in the $x$ and $y$ directions, respectively.
-
-The state transition model for the CV model can be written as:
-
-\begin{equation}
-	F = \begin{bmatrix}
-		 			   1 & 0 & \Delta t & 0 \\
-		               0 & 1 & 0 & \Delta t \\
-		               0 & 0 & 1 & 0 \\
-		               0 & 0 & 0 & 1
-		\end{bmatrix}
-\end{equation}
-
-where $\Delta t$ is the time step.
-
-The measurement model for the CV model is:
-
-\begin{equation}
-	H = \begin{bmatrix}
-		1 & 0 & 0 & 0 \\
-		0 & 1 & 0 & 0
-	    \end{bmatrix}
-\end{equation}
-
-which means that the measurements are the position of the object in the $x$ and $y$ directions.
-
-\subsubsection{Constant Acceleration (CA)}
-\label{subsubsec:3_CA}
-
-The Constant Acceleration (CA) assumes that the object moves at a constant acceleration in a straight line. The state vector of this model includes position, velocity, and acceleration. This means that the position of the object at time $t$ can be calculated by adding the product of the velocity and time to the position at time $t-1$, and adding half the product of the acceleration and the square of the time step to the position at time $t-1$. The velocity at time $t$ is assumed to be the sum of the velocity at time $t-1$ and the product of the acceleration and the time step.
-
-The state vector for the CA model includes position, velocity, and acceleration:
-
-\begin{equation}
-	x = \begin{bmatrix}x \\
-		y \\
-		v_x \\
-		v_y \\
-		a_x \\ 
-		a_y
-	\end{bmatrix}
-\end{equation}
-
-where $(x,y)$ is the position of the object, $(v_x,v_y)$ is the velocity of the object in the $x$ and $y$ directions, respectively, and $(a_x,a_y)$ is the acceleration of the object in the $x$ and $y$ directions, respectively.
-
-The state transition model for the CA model can be written as:
-
-\begin{equation}
-	F = \begin{bmatrix}
-		1 & 0 & \Delta t & 0 & \frac{1}{2}\Delta t^2 & 0 \\ 
-		0 & 1 & 0 & \Delta t & 0 & \frac{1}{2}\Delta t^2 \\ 
-		0 & 0 & 1 & 0 & \Delta t & 0 \\ 
-		0 & 0 & 0 & 1 & 0 & \Delta t \\ 
-		0 & 0 & 0 & 0 & 1 & 0 \\ 
-		0 & 0 & 0 & 0 & 0 & 1
-	\end{bmatrix}
-\end{equation}
-
-where $\Delta t$ is the time step.
-
-The measurement model for the CA model is the same as the CV model:
-
-\begin{equation}
-	H = \begin{bmatrix}
-		1 & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 1 & 0 & 0 & 0 & 0
-	\end{bmatrix}
-\end{equation}
-
-which means that the measurements are the position of the object in the $x$ and $y$ directions.
+It can be observed how a sophisticated model can be transformed into a simpler one by setting one state veriable to zero. For example, CTRA is transformed to CTRV if the agent acceleration $a$ is set to zero. Similarly, CTRA is transformed to CA if the angular speed $\omega$ is set to 0. In this Section we particularly focus on the prediction equations and differences of the most commonly used single-trajectory prediction methods in the field of \ac{AD} to predict the future motion of a moving object: CTRV and CTRA.
 
 \subsubsection{Constant Turn Rate Velocity (CTRV)}
 \label{subsubsec:3_CTRV}
 
-The Constant Turn Rate and Velocity (CTRV) assumes that the object moves at a constant velocity with a constant turn rate. The state vector of this model includes position, velocity, turn rate, and yaw angle. This means that the position of the object at time $t$ can be calculated by integrating the velocity over time, and the heading angle can be calculated by adding the product of the turn rate and time to the heading angle at time $t-1$. The velocity and turn rate are assumed to be constant over time.
+The Constant Turn Rate and Velocity (CTRV) model is a mathematical model used in the field of autonomous navigation to predict the future motion of a moving object. The model assumes that the object moves along a smooth, continuous path, and that its velocity and turn rate are constant.
 
-The state vector for the CTRV model includes position, velocity, turn rate, and yaw angle:
+The model describes the motion of the object using a set of differential equations that relate the rate of change of the object's state to its current state and any external inputs. The state of the object is described using five variables: the x and y coordinates of its position, its velocity magnitude, its heading angle (or direction of travel), and its turn rate.
 
-\begin{equation}
-	x = \begin{bmatrix}
-		x \\ 
-		y \\ 
-		v \\ 
-		\dot{\psi} \\ 
-		\psi
-	\end{bmatrix}
-\end{equation}
+The CTRV model predicts the future position of the object by using the current position, velocity, heading angle, and turn rate, and propagating them forward in time. The model assumes that the velocity and turn rate remain constant throughout the prediction interval.
 
-where $(x,y)$ is the position of the object, $v$ is the velocity of the object, $\dot{\psi}$ is the turn rate of the object, and $\psi$ is the yaw angle of the object.
-
-The state transition model for the CTRV model can be written as:
+The prediction equations for the CTRV model are described as follows:
 
 \begin{equation}
-	F = \begin{bmatrix}
-		1 & 0 & \Delta t\cos(\psi) & -v\sin(\psi)\Delta t & 0 \\ 
-		0 & 1 & \Delta t\sin(\psi) & v\cos(\psi)\Delta t & 0 \\
-		0 & 0 & 1 & \dot{\psi}\Delta t & 0 \\ 
-		0 & 0 & 0 & 1 & \Delta t \\ 
-		0 & 0 & 0 & 0 & 1
-	\end{bmatrix}
+\begin{split}
+	x_{k+1} &= x_k + \frac{v_k}{\omega_k}\left[\sin(\psi_k+\omega_k\Delta t)-\sin(\psi_k)\right] \\
+	y_{k+1} &= y_k + \frac{v_k}{\omega_k}\left[\cos(\psi_k)-\cos(\psi_k+\omega_k\Delta t)\right] \\
+	v_{k+1} &= v_k \\
+	\psi_{k+1} &= \psi_k + \omega_k\Delta t \\
+	\omega_{k+1} &= \omega_k
+\end{split}
 \end{equation}
+	
+where:
 
-where $\Delta t$ is the time step.
+$x_k$ and $y_k$ are the coordinates of the object's position at time step $k$
+$v_k$ is the velocity magnitude at time step $k$
+$\psi_k$ is the heading angle (in radians) at time step $k$
+$\omega_k$ is the turn rate (in radians per second) at time step $k$
+$\Delta t$ is the time step size.
 
-The measurement model for the CTRV model is the same as the CV and CA models:
+The first two equations predict the object's position at the next time step, based on its current position, velocity, heading angle, and turn rate. The third and fifth equations predict that the velocity and turn rate will remain constant. The fourth equation predicts the object's heading angle at the next time step, based on its current heading angle and turn rate.
 
-\begin{equation}
-	H = \begin{bmatrix}
-		1 & 0 & 0 & 0 & 0 \\ 
-		0 & 1 & 0 & 0 & 0
-	\end{bmatrix}
-\end{equation}
-
-which means that the measurements are the position of the object in the $x$ and $y$ directions.
+Overall, the CTRV model is a useful tool for predicting the motion of a moving object and can be used in a variety of applications, such as robotics, aviation, and space exploration.
 
 \subsubsection{Constant Turn Rate Acceleration (CTRA)}
 \label{subsubsec:3_CTRA}
 
-The Constant Turn Rate and Acceleration (CTRA) assumes that the object moves at a constant velocity with a constant turn rate and a constant acceleration. The state vector of this model includes position, velocity, turn rate, acceleration, and yaw angle. This means that the position of the object at time $t$ can be calculated by integrating the velocity over time, and the heading angle can be calculated by adding the product of the turn rate and time to the heading angle at time $t-1$. The velocity, turn rate, and acceleration are assumed to be constant over time.
+The Constant Turn Rate and Acceleration (CTRA) model is an extension of the Constant Turn Rate and Velocity (CTRV) model, allowing the object to change its acceleration while maintaining a constant turn rate. This makes the CTRA model more accurate for predicting the motion of objects that can accelerate or decelerate, such as cars or aircraft.
 
-The state vector for the CTRA model includes position, velocity, turn rate, acceleration, and yaw angle:
-
-\begin{equation}
-	x = \begin{bmatrix}
-		x \\ 
-		y \\ 
-		v \\ 
-		\dot{\psi} \\ 
-		a \\ 
-		\psi
-	\end{bmatrix}
-\end{equation}
-
-where $(x,y)$ is the position of the object, $v$ is the velocity of the object, $\dot{\psi}$ is the turn rate of the object, $a$ is the acceleration of the object, and $\psi$ is the yaw angle of the object.
-
-The state transition model for the CTRA model can be written as:
+The state of the object in the CTRA model is described using variables such as the x and y coordinates of its position, its velocity magnitude, its heading angle, its turn rate, and its acceleration magnitude. The motion of the object is modeled using the following set of equations:
 
 \begin{equation}
-	F = \begin{bmatrix}
-		1 & 0 & \Delta t\cos(\psi) & -v\sin(\psi)\Delta t & 0.5a\cos(\psi)\Delta t^2 & 0 \\
-		0 & 1 & \Delta t\sin(\psi) & v\cos(\psi)\Delta t & 0.5a\sin(\psi)\Delta t^2 & 0 \\
-		0 & 0 & 1 & \dot{\psi}\Delta t & a\Delta t & 0 \\ 
-		0 & 0 & 0 & 1 & \Delta t & 0 \\ 
-		0 & 0 & 0 & 0 & 1 & 0 \ 0 & 0 & 0 & 0 & 0 & 1
-	\end{bmatrix}
-\end{equation}
-where $\Delta t$ is the time step.
-
-The measurement model for the CTRA model is the same as the CV, CA, and CTRV models:
-
-\begin{equation}
-	H = \begin{bmatrix}
-		1 & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 1 & 0 & 0 & 0 & 0
-	\end{bmatrix}
+\begin{split}
+		x_{k+1} &= x_k + \frac{v_k}{\omega_k} \left[ \sin(\theta_k + \omega_k \Delta t) - \sin(\theta_k) \right] \\
+		y_{k+1} &= y_k - \frac{v_k}{\omega_k} \left[ \cos(\theta_k + \omega_k \Delta t) - \cos(\theta_k) \right] \\
+		\theta_{k+1} &= \theta_k + \omega_k \Delta t \\
+		v_{k+1} &= v_k + a_k \Delta t \\
+		\omega_{k+1} &= \omega_k
+\end{split}
 \end{equation}
 
-which means that the measurements are the position of the object in the $x$ and $y$ directions.
+where $x_k$ and $y_k$ are the object's position coordinates at time $k$, $\theta_k$ is its heading angle, $v_k$ is its velocity magnitude, $\omega_k$ is its turn rate, and $a_k$ is its acceleration magnitude. $\Delta t$ is the time step between predictions.
 
-\subsubsection{Constant Speed and Acceleration in the Vertical (CSAV)}
-\label{subsubsec:3_CSAV}
+The first two equations describe the object's position updates based on its current position, velocity, heading angle, turn rate, and the time step. The third equation describes the object's heading angle update based on its current heading angle and turn rate. The fourth equation describes the object's velocity update based on its current velocity and acceleration. The last equation assumes that the object's turn rate remains constant over time.
 
-The Constant Speed and Acceleration in the Vertical (CSAV) model is a single-trajectory prediction model used in the field of motion planning and control. It is similar to the CV and CA models, but accounts for changes in altitude or elevation by assuming a constant speed and acceleration in the vertical direction. This means that the position of the object at time $t$ can be calculated by integrating the velocity over time, and the altitude or elevation can be calculated by adding the product of the acceleration and time squared to the altitude or elevation at time $t-1$. The horizontal speed is assumed to be constant over time.
+In summary, the CTRA model is a useful tool for predicting the motion of objects that can accelerate or decelerate while maintaining a constant turn rate. The model's equations include variables such as the object's position, velocity, heading angle, turn rate, and acceleration magnitude, and they are based on the kinematic equations of motion.
 
-The state vector for the CSAV model includes position, horizontal speed, vertical speed, and altitude or elevation:
+\subsubsection{CTRV vs CTRA}
+\label{subsubsec:3_CTRV_vs_CTRA}
 
-\begin{equation}
-	x = \begin{bmatrix}
-		x \\ 
-		y \\ 
-		v_x \\ 
-		v_z \\ 
-		z
-	\end{bmatrix}
-\end{equation}
+The CTRV model assumes that the object moves along a smooth, continuous path, and that its velocity and turn rate are constant. This means that the object moves in a circular trajectory with a fixed radius. The state of the object is described using variables such as the x and y coordinates of its position, its velocity magnitude, its heading angle, and its turn rate.
 
-where $(x,y)$ is the position of the object, $v_x$ is the horizontal speed of the object, $v_z$ is the vertical speed of the object, and $z$ is the altitude or elevation of the object.
+On the other hand, the CTRA model assumes that the object can change its acceleration while maintaining a constant turn rate. This makes the CTRA model more accurate for predicting the motion of objects that can accelerate or decelerate, such as cars or aircraft. The state of the object in the CTRA model is described using similar variables to the CTRV model, but with an additional variable to represent the object's acceleration.
 
-The state transition model for the CSAV model can be written as:
+The prediction equations for the CTRV model are based on the kinematic equations for circular motion, where the object's position, velocity, and heading angle change in a continuous and smooth manner. In contrast, the prediction equations for the CTRA model include an additional term for the object's acceleration, which allows for more accurate predictions of the object's future motion when it can accelerate or decelerate.
 
-\begin{equation}
-	F = \begin{bmatrix}
-		1 & 0 & \Delta t & 0 & 0 \ 0 & 1 & 0 & 0 & 0 \\ 
-		0 & 0 & 1 & 0 & 0 \ 0 & 0 & 0 & 1 & \Delta t \\ 
-		0 & 0 & 0 & 0 & 1
-	\end{bmatrix}
-\end{equation}
+In terms of implementation, the CTRA model requires more computational resources due to the additional term for acceleration, which increases the complexity of the equations. This can make the CTRV model more computationally efficient and faster to calculate in real-time applications. However, the CTRA model is more accurate in predicting the motion of objects with varying acceleration and is often used in applications such as autonomous driving or aircraft navigation.
 
-where $\Delta t$ is the time step.
-
-The measurement model for the CSAV model is the same as the CV and CA models:
-
-\begin{equation}
-	H = \begin{bmatrix}
-		1 & 0 & 0 & 0 & 0 \\ 
-		0 & 1 & 0 & 0 & 0
-	\end{bmatrix}
-\end{equation}
-
-which means that the measurements are the position of the object in the $x$ and $y$ directions.
-
-\subsubsection{Constant Speed and Coordinated Acceleration (CSAA)}
-\label{subsubsec:3_CSAA}
-
-The Constant Speed and Coordinated Acceleration (CSAA) (also referred as Constant Coordinated Acceleration (CCA) in the literature) assumes coordinated acceleration or deceleration between two vehicles or objects, and can be used for collision avoidance or cooperative maneuvering. The CSAA model assumes a constant speed in the horizontal direction and a coordinated acceleration or deceleration in the vertical direction.
-
-The state vector for the CSAA model includes position, horizontal speed, vertical speed, and altitude or elevation for both vehicles or objects:
-
-\begin{equation}
-	x = \begin{bmatrix}
-		x_1 \\ 
-		y_1 \\ 
-		v_{x1} \\ 
-		v_{z1} \\ 
-		z_1 \\ 
-		x_2 \\ 
-		y_2 \\ 
-		v_{x2} \\ 
-		v_{z2} \\ 
-		z_2\end{bmatrix}
-\end{equation}
-
-where $(x_1,y_1)$ and $(x_2,y_2)$ are the positions of the two vehicles or objects, $v_{x1}$ and $v_{x2}$ are the horizontal speeds of the two vehicles or objects, $v_{z1}$ and $v_{z2}$ are the vertical speeds of the two vehicles or objects, and $z_1$ and $z_2$ are the altitudes or elevations of the two vehicles or objects.
-
-The state transition model for the CSAA model can be written as:
-\begin{equation}
-	F = \begin{bmatrix}
-		1 & 0 & \Delta t & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 0 & 0 & 1 & \Delta t & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 0 & 0 & 0 & 0 & 1 & 0 & \Delta t & 0 & 0 \\ 
-		0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & \Delta t & 0 \\ 
-		0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & \Delta t \\ 
-		0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\ 
-		0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1
-	\end{bmatrix}
-\end{equation}
-where $\Delta t$ is the time step.
-
-The measurement model for the CSAA models is the same as the CTRV and CTRA models:
-
-\begin{equation}
-	H = \begin{bmatrix}
-		1 & 0 & 0 & 0 & 0 & 0 \\ 
-		0 & 1 & 0 & 0 & 0 & 0
-	\end{bmatrix}
-\end{equation}
-
-which means that the measurements are the position of the object in the $x$ and $y$ directions.
+In summary, the main differences between the CTRV and CTRA prediction models are that the CTRA model includes an additional term for acceleration in its prediction equations, allowing for more accurate predictions of the motion of objects with varying acceleration, while the CTRV model assumes a constant velocity and turn rate and is more computationally efficient.
 
 \section{Convolutional Neural Networks}
 \label{sec:3_cnns}
@@ -443,11 +258,13 @@ which means that the measurements are the position of the object in the $x$ and 
 
 Convolutional neural networks (CNNs) are commonly used for image and signal processing tasks. The type of CNN architecture used depends on the nature of the input data. Here are the differences between the three types of CNNs:
 
-1D Convolutional Neural Networks (1D CNNs): 1D CNNs are used for processing sequential data such as time series data, speech signals, and text data. The input to a 1D CNN is a one-dimensional sequence of data, such as a time series of sensor readings. 1D CNNs typically have fewer parameters and are computationally efficient compared to 2D and 3D CNNs.
-
-2D Convolutional Neural Networks (2D CNNs): 2D CNNs are used for processing 2D images. The input to a 2D CNN is a two-dimensional image represented as a matrix of pixels. The convolutional layers in a 2D CNN apply filters that slide over the image to extract local features. The output of each convolutional layer is a set of 2D feature maps. 2D CNNs are widely used for image classification, object detection, and image segmentation.
-
-3D Convolutional Neural Networks (3D CNNs): 3D CNNs are used for processing 3D volumetric data such as CT scans, MRI images, and video data. The input to a 3D CNN is a three-dimensional volume represented as a sequence of 2D images. The convolutional layers in a 3D CNN apply filters that slide over the 3D volume to extract local features. The output of each convolutional layer is a set of 3D feature maps. 3D CNNs are used for tasks such as medical image analysis, video classification, and action recognition.
+\begin{itemize}
+	\item 1D Convolutional Neural Networks (1D CNNs): 1D CNNs are used for processing sequential data such as time series data, speech signals, and text data. The input to a 1D CNN is a one-dimensional sequence of data, such as a time series of sensor readings. 1D CNNs typically have fewer parameters and are computationally efficient compared to 2D and 3D CNNs.
+	
+	\item 2D Convolutional Neural Networks (2D CNNs): 2D CNNs are used for processing 2D images. The input to a 2D CNN is a two-dimensional image represented as a matrix of pixels. The convolutional layers in a 2D CNN apply filters that slide over the image to extract local features. The output of each convolutional layer is a set of 2D feature maps. 2D CNNs are widely used for image classification, object detection, and image segmentation.
+	
+	\item 3D Convolutional Neural Networks (3D CNNs): 3D CNNs are used for processing 3D volumetric data such as CT scans, MRI images, and video data. The input to a 3D CNN is a three-dimensional volume represented as a sequence of 2D images. The convolutional layers in a 3D CNN apply filters that slide over the 3D volume to extract local features. The output of each convolutional layer is a set of 3D feature maps. 3D CNNs are used for tasks such as medical image analysis, video classification, and action recognition.
+\end{itemize}
 
 In summary, 1D CNNs are used for processing sequential data (such as time series data, audio signals, and text), 2D CNNs are used for image processing, and 3D CNNs are used for volumetric data. As we will see in Chapter \ref{cha:predictive_techniques}, in this work we focus on 1D CNNs. The basic building blocks of a 1D CNN are convolutional layers, which learn local patterns in the input data by applying a set of filters to it, as illustrated in Figure \ref{fig:3_CNN_1D}. Each filter slides over the input sequence and performs a dot product operation at each position to generate a feature map. These feature maps capture the presence of certain patterns at different positions in the input sequence. 
  
@@ -455,9 +272,8 @@ The architecture of a 1D CNN typically consists of several convolutional layers,
  
  \begin{figure}[h]
  	\centering
- 	\includegraphics[width=0.8\linewidth]{3_CNN_1D.pdf}
+ 	\includegraphics[width=0.6\linewidth]{3_CNN_1D.pdf}
  	\caption{Example of CNN architecture to process 1D-input signals}
- 	Source: \textit{Multiclass damage identification in a full-scale bridge using optimally tuned one-dimensional convolutional neural network} \cite{sony2022multiclass}
  	\label{fig:3_CNN_1D}
  \end{figure}
  
@@ -492,53 +308,50 @@ Recurrent Neural Networks (RNNs) are a type of neural network that are designed 
 
 The general theory of RNNs is that they have a feedback loop in their architecture that allows information to be passed from one time step to the next, thereby enabling the network to capture dependencies between the inputs at different time steps. The input at each time step is fed into the network along with the output from the previous time step, and the network uses this information to generate a new output.
 
-There are several types of RNNs, including the basic RNN, the Gated Recurrent Unit (GRU), and the Long Short-Term Memory (LSTM). The basic RNN is the simplest form of RNN, where the output at each time step is a function of the input at that time step and the output from the previous time step. However, it suffers from the vanishing gradient problem, where the gradients become exponentially small as they propagate through time, making it difficult to learn long-term dependencies.
+There are several types of RNNs, including the basic RNN, the Gated Recurrent Unit (GRU), and the Long Short-Term Memory (LSTM) \cite{hochreiter1997long}. The basic RNN is the simplest form of RNN, where the output at each time step is a function of the input at that time step and the output from the previous time step. However, it suffers from the vanishing gradient problem, where the gradients become exponentially small as they propagate through time, making it difficult to learn long-term dependencies.
 
 The GRU is a variation of the basic RNN that uses gating mechanisms to control the flow of information through the network. It has fewer parameters than the LSTM and can be faster to train, but it may not perform as well as the LSTM on tasks that require more complex temporal dependencies.
 
 \section{Long Short-Term Memory}
 \label{sec:3_LSTMs}
 
-LSTM networks were introduced to address the vanishing gradient problem in standard RNNs. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network.
+LSTM networks were introduced to address the vanishing gradient problem in standard RNNs. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network. Figure \ref{fig:3_LSTM} provides a detailed overview of the LSTM cell structure, illustrating the workflow from the previous cell output and input at time $t-1$ in order to compute the current cell state and hidden state at time $t$.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\linewidth]{3_LSTM_cell.pdf}
+	\caption{Overview of the LSTM cell structure}
+	\label{fig:3_LSTM}
+\end{figure}
 
 The three gates are called the input gate, forget gate, and output gate, and they are responsible for deciding which information to store in the memory cell, which information to forget, and which information to output, respectively.
 
 The equations for the input, forget, and output gates are as follows:
 
 \begin{itemize}
-	\item Input gate: $i_t &= \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$
+	\item Input gate: $i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$
 	\item Forget gate: $f_t = sigmoid(W_f * [h_{t-1}, x_t] + b_f)$
 	\item Input gate: $o_t = sigmoid(W_o * [h_{t-1}, x_t] + b_o)$
 \end{itemize}
 
-Moreover, 
+where $x_t$ is the input at time $t$, $h_{t-1}$ is the hidden state from the previous time step, $i_t$ is the input gate activation, $f_t$ is the forget gate activation, and $o_t$ is the output gate activation. $W_i$, $W_f$, and $W_o$ are weight matrices, and $b_i$, $b_f$, and $b_o$ are bias vectors.
 
-\begin{itemize}
-	\item Input gate: $i_t &= \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$
-	\item Forget gate: $f_t = sigmoid(W_f * [h_{t-1}, x_t] + b_f)$
-	\item Input gate: $o_t = sigmoid(W_o * [h_{t-1}, x_t] + b_o)$
-\end{itemize}
+On the other hand, the memory cell is updated based on the input, forget, and output gates, as well as a new candidate value that is computed based on the current input and hidden state. The equations for the memory cell and candidate value are as follows:
 
-\begin{align*}
-	
-	\tilde{C}t &= \tanh(W_c \cdot [h{t-1}, x_t] + b_c) \
-	C_t &= f_t \cdot C_{t-1} + i_t \cdot \tilde{C}_t \
-	h_t &= o_t \cdot \tanh(C_t)
-\end{align*}
+\begin{equation}
+\begin{split}
+		\tilde{C}t &= \tanh(W_c \cdot [h{t-1}, x_t] + b_c) \\
+		C_t &= f_t \cdot C_{t-1} + i_t \cdot \tilde{C}_t 
+\end{split}
+\end{equation}
 
+where $\tilde{C}t$ is the candidate value, $C_t$ is the new memory cell value, and $C{t-1}$ is the previous memory cell value. $W_c$ is a weight matrix and $b_c$ is a bias vector.
 
-Here, $x_t$ is the input at time $t$, $h_{t-1}$ is the hidden state from the previous time step, $i_t$ is the input gate activation, $f_t$ is the forget gate activation, and $o_t$ is the output gate activation. $W_i$, $W_f$, and $W_o$ are weight matrices, and $b_i$, $b_f$, and $b_o$ are bias vectors. $\tilde{C}t$ is the candidate value, $C_t$ is the new memory cell value, and $C{t-1}$ is the previous memory cell value. $W_c$ is a weight matrix and $b_c$ is a bias vector.
+Finally, the hidden state at time $t$ is computed based on the output gate and the new memory cell value, using the following equation:
 
-The memory cell is updated based on the input, forget, and output gates, as well as a new candidate value that is computed based on the current input and hidden state. The equations for the memory cell and candidate value are as follows:
-
-Candidate value: \tilde{C}t = tanh(W_c * [h{t-1}, x_t] + b_c)
-Memory cell: C_t = f_t * C_{t-1} + i_t * \tilde{C}_t
-
-Here, \tilde{C}t is the candidate value, C_t is the new memory cell value, and C{t-1} is the previous memory cell value. W_c is a weight matrix and b_c is a bias vector.
-
-Finally, the hidden state at time t is computed based on the output gate and the new memory cell value, using the following equation:
-
-Hidden state: h_t = o_t * tanh(C_t)
+\begin{equation}
+	h_t = o_t \cdot \tanh(C_t)
+\end{equation}
 
 This equation scales the memory cell value by the output gate activation, then applies a hyperbolic tangent function to obtain the new hidden state.
 
@@ -547,75 +360,221 @@ In summary, LSTMs use a memory cell and three gating mechanisms to learn long-te
 \section{Generative Adversarial Networks}
 \label{sec:3_gans}
 
-Throughout most of this book, we have talked about how to make predictions. In some form or another, we used deep neural networks to learn mappings from data examples to labels. This kind of learning is called discriminative learning, as in, we'd like to be able to discriminate between photos of cats and photos of dogs. Classifiers and regressors are both examples of discriminative learning. And neural networks trained by backpropagation have upended everything we thought we knew about discriminative learning on large complicated datasets. Classification accuracies on high-res images have gone from useless to human-level (with some caveats) in just 5-6 years. We will spare you another spiel about all the other discriminative tasks where deep neural networks do astoundingly well.
+A discriminative model is a type of machine learning model that learns the relationship between the input features and the target output directly. The goal of a discriminative model is to learn a decision boundary that separates different classes in the input data. In other words, discriminative models focus on learning the conditional probability distribution of the target variable given the input features.
 
-But there is more to machine learning than just solving discriminative tasks. For example, given a large dataset, without any labels, we might want to learn a model that concisely captures the characteristics of this data. Given such a model, we could sample synthetic data examples that resemble the distribution of the training data. For example, given a large corpus of photographs of faces, we might want to be able to generate a new photorealistic image that looks like it might plausibly have come from the same dataset. This kind of learning is called generative modeling.
+Discriminative models are often used in supervised learning tasks, such as classification and regression, where the goal is to predict a target variable based on a set of input features. Common examples of discriminative models include logistic regression, support vector machines, and neural networks.
 
-Until recently, we had no method that could synthesize novel photorealistic images. But the success of deep neural networks for discriminative learning opened up new possibilities. One big trend over the last three years has been the application of discriminative deep nets to overcome challenges in problems that we do not generally think of as supervised learning problems. The recurrent neural network language models are one example of using a discriminative network (trained to predict the next character) that once trained can act as a generative model.
+Unlike generative models, which learn the joint probability distribution of the input and target variables, discriminative models do not model the probability distribution of the input data explicitly. Instead, they focus on learning a mapping function that directly maps the input features to the target output.
 
-In 2014, a breakthrough paper introduced Generative adversarial networks (GANs) :cite:`Goodfellow.Pouget-Abadie.Mirza.ea.2014`, a clever new way to leverage the power of discriminative models to get good generative models. At their heart, GANs rely on the idea that a data generator is good if we cannot tell fake data apart from real data. In statistics, this is called a two-sample test - a test to answer the question whether datasets $X=\{x_1,\ldots, x_n\}$ and $X'=\{x'_1,\ldots, x'_n\}$ were drawn from the same distribution. The main difference between most statistics papers and GANs is that the latter use this idea in a constructive way. In other words, rather than just training a model to say "hey, these two datasets do not look like they came from the same distribution", they use the [two-sample test](https://en.wikipedia.org/wiki/Two-sample_hypothesis_testing) to provide training signals to a generative model. This allows us to improve the data generator until it generates something that resembles the real data. At the very least, it needs to fool the classifier even if our classifier is a state of the art deep neural network.
+In 2014, a breakthrough paper introduced Generative adversarial networks (GANs) \cite{goodfellow2020generative}, a clever new way to leverage the power of discriminative models to get good generative models. At their heart, GANs rely on the idea that a data generator is good if we cannot tell fake data apart from real data. In statistics, this is called a two-sample test - a test to answer the question whether datasets $X=\{x_1,\ldots, x_n\}$ and $X'=\{x'_1,\ldots, x'_n\}$ were drawn from the same distribution. This allows to improve the data generator until it generates something that resembles the real data. At the very least, it needs to fool the classifier even if our classifier is a state of the art deep neural network. GANs are a powerful technique for generating realistic samples that are similar to some training data. A GAN consists of two neural networks, a generator network and a discriminator network. The generator and discriminator networks are trained in a two-player game, where the generator tries to produce samples that fool the discriminator, and the discriminator tries to correctly classify between real and generated data. The objective function for a GAN is a min-max game between the generator and discriminator, and can be optimized using gradient descent or some other optimization algorithm. Some common applications where GANs are widely used are generating realistic images, videos, audio, data augmentation or style transfer.
 
-It then applies a function to generate $\mathbf x'=G(\mathbf z)$. The goal of the generator is to fool the discriminator to classify $\mathbf x'=G(\mathbf z)$ as true data, *i.e.*, we want $D( G(\mathbf z)) \approx 1$.
-In other words, for a given discriminator $D$, we update the parameters of the generator $G$ to maximize the cross-entropy loss when $y=0$, *i.e.*,
+The generator network takes as input a random noise vector, and generates a sample that is meant to mimic real data. The discriminator network takes as input a sample, and tries to distinguish between real data and generated data. The two networks are trained in a two-player game, where the generator tries to produce samples that fool the discriminator, and the discriminator tries to correctly classify between real and generated data.
 
-$$ \max_G \{ - (1-y) \log(1-D(G(\mathbf z))) \} = \max_G \{ - \log(1-D(G(\mathbf z))) \}.$$
+The objective function for a GAN can be formulated as a min-max game between the generator and discriminator. The generator tries to minimize the probability that the discriminator correctly classifies the generated samples as fake, while the discriminator tries to maximize the probability that it correctly classifies the real and generated samples.
 
-If the generator does a perfect job, then $D(\mathbf x')\approx 1$, so the above loss is near 0, which results in the gradients that are too small to make good progress for the discriminator. So commonly, we minimize the following loss:
+The objective function for a GAN can be written as:
 
-$$ \min_G \{ - y \log(D(G(\mathbf z))) \} = \min_G \{ - \log(D(G(\mathbf z))) \}, $$
+\begin{equation}
+\begin{split}
+	\min_{\theta_G}\max_{\theta_D} V(D, G) = \mathbb{E}{x\sim p{data}(x)}[\log D(x)] + \mathbb{E}{z\sim p_z(z)}[\log(1-D(G(z)))] \\
+	= \mathbb{E}{x\sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z\sim p_z(z)}[\log(1-D(G(z;\theta_G)))]
+\end{split}
+\end{equation}
 
-which is just feeding $\mathbf x'=G(\mathbf z)$ into the discriminator but giving label $y=1$.
+where $\theta_G$ and $\theta_D$ are the parameters of the generator and discriminator networks, respectively, $x$ is a real sample from the training data distribution $p_{data}$, $z$ is a noise vector sampled from a prior distribution $p_z$, and $G(z;\theta_G)$ is the generated sample from the generator network.
 
+The first term of the objective function represents the expected log-probability of the discriminator correctly classifying a real sample as real. The second term represents the expected log-probability of the discriminator correctly classifying a generated sample as fake.
 
-To sum up, $D$ and $G$ are playing a "minimax" game with the comprehensive objective function:
+During training, the generator network is updated to minimize the objective function with respect to $\theta_G$, while the discriminator network is updated to maximize the objective function with respect to $\theta_D$. This can be done using gradient descent or some other optimization algorithm.
 
-$$\min_D \max_G \{ -E_{x \sim \text{Data}} \log D(\mathbf x) - E_{z \sim \text{Noise}} \log(1 - D(G(\mathbf z))) \}.$$
+There are some well-known types of GANs, such as:
 
-\subsection{Summary}
-\label{subsec:3_gans_summary}
+\begin{itemize}
+	\item Deep Convolutional GANs (DCGANs): These are GANs that use convolutional neural networks (CNNs) in the generator and discriminator networks. DCGANs are commonly used for image generation and have been shown to produce high-quality, realistic images.
+	\item Wasserstein GANs (WGANs): These are GANs that use the Wasserstein distance instead of the traditional Kullback-Leibler (KL) divergence or Jensen-Shannon (JS) divergence for measuring the difference between the real and generated distributions. WGANs have been shown to produce more stable training and generate higher-quality samples.
+	\item CycleGANs: These are GANs that are designed for image-to-image translation tasks, where the goal is to transform an image from one domain to another. CycleGANs use two generators and two discriminators to learn the mapping between the two domains.
+\end{itemize}
 
-\section{Attention Mechanisms}
+Nevertheless, in this work we focus on a particular type of GAN, known as conditional GAN or cGAN, where the generator is conditioned on some additional information, such as class labels or image annotations. The additional information is used to control the generated output, allowing for more specific generation of data. 
+
+\section{GAN vs cGAN}
+\label{sec:3_cGAN}
+
+The main difference between the original GAN and cGAN is that the original GAN generates samples without any control over the generated output, whereas the cGAN generates samples conditioned on some additional information.
+
+In the original GAN, the generator network takes as input a random noise vector, and generates a sample that is meant to mimic real data. The discriminator network takes as input a sample, and tries to distinguish between real data and generated data. The goal of the original GAN is to train the generator network to generate samples that are indistinguishable from real data.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\linewidth]{3_GAN.pdf}
+	\caption{Comparison between the original Generative Adversarial Network (GAN) and conditional GAN (cGAN)}
+	\label{fig:3_GAN}
+\end{figure}
+
+In contrast, a cGAN is a GAN that is conditioned on some additional information, such as class labels or image annotations. The generator network in a cGAN takes as input both a random noise vector and a condition vector, and generates a sample that is conditioned on the additional information. The discriminator network also takes as input both the sample and the condition vector, and tries to distinguish between real data and generated data based on the condition. Figure \ref{fig:3_GAN} illustrates the differences between the original GAN and the corresponding conditioned architecture.
+
+The cGAN can be used for a variety of applications, such as image-to-image translation, where the additional information is an input image that is translated to a different output image. For example, a cGAN can be trained to convert grayscale images to color images, or to transform images of one type of object to another type of object.
+
+The training process for a cGAN is similar to that of the original GAN, but the loss function for the generator and discriminator networks are modified to include the condition vector. Specifically, the loss function for the generator network includes a term that measures how well the generated samples match the condition vector, in addition to the term that measures how well the generated samples fool the discriminator. Similarly, the loss function for the discriminator network includes a term that measures how well the discriminator can identify the condition vector, in addition to the term that measures how well it can distinguish between real and generated data.
+
+The cGAN can be used for a variety of applications, such as image-to-image translation, where the additional information is an input image that is translated to a different output image. For example, a cGAN can be trained to convert grayscale images to color images, or to transform images of one type of object to another type of object.
+
+\section{Attention Mechanism}
 \label{sec:3_attention}
 
-\section{Self-Attention and Positional Encoding}
-\label{sec:3_self_attention_pos_encoding}
+The attention mechanism is a computational method used in deep learning models to help the model focus on the most important parts of the input data. It is commonly used in natural language processing, speech recognition, and computer vision.
 
-In deep learning, we often use CNNs or RNNs to encode sequences.
-Now with attention mechanisms in mind, 
-imagine feeding a sequence of tokens 
-into an attention mechanism
-such that at each step,
-each token has its own query, keys, and values.
-Here, when computing the value of a token's representation at the next layer,
-the token can attend (via its query vector) to each other token 
-(matching based on their key vectors).
-Using the full set of query-key compatibility scores,
-we can compute, for each token, a representation
-by building the appropriate weighted sum
-over the other tokens. 
-Because each token is attending to each other token
-(unlike the case where decoder steps attend to encoder steps),
-such architectures are typically described as *self-attention* models :cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017`, 
-and elsewhere described as *intra-attention* model :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`.
-In this section, we will discuss sequence encoding using self-attention,
-including using additional information for the sequence order.
+The basic idea of attention is to compute a set of weights that indicate the relative importance of different parts of the input. These weights are then used to compute a weighted sum of the input, which is used as the output of the attention mechanism.
 
-Given a sequence of input tokens
-$\mathbf{x}_1, \ldots, \mathbf{x}_n$ where any $\mathbf{x}_i \in \mathbb{R}^d$ ($1 \leq i \leq n$),
-its self-attention outputs
-a sequence of the same length
-$\mathbf{y}_1, \ldots, \mathbf{y}_n$,
-where
+The attention mechanism can be formulated mathematically using the following equations:
 
-$$\mathbf{y}_i = f(\mathbf{x}_i, (\mathbf{x}_1, \mathbf{x}_1), \ldots, (\mathbf{x}_n, \mathbf{x}_n)) \in \mathbb{R}^d$$
+First, we compute a set of "keys", "values", and a "query" vector, which are used to compute the attention weights:
 
-according to the definition of attention pooling in
-:eqref:`eq_attention_pooling`.
-Using multi-head attention,
-the following code snippet
-computes the self-attention of a tensor
-with shape (batch size, number of time steps or sequence length in tokens, $d$).
-The output tensor has the same shape.
+\begin{equation}
+\begin{split}
+	K = {k_1, k_2, ..., k_n}
+	V = {v_1, v_2, ..., v_n}
+	q = [q_1, q_2, ..., q_d]
+\end{split}
+\end{equation}
+
+where $n$ is the number of elements in the input, and $d$ is the dimension of the query vector. Next, we compute the attention weights using a function that compares the query vector to each of the keys:
+
+\begin{equation}
+	a_i = \text{softmax}(q^T k_i)
+\end{equation}
+
+where $a_i$ is the attention weight for the $i$th element of the input. Finally, we compute the output of the attention mechanism as a weighted sum of the values:
+
+\begin{equation}
+	o = \sum_{i=1}^{n} a_i v_i
+\end{equation}
+
+\subsection{Positional Encoding}
+\label{subsec:3_positional_encoding}
+
+In the attention mechanism, positional encoding is used to incorporate the order of the input sequence into the model. Positional encoding involves adding a fixed-length vector to the input embeddings that encodes the position of each element in the sequence.
+
+The mathematical formulation of positional encoding is as follows:
+
+\begin{equation}
+	\text{PE}_{(pos,2i)} = \sin\left(\frac{pos}{10000^{2i/d}}\right)
+\end{equation}
+
+\begin{equation}
+	\text{PE}_{(pos,2i+1)} = \cos\left(\frac{pos}{10000^{2i/d}}\right)
+\end{equation}
+
+where $pos$ is the position of the element in the sequence, $i$ is the index of the dimension, and $d$ is the dimension of the input embeddings. The positional encoding vectors are added to the input embeddings before they are passed through the self-attention mechanism.
+
+The choice of the constants used in the positional encoding formulation, such as the use of the sine and cosine functions and the value of $10000$, is arbitrary but has been shown to work well in practice. The positional encoding vectors add a sinusoidal pattern to the input embeddings that allows the model to distinguish between elements at different positions in the sequence.
+
+Positional encoding has been shown to be an effective way of incorporating sequential information into transformer-based models, and it has been used successfully in a variety of natural language processing tasks, including machine translation, language modeling, and sentiment analysis.
+
+\subsection{Multi-Head Attention}
+\label{subsec:3_multi_head_attention}
+
+Multi-head attention is a type of attention mechanism used in deep learning models, particularly in transformer-based architectures, to allow the model to attend to multiple parts of the input simultaneously. It involves splitting the input into multiple heads and computing separate attention scores for each head, which are then combined to produce the final output.
+
+The multi-head attention mechanism can be formulated mathematically using the following equations:
+
+First, we split the keys, values, and query vectors into multiple "heads", each of which has its own set of learned weight matrices:
+
+\begin{equation}
+	K_i = {k_{i,1}, k_{i,2}, ..., k_{i,n}}
+\end{equation}
+
+\begin{equation}
+	V_i = {v_{i,1}, v_{i,2}, ..., v_{i,n}}
+\end{equation}
+
+\begin{equation}
+	Q_i = {q_{i,1}, q_{i,2}, ..., q_{i,n}}
+\end{equation}
+
+where $n$ is the number of elements in the input, and $i$ is the index of the head.
+
+Next, we compute the attention weights and outputs for each head separately, using the same equations as in the basic attention mechanism:
+
+\begin{equation}
+	a_{i,j} = \text{softmax}(Q_i^T K_{i,j})
+\end{equation}
+
+\begin{equation}
+	o_{i} = \sum_{j=1}^{n} a_{i,j} V_{i,j}
+\end{equation}
+
+Finally, we concatenate the outputs from all the heads and multiply by a learned weight matrix to produce the final output:
+
+\begin{equation}
+	\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h)W^O
+\end{equation}
+
+where $\text{head}_i$ is the output of the $i$th head, and $h$ is the number of attention heads.
+
+The multi-head attention mechanism allows the model to attend to multiple parts of the input at once, which can be useful for capturing complex relationships between different parts of the input. It is often used in transformer-based architectures for natural language processing and other tasks.
+
+\subsection{Self-Attention vs Cross-Attention}
+\label{subsec:3_self_attention_vs_cross_attention}
+
+Self-attention is a type of attention mechanism used in deep learning models, particularly in transformer-based architectures, that allows the model to attend to different parts of the input sequence to compute a representation of each input element.
+
+In self-attention, the input sequence is transformed into three different vectors: the query vector, the key vector, and the value vector. These vectors are then used to compute the attention score for each element of the input sequence with respect to every other element in the sequence. The attention scores are used to weight the value vectors, which are then combined to produce the final output.
+
+The mathematical formulation of self-attention is as follows:
+
+\begin{equation}
+	\text{SelfAttention}(X) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\end{equation}
+
+where $X$ is the input sequence, $Q$, $K$, and $V$ are the query, key, and value vectors, respectively, and $d_k$ is the dimension of the key vectors. The softmax function is applied row-wise to the matrix $\frac{QK^T}{\sqrt{d_k}}$, resulting in an attention matrix that has the same dimensions as $X$. The attention matrix is then used to weight the value vectors $V$, which are combined to produce the final output.
+
+The query, key, and value vectors are obtained through linear transformations of the input embeddings. The exact way in which these transformations are carried out can vary depending on the specific architecture, but in general they involve matrix multiplications with learnable weight matrices.
+
+Self-attention has been shown to be a powerful mechanism for capturing long-range dependencies in sequential data, and it has been used successfully in a variety of natural language processing tasks, including machine translation, language modeling, and sentiment analysis.
+
+On the other hand, in cross-attention, one of the input sequences serves as the query sequence, while the other sequence serves as the key-value sequence. The query sequence is transformed into a query vector, while the key-value sequence is transformed into key and value vectors. The query vector is then used to compute the attention score for each element in the query sequence with respect to every element in the key-value sequence. The attention scores are used to weight the value vectors, which are then combined to produce the final output.
+
+The mathematical formulation of cross-attention is as follows:
+
+\begin{equation}
+	\text{CrossAttention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\end{equation}
+
+where $Q$, $K$, and $V$ are the query, key, and value vectors, respectively, and $d_k$ is the dimension of the key vectors. The softmax function is applied row-wise to the matrix $\frac{QK^T}{\sqrt{d_k}}$, resulting in an attention matrix that has the same dimensions as the query sequence. The attention matrix is then used to weight the value vectors, which are combined to produce the final output.
+
+Compared to self-attention, which operates on a single sequence, cross-attention operates on two sequences. The key-value sequence provides additional information that can help the model compute more accurate representations of the elements in the query sequence. Cross-attention is commonly used in machine translation models, where one of the input sequences is the source language and the other sequence is the target language.
+
+The main differences between self-attention and cross-attention are:
+
+Self-attention operates on a single sequence, while cross-attention operates on two sequences.
+In self-attention, the query, key, and value vectors are all derived from the same input sequence, while in cross-attention, the key-value sequence provides the key and value vectors.
+Self-attention is used to capture relationships between elements within a sequence, while cross-attention is used to capture relationships between elements in different sequences.
+
+\subsection{Transformer}
+\label{subsec:3_transformer}
+
+% https://lena-voita.github.io/nlp_course/seq2seq_and_attention.html
+
+Along this section the attention mechanism has been stated, from the main idea to the differences between self-attention and cross-attention. The Transformer model wraps-up all these concepts into a single and elegant architecture which allows the model to weigh the importance of different parts of the input sequence when computing a representation of each element in the sequence. Introduced in 2017 \cite{vaswani2017attention}, it has become the absolute standard for Natural language Processing (NLP) tasks such as language modeling, question answering or machine translation. Figure \ref{fig:3_transformer} depicts the Transformer architecture proposed in the original paper.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\linewidth]{3_transformer.png}
+	\caption{Overview of the Transformer architecture}
+	Source: \textit{Attention Is All You Need} \cite{vaswani2017attention}
+	\label{fig:3_transformer}
+\end{figure}
+
+The Transformer architecture consists of an encoder and a decoder. The encoder takes as input a sequence of embeddings, such as word embeddings or character embeddings, and produces a sequence of hidden states that capture the information in the input sequence. The decoder takes as input the encoder hidden states and produces a sequence of output embeddings that represent the output sequence.
+
+The encoder consists of multiple layers, each of which contains two sub-layers: a self-attention sub-layer and a feedforward sub-layer. In the self-attention sub-layer, the model computes a representation of each element in the input sequence by attending to all the other elements in the sequence. The feedforward sub-layer applies a pointwise fully connected layer to each position in the sequence independently and identically.
+
+The decoder also consists of multiple layers, each of which contains three sub-layers: a self-attention sub-layer, a cross-attention sub-layer, and a feedforward sub-layer. In the self-attention sub-layer, the model attends to the previously generated output embeddings to compute the next output embedding. In the cross-attention sub-layer, the model attends to the encoder hidden states to incorporate information from the input sequence. The feedforward sub-layer applies a pointwise fully connected layer to each position in the sequence independently and identically.
+
+The Transformer architecture uses residual connections and layer normalization to facilitate training of deep neural networks. Residual connections allow information to flow directly from one layer to another, bypassing the intermediate layers, which can help prevent the vanishing gradient problem. Layer normalization normalizes the input to each sub-layer to have zero mean and unit variance, which can help stabilize the training process.
+
+Overall, the Transformer architecture has achieved state-of-the-art results on a wide range of natural language processing tasks, and its success has led to the development of a variety of transformer-based architectures, such as BERT, GPT, and T5.
 
 \section{Graphs}
 \label{sec:3_graphs}
@@ -640,7 +599,7 @@ Nevertheless, Graph-based data structures have drawbacks, and researchers must u
 \subsection{Graph Neural Networks}
 \label{subsec:3_gnns}
 
-Graph Neural Networks are special types of neural networks capable of working with a graph data structure. They are highly influenced by Convolutional Neural Networks (CNNs) and graph embedding. GNNs are used in predicting nodes, edges, and graph-based tasks. 
+GNNs are a class of neural networks that operate on graphs, which are collections of nodes and edges. A typical graph is represented by a set of node features, represented by a matrix $X \in \mathbb{R}^{N \times D}$, where $N$ is the number of nodes, and $D$ is the number of features associated with each node. Each node is also connected to other nodes via edges, which are represented by an adjacency matrix $A \in {0,1}^{N \times N}$, where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
 
 \begin{itemize}
 	\item A graph exists in non-euclidean space. It does not exist in 2D or 3D space, which makes it harder to interpret the data. To visualize the structure in 2D space, you must use various dimensionality reduction tools.
@@ -648,9 +607,48 @@ Graph Neural Networks are special types of neural networks capable of working wi
 	\item Large size and dimensionality will increase the graph's complexity for human interpretations. The dense structure with multiple nodes and thousands of edges is harder to understand and extract insights. 
 \end{itemize}
 
-\subsection{Graph Neural Networks}
-\label{subsec:3_gnns}
+The basic idea behind GNNs is to iteratively update the node representations using information from the graph neighborhood. Specifically, at each iteration, each node aggregates information from its neighbors, and the resulting aggregated representation is used to update the node's own representation. This process is typically repeated for multiple iterations until convergence. GNNs were introduced when Convolutional Neural Networks failed to achieve optimal results due to the arbitrary size of the graph and complex structure. 
 
+One common way to implement this idea is to use the following update rule:
+
+$h_i^{(l+1)} = f(h_i^{(l)}, \sum_{j} A_{ij} h_j^{(l)})$
+
+where $h_i^{(l)}$ is the representation of node $i$ at iteration $l$, $f$ is a non-linear activation function, and $\sum_{j} A_{ij} h_j^{(l)}$ is the sum of the representations of the neighbors of node $i$ at iteration $l$.
+
+By stacking multiple layers of such updates, a GNN can learn increasingly complex representations of the graph.
+
+There are several types of neural networks, such as:
+
+\begin{itemize}
+	\item Graph Auto-Encoder Networks, which learn graph representation using an encoder and attempt to reconstruct input graphs using a decoder. They are commonly used in link prediction as Auto-Encoders are good at dealing with class balance. 
+	\item Recurrent Graph Neural Networks(RGNNs) are able to learn the best diffusion pattern, and they can handle multi-relational graphs where a single node has multiple relations. They are commonly used in generating text, machine translation, speech recognition or generating image descriptions
+	\item Gated Graph Neural Networks (GGNNs) improve Recurrent Graph Neural Networks by adding a node, edge, and time gates on long-term dependencies, being the common uses similar to RGNNs.
+\end{itemize}
+
+Nevertheless, in this work we focus on a particular type of GNN, that is, Graph Convolutional Networks, which are the most common GNN type used in of \ac{MP} in the field of \ac{AD}.
+
+\subsubsection{Graph Convolutional Networks}
+\label{subsubsec:3_gcns}
+
+The majority of GNNs are Graph Convolutional Networks (GCNs), which are a specific type of GNN that use convolutional operations to aggregate information from the graph neighborhood. GCNs were introduced when Convolutional Neural Networks failed to achieve optimal results due to the arbitrary size of the graph and complex structure. The basic idea behind GCNs is to treat the graph as a signal and use convolutional operations to extract features by inspecting neighboring nodes. GCNs aggregate node vectors, pass the result to the dense layer, and apply non-linearity using the activation function. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\linewidth]{3_gcn_vs_cnn.pdf}
+	\caption{Overview of the sliding kernel of a 2D-CNN vs GCN}
+	Source: \textit{A comprehensive survey on graph neural networks} \cite{wu2020comprehensive}
+	\label{fig:3_gcn_vs_cnn}
+\end{figure}
+
+The major difference between GCN and CNN is that it is developed to work on non-euclidean data structures where the order of nodes and edges can vary, as it can be appreciated in Figure \ref{fig:3_gcn_vs_cnn}. In 2D convolution, each pixel in an image is taken as a node where neighbours are determined by the filter size. The 2D convolution takes the weighted average of pixel values of the red node along with its neighbors. The neighbours of a node are ordered and have a fixed size. On the other hand, to get a hidden representation of a given node red, one simple solution of the graph convolutional operation is to take the average value of the node features of the red node along with its neighbors. Different from image data, the neighbors of a node are unordered and variable in size.
+
+The convolution in GCN is the same as a convolution in convolutional neural networks. It multiplies neurons with weights (filters) to learn from data features. A convolutional operation on a graph is defined as:
+
+$H^{(l+1)} = \sigma(D^{-\frac{1}{2}} A D^{-\frac{1}{2}} H^{(l)} W^{(l)})$
+
+where $H^{(l)}$ is the matrix of node representations at iteration $l$, $W^{(l)}$ is the weight matrix of the $l$-th layer, $A$ is the adjacency matrix of the graph, $D$ is the degree matrix of the graph, and $\sigma$ is a non-linear activation function.
+
+The operation $D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ is a normalization step that scales the adjacency matrix by the inverse square root of the degree matrix. This normalization ensures that nodes with different degrees have similar influence in the convolutional operation. By stacking multiple layers of such convolutions, a GCN can learn increasingly complex features of the graph.
 
 \section{Training}
 \label{sec:3_training}
@@ -666,21 +664,21 @@ The backpropagation algorithm is based on the chain rule of calculus, which allo
 \subsection{Optimizer and learning rate}
 \label{subsec:3_optimizer_and_lr}
 
-The ADAM optimizer is a popular optimization algorithm used in deep learning, particularly for training neural networks. It is an adaptive learning rate optimization algorithm that is well suited for large datasets and high-dimensional parameter spaces.
+There are several optimizers commonly used for training deep neural networks in the literature, such as Stochastic Gradient Descent (SGD), Adagrad, Root Mean Square Propagation (RMSprop) or Adadelta. In this work we use one of the most extended, the ADAM optimizer. It is a popular optimization algorithm used in deep learning, particularly for training neural networks. It is an adaptive learning rate optimization algorithm that is well suited for large datasets and high-dimensional parameter spaces.
 
 The basic idea behind ADAM is to compute adaptive learning rates for each parameter based on estimates of the first and second moments of the gradients. The algorithm computes a moving average of the gradients and their squared values, and uses these estimates to update the parameters with a learning rate that adapts to the local curvature of the loss function. The algorithm also includes bias-correction terms to ensure that the estimates are unbiased, especially in the early stages of training when the estimates are highly uncertain.
 
 The update rule for ADAM can be expressed mathematically as follows:
 
-\begin{align*}
-	m_t &= \beta_1 m_{t-1} + (1-\beta_1) g_t \
-	v_t &= \beta_2 v_{t-1} + (1-\beta_2) g_t^2 \
-	\hat{m}_t &= \frac{m_t}{1-\beta_1^t} \
-	\hat{v}t &= \frac{v_t}{1-\beta_2^t} \
+\begin{equation}
+\begin{split}
+	m_t &= \beta_1 m_{t-1} + (1-\beta_1) g_t \\
+	v_t &= \beta_2 v_{t-1} + (1-\beta_2) g_t^2 \\
+	\hat{m}_t &= \frac{m_t}{1-\beta_1^t} \\
+	\hat{v}t &= \frac{v_t}{1-\beta_2^t} \\
 	\theta{t+1} &= \theta_t - \frac{\alpha}{\sqrt{\hat{v}_t}+\epsilon} \hat{m}_t
-\end{align*}
-
-Note that the ampersand symbol '&' is used to align the equations at the equal sign, and the double backslash '\' is used to separate the lines of the equation.
+\end{split}
+\end{equation}
 
 where $\theta_t$ is the parameter vector at time step $t$, $g_t$ is the gradient vector, $m_t$ and $v_t$ are the first and second moment estimates at time step $t$, $\hat{m}_t$ and $\hat{v}_t$ are the bias-corrected moment estimates, $\alpha$ is the learning rate, $\beta_1$ and $\beta_2$ are the decay rates for the moment estimates, and $\epsilon$ is a small constant to prevent division by zero.
 
@@ -732,10 +730,12 @@ SmoothL1 loss, also known as Huber loss, is a loss function used in regression p
 The SmoothL1 loss function can be defined as follows:
 
 \begin{equation}
+\begin{split}
 	L(y, \hat{y}) = \begin{cases}
-		\frac{1}{2}(y - \hat{y})^2 & \text{if } |y - \hat{y}| < 1 \
+		\frac{1}{2}(y - \hat{y})^2 & \text{if } |y - \hat{y}| < 1 \\
 		|y - \hat{y}| - \frac{1}{2} & \text{otherwise} \
 	\end{cases}
+\end{split}
 \end{equation}
 
 where $y$ is the true value, $\hat{y}$ is the predicted value, and $|\cdot|$ represents the absolute value function.
@@ -792,10 +792,12 @@ Winner-Takes-All (WTA) loss is a loss function used in clustering problems, part
 The WTA loss function can be defined as follows:
 
 \begin{equation}
+\begin{split}
 	L(y_i, f(x_i)) = \begin{cases}
-		0 & \text{if } y_i = \arg\max_j f_j(x_i) \
+		0 & \text{if } y_i = \arg\max_j f_j(x_i) \\
 		1 & \text{otherwise} \
 	\end{cases}
+\end{split}
 \end{equation}
 
 where $y_i$ is the true cluster of the $i$-th data point, $f_j(x_i)$ is the activation of the $j$-th neuron in the output layer for that point, and $\arg\max_j f_j(x_i)$ is the index of the neuron with the highest activation.
