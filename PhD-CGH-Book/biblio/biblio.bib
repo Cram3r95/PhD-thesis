@@ -1,5 +1,12 @@
 % Chatper 1 Introduction
 
+@techreport{taxonomy2016definitions,
+	title={Definitions for Terms Related to Driving Automation Systems for On-Road Motor Vehicles (J3016)},
+	author={Taxonomy, SAE},
+	year={2016},
+	institution={Technical report, Society for Automotive Engineering}
+}
+
 % Chapter 2 Related Works
 
 @inproceedings{ye2021tpcn,
@@ -231,15 +238,6 @@
 	year={2020}
 }
 
-@inproceedings{zhao2021tnt,
-	title={Tnt: Target-driven trajectory prediction},
-	author={Zhao, Hang and Gao, Jiyang and Lan, Tian and Sun, Chen and Sapp, Ben and Varadarajan, Balakrishnan and Shen, Yue and Shen, Yi and Chai, Yuning and Schmid, Cordelia and others},
-	booktitle={Conference on Robot Learning},
-	pages={895--904},
-	year={2021},
-	organization={PMLR}
-}
-
 @inproceedings{fang2020tpnet,
 	title={Tpnet: Trajectory proposal network for motion prediction},
 	author={Fang, Liangji and Jiang, Qinhong and Shi, Jianping and Zhou, Bolei},
@@ -255,6 +253,13 @@
 	pages={895--904},
 	year={2021},
 	organization={PMLR}
+}
+
+@article{gu2021densetnt,
+	title={Densetnt: Waymo open dataset motion prediction challenge 1st place solution},
+	author={Gu, Junru and Sun, Qiao and Zhao, Hang},
+	journal={arXiv preprint arXiv:2106.14160},
+	year={2021}
 }
 
 @inproceedings{liu2021multimodal,
@@ -368,6 +373,52 @@
 	year={2017}
 }
 
+@article{kingma2014adam,
+	title={Adam: A method for stochastic optimization},
+	author={Kingma, Diederik P and Ba, Jimmy},
+	journal={arXiv preprint arXiv:1412.6980},
+	year={2014}
+}
+
+@article{zeiler2012adadelta,
+	title={Adadelta: an adaptive learning rate method},
+	author={Zeiler, Matthew D},
+	journal={arXiv preprint arXiv:1212.5701},
+	year={2012}
+}
+
+@article{duchi2011adaptive,
+	title={Adaptive subgradient methods for online learning and stochastic optimization.},
+	author={Duchi, John and Hazan, Elad and Singer, Yoram},
+	journal={Journal of machine learning research},
+	volume={12},
+	number={7},
+	year={2011}
+}
+
+@article{robbins1951stochastic,
+	title={A stochastic approximation method},
+	author={Robbins, Herbert and Monro, Sutton},
+	journal={The annals of mathematical statistics},
+	pages={400--407},
+	year={1951},
+	publisher={JSTOR}
+}
+
+@inproceedings{zou2019sufficient,
+	title={A sufficient condition for convergences of adam and rmsprop},
+	author={Zou, Fangyu and Shen, Li and Jie, Zequn and Zhang, Weizhong and Liu, Wei},
+	booktitle={Proceedings of the IEEE/CVF conference on computer vision and pattern recognition},
+	pages={11127--11135},
+	year={2019}
+}
+
+
+@misc{argobench,
+	title = {Argoverse Benchmark},
+	howpublished = {\url{https://eval.ai/web/challenges/challenge-page/454/evaluation}},
+	note = {Accessed: 2022-03-19}}
+
 % Chapter 4 Predictive Techniques for Scene Understanding
 
 %% SmartMOT
@@ -417,15 +468,6 @@
 	organization={IEEE}
 }
 
-@inproceedings{dosovitskiy2017carla,
-	title={CARLA: An open urban driving simulator},
-	author={Dosovitskiy, Alexey and Ros, German and Codevilla, Felipe and Lopez, Antonio and Koltun, Vladlen},
-	booktitle={Conference on robot learning},
-	pages={1--16},
-	year={2017},
-	organization={PMLR}
-}
-
 @inproceedings{dupuis2010opendrive,
 	title={OpenDRIVE 2010 and Beyond--Status and Future of the de facto Standard for the Description of Road Networks},
 	author={Dupuis, Marius and Strobl, Martin and Grezlikowski, Hans},
@@ -462,6 +504,15 @@
 	booktitle={2016 IEEE international conference on image processing (ICIP)},
 	pages={3464--3468},
 	year={2016},
+	organization={IEEE}
+}
+
+@inproceedings{jullien2009openscenario,
+	title={OpenScenario: a flexible integrated environment to develop Educational Activities based on Pedagogical Scenarios},
+	author={Jullien, Jean-Michel and Martel, Christian and Vignollet, Laurence and Wentland, Maia},
+	booktitle={2009 Ninth IEEE International Conference on Advanced Learning Technologies},
+	pages={509--513},
+	year={2009},
 	organization={IEEE}
 }
 
@@ -532,7 +583,6 @@
 	title={Social ways: Learning multi-modal distributions of pedestrian trajectories with gans},
 	author={Amirian, Javad and Hayet, Jean-Bernard and Pettr{\'e}, Julien},
 	booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops},
-	pages={0--0},
 	year={2019}
 }
 
@@ -628,6 +678,14 @@
 	year={2022}
 }
 
+@article{wang2023lane,
+	title={Lane Transformer: A High Efficiency Trajectory Prediction Model},
+	author={Wang, Zhibo and Guo, Jiayu and Hu, Zhengming and Zhang, Haiqiang and Zhang, Junping and Pu, Jian},
+	journal={IEEE Open Journal of Intelligent Transportation Systems},
+	year={2023},
+	publisher={IEEE}
+}
+
 % Improving efficiency
 
 @article{KATRAKAZAS2015416realtime,
@@ -697,7 +755,147 @@
 	year={2015}
 }
 
+@inproceedings{he2016deep,
+	title={Deep residual learning for image recognition},
+	author={He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+	booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+	pages={770--778},
+	year={2016}
+}
+
 % Chapter 5 Applications in Autonomous Driving
+
+%% Comparison among simulators
+
+@book{sanders2016introduction,
+	title={An introduction to unreal engine 4},
+	author={Sanders, Andrew},
+	year={2016},
+	publisher={AK Peters/CRC Press}
+}
+
+@inproceedings{dosovitskiy2017carla,
+	title={CARLA: An open urban driving simulator},
+	author={Dosovitskiy, Alexey and Ros, German and Codevilla, Felipe and Lopez, Antonio and Koltun, Vladlen},
+	booktitle={Conference on robot learning},
+	pages={1--16},
+	year={2017},
+	organization={PMLR}
+}
+
+@misc{matthaeia2015autonomous,
+	title={Autonomous Driving: Technical, Legal and Social Aspects},
+	author={Matthaeia, R and Reschkaa, A and Riekena, J and Dierkesa, F and Ulbricha, S and Winkleb, T and Maurera, M},
+	year={2015},
+	publisher={Springer, Berlin}
+}
+
+@book{rajamani2011vehicle,
+	title={Vehicle dynamics and control},
+	author={Rajamani, Rajesh},
+	year={2011},
+	publisher={Springer Science \& Business Media}
+}
+
+@article{gold2016taking,
+	title={Taking over control from highly automated vehicles in complex traffic situations: the role of traffic density},
+	author={Gold, Christian and K{\"o}rber, Moritz and Lechner, David and Bengler, Klaus},
+	journal={Human factors},
+	volume={58},
+	number={4},
+	pages={642--652},
+	year={2016},
+	publisher={SAGE Publications Sage CA: Los Angeles, CA}
+}
+
+@article{merat2014transition,
+	title={Transition to manual: Driver behaviour when resuming control from a highly automated vehicle},
+	author={Merat, Natasha and Jamson, A Hamish and Lai, Frank CH and Daly, Michael and Carsten, Oliver MJ},
+	journal={Transportation research part F: traffic psychology and behaviour},
+	volume={27},
+	pages={274--282},
+	year={2014},
+	publisher={Elsevier}
+}
+
+@inproceedings{geiger2012we,
+	title={Are we ready for autonomous driving? the KITTI vision benchmark suite},
+	author={Geiger, Andreas and Lenz, Philip and Urtasun, Raquel},
+	booktitle={2012 IEEE Conference on Computer Vision and Pattern Recognition},
+	pages={3354--3361},
+	year={2012},
+	organization={IEEE}
+}
+
+@inproceedings{schoner2017role,
+	title={The role of simulation in development and testing of autonomous vehicles},
+	author={Sch{\"o}ner, HP},
+	booktitle={Driving Simulation Conference, Stuttgart},
+	year={2017}
+}
+
+@article{kaur2021survey,
+	title={A Survey on Simulators for Testing Self-Driving Cars},
+	author={Kaur, Prabhjot and Taghavi, Samira and Tian, Zhaofeng and Shi, Weisong},
+	journal={arXiv preprint arXiv:2101.05337},
+	year={2021}
+}
+
+@article{lattarulo2017complete,
+	title={A complete framework for developing and testing automated driving controllers},
+	author={Lattarulo, Ray and P{\'e}rez, Joshu{\'e} and Dendaluce, Martin},
+	journal={IFAC-PapersOnLine},
+	volume={50},
+	number={1},
+	pages={258--263},
+	year={2017},
+	publisher={Elsevier}
+}
+
+@article{benekohal1988carsim,
+	title={CARSIM: Car-following model for simulation of traffic in normal and stop-and-go conditions},
+	author={Benekohal, Rahim F and Treiterer, Joseph},
+	journal={Transportation research record},
+	volume={1194},
+	pages={99--111},
+	year={1988},
+	publisher={SAGE Publishing}
+}
+
+@inproceedings{tideman2013simulation,
+	title={A simulation tool suite for developing connected vehicle systems},
+	author={Tideman, Martijn and Van Noort, Martijn},
+	booktitle={2013 IEEE Intelligent Vehicles Symposium (IV)},
+	pages={713--718},
+	year={2013},
+	organization={IEEE}
+}
+
+@inproceedings{koenig2004design,
+	title={Design and use paradigms for gazebo, an open-source multi-robot simulator},
+	author={Koenig, Nathan and Howard, Andrew},
+	booktitle={Intelligent Robots and Systems, 2004.(IROS 2004). Proceedings. 2004 IEEE/RSJ International Conference on},
+	volume={3},
+	pages={2149--2154},
+	year={2004},
+	organization={IEEE}
+}
+
+@inproceedings{rong2020lgsvl,
+	title={Lgsvl simulator: A high fidelity simulator for autonomous driving},
+	author={Rong, Guodong and Shin, Byung Hyun and Tabatabaee, Hadi and Lu, Qiang and Lemke, Steve and Mo{\v{z}}eiko, M{\=a}rti{\c{n}}{\v{s}} and Boise, Eric and Uhm, Geehoon and Gerow, Mark and Mehta, Shalin and others},
+	booktitle={2020 IEEE 23rd International Conference on Intelligent Transportation Systems (ITSC)},
+	pages={1--6},
+	year={2020},
+	organization={IEEE}
+}
+
+@article{haas2014history,
+	title={A history of the unity game engine},
+	author={Haas, John},
+	journal={Diss. WORCESTER POLYTECHNIC INSTITUTE},
+	year={2014}
+}
 
 %% Multi-Object Tracking
 
@@ -711,7 +909,47 @@
 	publisher={Springer}
 }
 
+@inproceedings{zhang2019robust,
+	title={Robust multi-modality multi-object tracking},
+	author={Zhang, Wenwei and Zhou, Hui and Sun, Shuyang and Wang, Zhe and Shi, Jianping and Loy, Chen Change},
+	booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+	pages={2365--2374},
+	year={2019}
+}
+
+@inproceedings{baser2019fantrack,
+	title={Fantrack: 3d multi-object tracking with feature association network},
+	author={Baser, Erkan and Balasubramanian, Venkateshwaran and Bhattacharyya, Prarthana and Czarnecki, Krzysztof},
+	booktitle={2019 IEEE Intelligent Vehicles Symposium (IV)},
+	pages={1426--1433},
+	year={2019},
+	organization={IEEE}
+}
+
+@inproceedings{weng2019monocular,
+	title={Monocular 3d object detection with pseudo-lidar point cloud},
+	author={Weng, Xinshuo and Kitani, Kris},
+	booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops},
+	year={2019}
+}
+
+@inproceedings{shi2019pointrcnn,
+	title={Pointrcnn: 3d object proposal generation and detection from point cloud},
+	author={Shi, Shaoshuai and Wang, Xiaogang and Li, Hongsheng},
+	booktitle={Proceedings of the IEEE/CVF conference on computer vision and pattern recognition},
+	pages={770--779},
+	year={2019}
+}
+
 %% Euro-NCAP
+
+@inproceedings{hong2019rules,
+	title={Rules of the road: Predicting driving behavior with a convolutional model of semantic interactions},
+	author={Hong, Joey and Sapp, Benjamin and Philbin, James},
+	booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+	pages={8454--8462},
+	year={2019}
+}
 
 @article{brunetti2018computer,
 	title={Computer vision and deep learning techniques for pedestrian detection and tracking: A survey},
@@ -780,6 +1018,21 @@
 
 %% Motion Prediction Datasets
 
+@inproceedings{deo2018convolutionalmotion,
+	title={Convolutional social pooling for vehicle trajectory prediction},
+	author={Deo, Nachiket and Trivedi, Mohan M},
+	booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition Workshops},
+	pages={1468--1476},
+	year={2018}
+}
+
+@misc{argoverse_forecasting_challenge,
+	title = {Argoverse Motion Forecasting Competition},
+	author = {Jagjeet Singh and William Qi and Tanmay Agarwal and Andrew Hartnett},
+	howpublished = {\url{https://eval.ai/web/challenges/challenge-page/454/overview}},
+	note = {Accessed: 08-27-2021}
+}
+
 @inproceedings{chang2019argoverse,
 	title={Argoverse: 3d tracking and forecasting with rich maps},
 	author={Chang, Ming-Fang and Lambert, John and Sangkloy, Patsorn and Singh, Jagjeet and Bak, Slawomir and Hartnett, Andrew and Wang, De and Carr, Peter and Lucey, Simon and Ramanan, Deva and others},
@@ -839,11 +1092,296 @@
 	year={2022}
 }
 
-@article{gilles2021thomas,
-	title={Thomas: Trajectory heatmap output with learned multi-agent sampling},
-	author={Gilles, Thomas and Sabatini, Stefano and Tsishkou, Dzmitry and Stanciulescu, Bogdan and Moutarde, Fabien},
-	journal={arXiv preprint arXiv:2110.06607},
-	year={2021}
+%% Decision-Making
+
+@article{Yurtsever2019,
+	author       = {Ekim Yurtsever and
+	Jacob Lambert and
+	Alexander Carballo and
+	Kazuya Takeda},
+	title        = {A Survey of Autonomous Driving: Common Practices and Emerging Technologies},
+	journal      = {CoRR},
+	volume       = {abs/1906.05113},
+	year         = {2019},
+	url          = {http://arxiv.org/abs/1906.05113},
+	eprinttype    = {arXiv},
+	eprint       = {1906.05113},
+	timestamp    = {Sun, 30 May 2021 18:29:36 +0200},
+	biburl       = {https://dblp.org/rec/journals/corr/abs-1906-05113.bib},
+	bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Ravi2020,
+	author       = {Bangalore Ravi Kiran and
+	Ibrahim Sobh and
+	Victor Talpaert and
+	Patrick Mannion and
+	Ahmad A. Al Sallab and
+	Senthil Kumar Yogamani and
+	Patrick P{\'{e}}rez},
+	title        = {Deep Reinforcement Learning for Autonomous Driving: {A} Survey},
+	journal      = {CoRR},
+	volume       = {abs/2002.00444},
+	year         = {2020},
+	url          = {https://arxiv.org/abs/2002.00444},
+	eprinttype    = {arXiv},
+	eprint       = {2002.00444},
+	timestamp    = {Mon, 10 Feb 2020 15:12:57 +0100},
+	biburl       = {https://dblp.org/rec/journals/corr/abs-2002-00444.bib},
+	bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Mnih2015,
+	added-at = {2015-08-26T14:46:40.000+0200},
+	author = {Mnih, Volodymyr and Kavukcuoglu, Koray and Silver, David and Rusu, Andrei A. and Veness, Joel and Bellemare, Marc G. and Graves, Alex and Riedmiller, Martin and Fidjeland, Andreas K. and Ostrovski, Georg and Petersen, Stig and Beattie, Charles and Sadik, Amir and Antonoglou, Ioannis and King, Helen and Kumaran, Dharshan and Wierstra, Daan and Legg, Shane and Hassabis, Demis},
+	biburl = {https://www.bibsonomy.org/bibtex/2fb15f4471c81dc2b9edf2304cb2f7083/hotho},
+	description = {Human-level control through deep reinforcement learning - nature14236.pdf},
+	interhash = {eac59980357d99db87b341b61ef6645f},
+	intrahash = {fb15f4471c81dc2b9edf2304cb2f7083},
+	issn = {00280836},
+	journal = {Nature},
+	keywords = {deep learning toread},
+	month = feb,
+	number = 7540,
+	pages = {529--533},
+	publisher = {Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved.},
+	timestamp = {2015-08-26T14:46:40.000+0200},
+	title = {Human-level control through deep reinforcement learning},
+	url = {http://dx.doi.org/10.1038/nature14236},
+	volume = 518,
+	year = 2015
+}
+
+@article{SilverHuangEtAl16nature,
+	abstract = {The game of Go has long been viewed as the most challenging of classic games for artificial intelligence owing to its enormous search space and the difficulty of evaluating board positions and moves. Here we introduce a new approach to computer Go that uses 'value networks' to evaluate board positions and 'policy networks' to select moves. These deep neural networks are trained by a novel combination of supervised learning from human expert games, and reinforcement learning from games of self-play. Without any lookahead search, the neural networks play Go at the level of state-of-the-art Monte Carlo tree search programs that simulate thousands of random games of self-play. We also introduce a new search algorithm that combines Monte Carlo simulation with value and policy networks. Using this search algorithm, our program AlphaGo achieved a 99.8 percent winning rate against other Go programs, and defeated the human European Go champion by 5 games to 0. This is the first time that a computer program has defeated a human professional player in the full-sized game of Go, a feat previously thought to be at least a decade away.},
+	added-at = {2016-05-21T09:09:48.000+0200},
+	author = {Silver, David and Huang, Aja and Maddison, Chris J. and Guez, Arthur and Sifre, Laurent and van den Driessche, George and Schrittwieser, Julian and Antonoglou, Ioannis and Panneershelvam, Veda and Lanctot, Marc and Dieleman, Sander and Grewe, Dominik and Nham, John and Kalchbrenner, Nal and Sutskever, Ilya and Lillicrap, Timothy and Leach, Madeleine and Kavukcuoglu, Koray and Graepel, Thore and Hassabis, Demis},
+	biburl = {https://www.bibsonomy.org/bibtex/29e987f58d895c490144693139cbc90c7/flint63},
+	doi = {10.1038/nature16961},
+	file = {Nature online:2016/SilverHuangEtAl16nature.pdf:PDF},
+	groups = {public},
+	interhash = {48430c7891aaf9fe2582faa8f5d076c1},
+	intrahash = {9e987f58d895c490144693139cbc90c7},
+	issn = {0028-0836},
+	journal = {Nature},
+	keywords = {01614 paper ai google learn algorithm},
+	number = 7587,
+	pages = {484--489},
+	timestamp = {2018-04-16T12:03:12.000+0200},
+	title = {Mastering the Game of {Go} with Deep Neural Networks and Tree Search},
+	username = {flint63},
+	volume = 529,
+	year = 2016
+}
+
+@article{Ross2010,
+	author       = {St{\'{e}}phane Ross and
+	Geoffrey J. Gordon and
+	J. Andrew Bagnell},
+	title        = {No-Regret Reductions for Imitation Learning and Structured Prediction},
+	journal      = {CoRR},
+	volume       = {abs/1011.0686},
+	year         = {2010},
+	url          = {http://arxiv.org/abs/1011.0686},
+	eprinttype    = {arXiv},
+	eprint       = {1011.0686},
+	timestamp    = {Mon, 13 Aug 2018 16:45:56 +0200},
+	biburl       = {https://dblp.org/rec/journals/corr/abs-1011-0686.bib},
+	bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Johan2018,
+	author       = {Carl{-}Johan Hoel and
+	Krister Wolff and
+	Leo Laine},
+	title        = {Automated Speed and Lane Change Decision Making using Deep Reinforcement
+	Learning},
+	journal      = {CoRR},
+	volume       = {abs/1803.10056},
+	year         = {2018},
+	url          = {http://arxiv.org/abs/1803.10056},
+	eprinttype    = {arXiv},
+	eprint       = {1803.10056},
+	timestamp    = {Mon, 13 Aug 2018 16:49:12 +0200},
+	biburl       = {https://dblp.org/rec/journals/corr/abs-1803-10056.bib},
+	bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Tram2018,
+	author       = {Tommy Tram and
+	Anton Jansson and
+	Robin Gr{\"{o}}nberg and
+	Mohammad Ali and
+	Jonas Sj{\"{o}}berg},
+	title        = {Learning Negotiating Behavior Between Cars in Intersections using
+	Deep Q-Learning},
+	journal      = {CoRR},
+	volume       = {abs/1810.10469},
+	year         = {2018},
+	url          = {http://arxiv.org/abs/1810.10469},
+	eprinttype    = {arXiv},
+	eprint       = {1810.10469},
+	timestamp    = {Thu, 14 Oct 2021 09:16:27 +0200},
+	biburl       = {https://dblp.org/rec/journals/corr/abs-1810-10469.bib},
+	bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@ARTICLE{Li4,
+	author={Li, Guofa and Qiu, Yifan and Yang, Yifan and Li, Zhenning and Li, Shen and Chu, Wenbo and Green, Paul and Li, Shengbo Eben},
+	journal={IEEE Transactions on Intelligent Vehicles}, 
+	title={Lane Change Strategies for Autonomous Vehicles: A Deep Reinforcement Learning Approach Based on Transformer}, 
+	year={2023},
+	volume={8},
+	number={3},
+	pages={2197-2211},
+	doi={10.1109/TIV.2022.3227921}}
+
+@misc{liu2022augmenting,
+	title={Augmenting Reinforcement Learning with Transformer-based Scene Representation Learning for Decision-making of Autonomous Driving}, 
+	author={Haochen Liu and Zhiyu Huang and Xiaoyu Mo and Chen Lv},
+	year={2022},
+	eprint={2208.12263},
+	archivePrefix={arXiv},
+	primaryClass={cs.LG}
+}
+
+@misc{valiente2022predictionaware,
+	title={Prediction-aware and Reinforcement Learning based Altruistic Cooperative Driving}, 
+	author={Rodolfo Valiente and Mahdi Razzaghpour and Behrad Toghi and Ghayoor Shah and Yaser P. Fallah},
+	year={2022},
+	eprint={2211.10585},
+	archivePrefix={arXiv},
+	primaryClass={cs.RO}
+}
+
+@article{Schulman2017,
+	author    = {John Schulman and
+	Filip Wolski and
+	Prafulla Dhariwal and
+	Alec Radford and
+	Oleg Klimov},
+	title     = {Proximal Policy Optimization Algorithms},
+	journal   = {CoRR},
+	volume    = {abs/1707.06347},
+	year      = {2017},
+	url       = {http://arxiv.org/abs/1707.06347},
+	eprinttype = {arXiv},
+	eprint    = {1707.06347},
+	timestamp = {Mon, 13 Aug 2018 16:47:34 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/SchulmanWDRK17.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@misc{SMARTS,
+	title={SMARTS: Scalable Multi-Agent Reinforcement Learning Training School for Autonomous Driving},
+	author={Ming Zhou and Jun Luo and Julian Villella and Yaodong Yang and David Rusu and Jiayu Miao and Weinan Zhang and Montgomery Alban and Iman Fadakar and Zheng Chen and Aurora Chongxi Huang and Ying Wen and Kimia Hassanzadeh and Daniel Graves and Dong Chen and Zhengbang Zhu and Nhat Nguyen and Mohamed Elsayed and Kun Shao and Sanjeevan Ahilan and Baokuan Zhang and Jiannan Wu and Zhengang Fu and Kasra Rezaee and Peyman Yadmellat and Mohsen Rohani and Nicolas Perez Nieves and Yihan Ni and Seyedershad Banijamali and Alexander Cowen Rivers and Zheng Tian and Daniel Palenicek and Haitham bou Ammar and Hongbo Zhang and Wulong Liu and Jianye Hao and Jun Wang},
+	url={https://arxiv.org/abs/2010.09776},
+	primaryClass={cs.MA},
+	booktitle={Proceedings of the 4th Conference on Robot Learning (CoRL)},
+	year={2020},
+	month={11}
+}
+
+@INPROCEEDINGS{Sumo,
+	author = {Michael Behrisch and Laura Bieker and Jakob Erdmann and Daniel Krajzewicz},
+	title = {SUMO - Simulation of Urban MObility: An overview},
+	booktitle = {in SIMUL 2011, The Third International Conference on Advances in System Simulation},
+	year = {2011},
+	pages = {63--68}
+}
+
+@ARTICLE{Zhu2019,
+	author={Zhu, Li and Yu, Fei Richard and Wang, Yige and Ning, Bin and Tang, Tao},
+	journal={IEEE Transactions on Intelligent Transportation Systems}, 
+	title={Big Data Analytics in Intelligent Transportation Systems: A Survey}, 
+	year={2019},
+	volume={20},
+	number={1},
+	pages={383-398},
+	doi={10.1109/TITS.2018.2815678}}
+
+@INPROCEEDINGS{Rodrigo2023,
+	author={Gutiérrez-Moreno, Rodrigo and Barea, Rafael and López-Guillén, Elena and Arango, Felipe and Abdeselam, Navil and Bergasa, Luis M},
+	booktitle={2023 IEEE Intelligent Vehicles Symposium (IV)}, 
+	title={Hybrid Decision Making for Autonomous Driving in Complex Urban Scenarios}, 
+	year={2023},
+	volume={},
+	number={},
+}
+
+@misc{zhang2021endtoend,
+	title={End-to-End Urban Driving by Imitating a Reinforcement Learning Coach}, 
+	author={Zhejun Zhang and Alexander Liniger and Dengxin Dai and Fisher Yu and Luc Van Gool},
+	year={2021},
+	eprint={2108.08265},
+	archivePrefix={arXiv},
+	primaryClass={cs.CV}
+}
+
+@misc{moghadam2019hierarchical,
+	title={A Hierarchical Architecture for Sequential Decision-Making in Autonomous Driving using Deep Reinforcement Learning}, 
+	author={Majid Moghadam and Gabriel Hugh Elkaim},
+	year={2019},
+	eprint={1906.08464},
+	archivePrefix={arXiv},
+	primaryClass={cs.RO}
+}
+
+@Article{Gutierrez2022,
+	AUTHOR = {Gutiérrez-Moreno, Rodrigo and Barea, Rafael and López-Guillén, Elena and Araluce, Javier and Bergasa, Luis M.},
+	TITLE = {Reinforcement Learning-Based Autonomous Driving at Intersections in CARLA Simulator},
+	JOURNAL = {Sensors},
+	VOLUME = {22},
+	YEAR = {2022},
+	NUMBER = {21},
+	ARTICLE-NUMBER = {8373},
+	URL = {https://www.mdpi.com/1424-8220/22/21/8373},
+	PubMedID = {36366072},
+	ISSN = {1424-8220},
+	ABSTRACT = {Intersections are considered one of the most complex scenarios in a self-driving framework due to the uncertainty in the behaviors of surrounding vehicles and the different types of scenarios that can be found. To deal with this problem, we provide a Deep Reinforcement Learning approach for intersection handling, which is combined with Curriculum Learning to improve the training process. The state space is defined by two vectors, containing adversaries and ego vehicle information. We define a features extractor module and an actor&ndash;critic approach combined with Curriculum Learning techniques, adding complexity to the environment by increasing the number of vehicles. In order to address a complete autonomous driving system, a hybrid architecture is proposed. The operative level generates the driving commands, the strategy level defines the trajectory and the tactical level executes the high-level decisions. This high-level decision system is the main goal of this research. To address realistic experiments, we set up three scenarios: intersections with traffic lights, intersections with traffic signs and uncontrolled intersections. The results of this paper show that a Proximal Policy Optimization algorithm can infer ego vehicle-desired behavior for different intersection scenarios based only on the behavior of adversarial vehicles.},
+	DOI = {10.3390/s22218373}
+}
+
+@misc{kostrikov2021image,
+	title={Image Augmentation Is All You Need: Regularizing Deep Reinforcement Learning from Pixels}, 
+	author={Ilya Kostrikov and Denis Yarats and Rob Fergus},
+	year={2021},
+	eprint={2004.13649},
+	archivePrefix={arXiv},
+	primaryClass={cs.LG}
+}
+
+@misc{haarnoja2019soft,
+	title={Soft Actor-Critic Algorithms and Applications}, 
+	author={Tuomas Haarnoja and Aurick Zhou and Kristian Hartikainen and George Tucker and Sehoon Ha and Jie Tan and Vikash Kumar and Henry Zhu and Abhishek Gupta and Pieter Abbeel and Sergey Levine},
+	year={2019},
+	eprint={1812.05905},
+	archivePrefix={arXiv},
+	primaryClass={cs.LG}
+}
+
+%% Holistic simulation
+
+@misc{raytracing1,
+	title={Neural Ray-Tracing: Learning Surfaces and Reflectance for Relighting and View Synthesis}, 
+	author={Julian Knodt and Joe Bartusek and Seung-Hwan Baek and Felix Heide},
+	year={2021},
+	eprint={2104.13562},
+	archivePrefix={arXiv},
+	primaryClass={cs.CV}
+}
+
+@article{raytracing2,
+	title={Studying the precision of ray tracing techniques with Szekeres models},
+	volume={92},
+	ISSN={1550-2368},
+	url={http://dx.doi.org/10.1103/PhysRevD.92.023532},
+	DOI={10.1103/physrevd.92.023532},
+	number={2},
+	journal={Physical Review D},
+	publisher={American Physical Society (APS)},
+	author={Koksbang, S. M. and Hannestad, S.},
+	year={2015}
 }
 
 % Chapter 6 Conclusiones and Future Works
@@ -1453,9 +1991,18 @@
 }
 
 @inproceedings{gomez2023improving,
-	title={Improving Multi-Agent Motion Prediction with Heuristic Goals and Motion Refinement},
+	title={Improving Multi-Agent Motion Prediction With Heuristic Goals and Motion Refinement},
 	author={G{\'o}mez-Hu{\'e}lamo, Carlos and Conde, Marcos V and Barea, Rafael and Bergasa, Luis M},
-	booktitle={CVF Conference on Computer Vision and Pattern Recognition},
-	year={2023},
+	booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+	pages={5322--5331},
+	year={2023}
+}
+
+@inproceedings{gomez2019simulating,
+	title={Simulating use cases for the UAH Autonomous Electric Car},
+	author={G{\'o}mez-Huelamo, Carlos and Bergasa, Luis M and Barea, Rafael and L{\'o}pez-Guill{\'e}n, Elena and Arango, Felipe and S{\'a}nchez, Pablo},
+	booktitle={2019 IEEE Intelligent Transportation Systems Conference (ITSC)},
+	pages={2305--2311},
+	year={2019},
 	organization={IEEE}
 }

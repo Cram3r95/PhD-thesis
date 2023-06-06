@@ -114,8 +114,10 @@
 \usepackage[ruled,vlined]{algorithm2e}
 \newcommand{\eg}{\textit{e}.\textit{g}.}
 \newcommand{\ie}{\textit{i}.\textit{e}.}
-\newcommand{\aka}{\textit{a}.\textit{k}.\textit{a}}
-\newcommand{\wrt}{\textit{w}.\textit{r}.\textit{t}}
+\newcommand{\aka}{\textit{a}.\textit{k}.\textit{a}.}
+\newcommand{\wrt}{\textit{w}.\textit{r}.\textit{t}.}
+\newcommand\ChangeRT[1]{\noalign{\hrule height #1}}
+\newcommand\boldblue[1]{\textcolor{blue}{\textbf{#1}}}
 % \usepackage{algorithm}% http://ctan.org/pkg/algorithms
 % \def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
 % \def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
@@ -124,6 +126,8 @@
 % \usepackage[noend]{algpseudocode}
 \usepackage{siunitx}
 \usepackage{makecell}
+\usepackage{booktabs}
+\usepackage[flushleft]{threeparttable}
 
 %% FIXING PROBLEM WITH ALL PAGES PRINTED IN COLOR
 % \usepackage{xcolor}
@@ -164,6 +168,10 @@
 \definecolor{ForestGreen}{RGB}{34,139,34}
 \definecolor{YellowOrange}{rgb}{1.0, 0.75, 0.0}
 \definecolor{aqua}{rgb}{0.0, 1.0, 1.0}
+\definecolor{brightube}{rgb}{0.82, 0.62, 0.91}
+\definecolor{blue-violet}{rgb}{0.54, 0.17, 0.89}
+\definecolor{brickred}{rgb}{0.8, 0.25, 0.33}
+\definecolor{cadetblue}{rgb}{0.37, 0.62, 0.63}
 
 % To draw rectagles in tfm cover
 \usepackage{tikz}
@@ -206,6 +214,9 @@ hyperfootnotes=false
 
 % \usepackage[all]{hypcap}
 \usepackage[center]{caption}
+\usepackage[
+singlelinecheck=false % <-- important
+]{caption}
 \usepackage{subcaption}
 
 

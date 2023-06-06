@@ -1,0 +1,64 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% 
+% Generic template for TFC/TFM/TFG/Tesis
+% 
+% By:
+% + Javier Macías-Guarasa. 
+% Departamento de Electrónica
+% Universidad de Alcalá
+% + Roberto Barra-Chicote. 
+% Departamento de Ingeniería Electrónica
+% Universidad Politécnica de Madrid   
+% 
+% Based on original sources by Roberto Barra, Manuel Ocaña, Jesús Nuevo,
+% Pedro Revenga, Fernando Herránz and Noelia Hernández. Thanks a lot to
+% all of them, and to the many anonymous contributors found (thanks to
+% google) that provided help in setting all this up.
+% 
+% See also the additionalContributors.txt file to check the name of
+% additional contributors to this work.
+% 
+% If you think you can add pieces of relevant/useful examples,
+% improvements, please contact us at (macias@depeca.uah.es)
+% 
+% You can freely use this template and please contribute with
+% comments or suggestions!!!
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\chapter{Conclusions and Future Works}
+\label{cha:conclusions_and_future_works}
+
+\begin{FraseCelebre}
+	\begin{Frase}
+		El mundo no es todo alegría y color, \\
+		es un lugar terrible y por muy duro que seas \\
+		es capaz de arrodillarte a golpes \\
+		y tenerte sometido a golpes permanentemente \\
+		si no se lo impides. \\
+		Ni tú ni yo ni nadie golpea mas fuerte que la vida. \\
+		Pero no importa lo fuerte que golpeas, \\
+		sino lo fuerte que pueden golpearte \\
+		hay que soportar sin dejar de avanzar. \\
+		¡Así es como se gana!
+	\end{Frase}
+	\begin{Fuente}
+		Discurso de Rocky a su hijo \\
+		Rocky Balboa
+	\end{Fuente}
+\end{FraseCelebre}
+
+\section{Conclusions}
+\label{sec:6_introduction}
+
+\ac{AD} has gained significant attention in recent years, with the development of intelligent vehicles and the increasing need for safe and efficient transportation systems. However, one of the main challenges in the field of \ac{AD} is scene understanding, which involves the ability of a vehicle to recognize and interpret the objects and events in its environment. Accurate scene understanding, particularly focusing on the future behaviour of the scene, is critical for safe and efficient driving, as it enables the vehicle to make informed decisions and take appropriate actions.
+
+\ac{DL} has emerged as a powerful tool for scene understanding in autonomous driving, as it can automatically learn representations of complex and high-dimensional data. In particular, deep neural networks have shown remarkable performance in various tasks related to scene understanding, such as object detection, segmentation, classification or prediction. In that sense, the design and implementation of effective \ac{DL} models for scene understanding is a really active research area, and there is a need for more advanced predictive techniques to improve the performance of autonomous vehicles.
+
+The main scope of this thesis has been the development of novel and efficient interaction-aware \ac{DL} based \ac{MP} models, focusing on long-term (from 3 to 6 s) prediction horizon, including social and physical information. Even though the main agent to be predicted will be usually the ego-vehicle, the algorithms proposed in this chapter will be able to properly model the past trajectory and agents interactions based on the specific type of agent, instead of the first \ac{DL} models proposed in the literature which only focused on pedestrian trajectory prediction \cite{alahi2016social, gupta2018social, sadeghian2019sophie}. 
+
+First of all, this chapter will study the incorporation of HD map information to enhance the robustness and reliability of a simple-yet-powerful tracking-by-detection pipeline, based on Kalman Filter and Hungarian algorithm, which subsequently feeds the updated tracker information to perform \ac{CTRV} prediction. Then, \ac{DL} will be progressively integrated to encode the past trajectories, social interactions and physical information respectively, including physics-based heuristics to include map information, specially the potential future goals or centerlines candidates. The goal is to develop advanced models that can accurately recognize and interpret the agents states, interactions and context to provide reliable predictions for safe and efficient driving. 
+
+\section{Future Works}
+\label{sec:6_future_works}
+

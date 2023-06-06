@@ -48,7 +48,7 @@
 \section{Introduction}
 \label{sec:3_introduction}
 
-As commented in previous sections, the \ac{MP} algorithms covered by this thesis range from tracking multiple objects and subsequent prediction with physics-based methods to the most recent \ac{SOTA} techniques to compute the deep traffic context and then decode multimodal predictions with associated confidences, assuming the physical information is given and surrounding participants have been multi-tracked beforehand. Throughout this Chapter, an in-depth theoretical study will be made of those algorithms, neural networks or heuristics that form a direct part of the development of this work in order to address the proposed methods in Chapter \ref{cha:predictive_techniques}. \\
+As commented in previous sections, the \ac{MP} algorithms covered by this thesis range from tracking multiple objects and subsequent prediction with physics-based methods to the most recent \ac{SOTA} techniques to compute the deep traffic context and then decode multimodal predictions with associated confidences, assuming the physical information is given and surrounding participants have been multi-tracked beforehand. Throughout this Chapter, an in-depth theoretical study will be made of those algorithms, neural networks or heuristics that form a direct part of the development of this work in order to address the proposed methods in future chapters.
 
 First of all, we will start with the mathematical formulation of the methods to perform physics-based Multi-Object Tracking, from the well-known techniques Kalman Filter \cite{kalman1960new} for the agents states estimation to the Hungarian algorithm \cite{kuhn1955hungarian} for the association of detections and trackers, which represents the preliminary stage before carrying out the subsequent prediction. On top of that, since several single-trajectory models (\ac{CTRV}, \ac{CTRA}) are used to compute the most plausible centerlines in the Argoverse 1 \cite{chang2019argoverse} and Argoverse 2 \cite{wilson2023argoverse}, we will review the state transition equations to properly understand the constraints for each model. Furthermore, the principal \ac{DL} techniques (e.g. 1D-CNN, LSTM, GCN, Attention mechanisms) and training losses used in this work to encode and decode the aimed multimodal will be stated, first a general mathematical formulation and applications and then how the corresponding technique is used in the \ac{MP} field.
 
@@ -58,19 +58,19 @@ First of all, we will start with the mathematical formulation of the methods to 
 % https://arxiv.org/pdf/1710.04055.pdf
 % https://github.com/NickNair/Multiple-Object-Tracking-using-Kalman-Filter
 
-As stated in Chapter \ref{cha:related_works} Section \ref{sec:2_introduction}, initially researchers rely on physics-based methods which are basic and straightforward. These methods may not offer high accuracy, but many models use the underlying idea of physics-based models to improve their accuracy. Physics-based approaches yield better results when the movement of vehicles is described by kinematics or dynamics models accurately. Nevertheless, the physical model of traffic participants is constantly evolving, so most physics-based models are only applicable for short-term predictions of no more than one second. In this Section we will study the mathematical formulation of the physics-based prediction algorithms, as well as the data association problem regarding the Multi-Object Tracking stage, that are directly related to our algorithms proposed in Chapter \ref{cha:predictive_techniques}.
+As stated in Chapter \ref{cha:related_works} Section \ref{sec:2_introduction}, initially researchers rely on physics-based methods which are basic and straightforward. These methods may not offer high accuracy, but many models use the underlying idea of physics-based models to improve their accuracy. Physics-based approaches yield better results when the movement of vehicles is described by kinematics or dynamics models accurately. Nevertheless, the physical model of traffic participants is constantly evolving, so most physics-based models are only applicable for short-term predictions of no more than one second. In this Section we will study the mathematical formulation of the physics-based prediction algorithms, as well as the data association problem regarding the Multi-Object Tracking stage, that are directly related to our algorithm proposed in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}.
 
 \subsection{Kalman Filter under the hood}
 \label{subsec:3_kf_formulation}
 
-The Kalman Filter \cite{kalman1960new} is a recursive algorithm used for estimating the state of a dynamic system in the presence of noise. It is widely used in various fields such as engineering, control systems, and robotics. The algorithm works by combining a prediction of the system state based on a mathematical model with measurements (updates) from sensors to improve the accuracy of the state estimation, as shown in Figure \ref{fig:3_KF_cycle}. The Kalman Filter is a powerful algorithm for state estimation, and it has many variations and extensions that can handle various types of systems and measurements. The filter can be applied to non-linear systems using the Extended Kalman Filter or the Unscented Kalman Filter, and it can handle multiple models using the multiple model Kalman Filter. The filter can also be used for smoothing, which involves estimating the state of the system based on past and future measurements.
+The Kalman Filter \cite{kalman1960new} is a recursive algorithm used for estimating the state of a dynamic system in the presence of noise. It is widely used in various fields such as engineering, control systems, and robotics. The algorithm works by combining a prediction of the system state based on a mathematical model with measurements (updates) from sensors to improve the accuracy of the state estimation, as shown in Figure \ref{fig:chapter_3_theoretical_background/KF_cycle}. The Kalman Filter is a powerful algorithm for state estimation, and it has many variations and extensions that can handle various types of systems and measurements. The filter can be applied to non-linear systems using the Extended Kalman Filter or the Unscented Kalman Filter, and it can handle multiple models using the multiple model Kalman Filter. The filter can also be used for smoothing, which involves estimating the state of the system based on past and future measurements.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\linewidth]{3_KF_cycle.pdf}
+	\includegraphics[width=\linewidth]{chapter_3_theoretical_background/KF_cycle.pdf}
 	\caption[Overview of the Kalman Filter Predict-Update cycle]{Overview of the Kalman Filter Predict-Update cycle. The Kalman filter keeps track of the estimated state of the system and the variance or uncertainty of the estimate. The estimate is updated using a state transition model and measurements}
 	Source: \textit{An introduction to the kalman filter} \cite{bishop2001introduction}
-	\label{fig:3_KF_cycle}
+	\label{fig:chapter_3_theoretical_background/KF_cycle}
 \end{figure}
 
 In its most simple version, the Kalman filter assumes that the system can be described using a set of linear equations, where the state of the system can be represented by a vector $\mathbf{x}_k$, and the measurements can be represented by a vector $\mathbf{z}_k$. The Kalman filter also assumes that the noise in the system follows a Gaussian distribution.
@@ -158,13 +158,13 @@ As stated in Chapter \ref{cha:related_works} Section \ref{subsubsec:2_single_tra
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\linewidth]{3_linear_curvilinear_mp.pdf}
+	\includegraphics[width=0.6\linewidth]{chapter_3_theoretical_background/linear_curvilinear_mp.pdf}
 	\caption[Overview of Single Trajectory prediction methods]{Overview of Single Trajectory prediction methods. Every sophisticated model can be transformed into a simpler one by setting one state veriable to zero}
 	Source: \textit{Comparison and evaluation of advanced motion models for vehicle tracking} \cite{schubert2008comparison}
-	\label{fig:3_linear_curvilinear_mp}
+	\label{fig:chapter_3_theoretical_background/linear_curvilinear_mp}
 \end{figure}
 
-Several single-trajectory prediction models have been proposed in the literature, including Constant Velocity (CV), Constant Acceleration (CA), Constant Turn Rate and Velocity (CTRV), Constant Turn Rate and Acceleration (CTRA), Constant Speed and Angular Velocity (CSAV), and Constant Curvature Acceleration (CCA)/Constant Speed and Angular Acceleration (CSAA), as illustrated in Figure \ref{fig:3_linear_curvilinear_mp}:
+Several single-trajectory prediction models have been proposed in the literature, including Constant Velocity (CV), Constant Acceleration (CA), Constant Turn Rate and Velocity (CTRV), Constant Turn Rate and Acceleration (CTRA), Constant Speed and Angular Velocity (CSAV), and Constant Curvature Acceleration (CCA)/Constant Speed and Angular Acceleration (CSAA), as illustrated in Figure \ref{fig:chapter_3_theoretical_background/linear_curvilinear_mp}:
 
 \begin{itemize}
 	\item Constant Velocity (CV) model assumes that the object moves at a constant velocity and its future position can be predicted by simply extrapolating its current velocity vector. This model is simple and computationally efficient, but it may not accurately capture the object's motion if it changes its velocity.
@@ -246,8 +246,13 @@ In terms of implementation, the CTRA model requires more computational resources
 
 In summary, the main differences between the CTRV and CTRA prediction models are that the CTRA model includes an additional term for acceleration in its prediction equations, allowing for more accurate predictions of the motion of objects with varying acceleration, while the CTRV model assumes a constant velocity and turn rate and is more computationally efficient.
 
-\section{Convolutional Neural Networks}
-\label{sec:3_cnns}
+\section{Deep Learning algorithms}
+\label{sec:3_dlb_formulation}
+
+In this section the mathematical formulation of the \ac{DL} layers employed in this thesis is covered. In particular, these are the 1D-\ac{CNN}, \ac{LSTM}, \ac{GAN}, Attention mechanism and \ac{GNN} layers. We briefly introduce each layer, as well as the corresponding mathematical formulation to enhance the comprehension of the learning-based methods proposed in this thesis.
+
+\subsection{Convolutional Neural Networks}
+\label{subsec:3_cnns}
 
 % Additional info
 
@@ -266,43 +271,51 @@ Convolutional neural networks (CNNs) are commonly used for image and signal proc
 	\item 3D Convolutional Neural Networks (3D CNNs): 3D CNNs are used for processing 3D volumetric data such as CT scans, MRI images, and video data. The input to a 3D CNN is a three-dimensional volume represented as a sequence of 2D images. The convolutional layers in a 3D CNN apply filters that slide over the 3D volume to extract local features. The output of each convolutional layer is a set of 3D feature maps. 3D CNNs are used for tasks such as medical image analysis, video classification, and action recognition.
 \end{itemize}
 
-In summary, 1D CNNs are used for processing sequential data (such as time series data, audio signals, and text), 2D CNNs are used for image processing, and 3D CNNs are used for volumetric data. As we will see in Chapter \ref{cha:predictive_techniques}, in this work we focus on 1D CNNs. The basic building blocks of a 1D CNN are convolutional layers, which learn local patterns in the input data by applying a set of filters to it, as illustrated in Figure \ref{fig:3_CNN_1D}. Each filter slides over the input sequence and performs a dot product operation at each position to generate a feature map. These feature maps capture the presence of certain patterns at different positions in the input sequence. 
+In summary, 1D CNNs are used for processing sequential data (such as time series data, audio signals, and text), 2D CNNs are used for image processing, and 3D CNNs are used for volumetric data. As we will see in Chapter \ref{cha:predictive_techniques_in_ad}, in this work we focus on 1D CNNs. The basic building blocks of a 1D CNN are convolutional layers, which learn local patterns in the input data by applying a set of filters to it, as illustrated in Figure \ref{fig:chapter_3_theoretical_background/CNN_1D}. Each filter slides over the input sequence and performs a dot product operation at each position to generate a feature map. These feature maps capture the presence of certain patterns at different positions in the input sequence. 
  
 The architecture of a 1D CNN typically consists of several convolutional layers, followed by one or more fully connected layers for classification or regression. The output of each convolutional layer is fed into the next layer, with optional pooling layers in between to reduce the spatial dimension of the feature maps. The final output of the network is obtained by passing the output of the last fully connected layer through a suitable activation function, such as softmax for classification or linear for regression.
  
  \begin{figure}[h]
  	\centering
- 	\includegraphics[width=0.6\linewidth]{3_CNN_1D.pdf}
+ 	\includegraphics[width=0.6\linewidth]{chapter_3_theoretical_background/CNN_1D.pdf}
  	\caption{Example of CNN architecture to process 1D-input signals}
- 	\label{fig:3_CNN_1D}
+ 	\label{fig:chapter_3_theoretical_background/CNN_1D}
  \end{figure}
  
 Let $x$ be a 1-dimensional input sequence of length $n$, represented as a vector $x = [x_1, x_2, ..., x_n]$. Let $k$ be a filter of length $m$, represented as a vector $k = [k_1, k_2, ..., k_m]$. We can apply the filter $k$ to the input sequence $x$ by computing a convolution operation:
 
-$$(k * x)_i = \sum_{j=1}^m k_j x_{i+j-m}$$
+\begin{equation}
+	(k * x)_i = \sum_{j=1}^m k_j x_{i+j-m}
+\end{equation}
 
 where $*$ denotes the convolution operation, and $i$ ranges from $m$ to $n$. This operation produces a new sequence of length $n - m + 1$, representing the local features extracted from the input sequence $x$ by the filter $k$.
 
 To learn multiple filters and extract different types of features, we use multiple convolutional layers in the network. Each layer applies a set of filters, and produces a set of feature maps. The feature maps can be computed as:
 
-$$h_{i,j} = f(\sum_{k=1}^m W_{j,k} x_{i+k-m} + b_j)$$
+\begin{equation}
+h_{i,j} = f(\sum_{k=1}^m W_{j,k} x_{i+k-m} + b_j)
+\end{equation}
 
 where $h$ is the feature map at position $i$ and filter $j$, $W$ is the weight matrix of the $j$-th filter, $b$ is the bias term for the $j$-th filter, and $f$ is an activation function (such as ReLU or sigmoid).
 
 After each convolutional layer, we typically apply a pooling layer to reduce the dimensionality of the features and increase the translation invariance of the network. The most common pooling operation is max pooling, which selects the maximum value within a window of size $p$:
 
-$$y_{i,j} = \max_{k=0}^{p-1} h_{i+k,j}$$
+\begin{equation}
+y_{i,j} = \max_{k=0}^{p-1} h_{i+k,j}
+\end{equation}
 
 where $y$ is the output of the pooling layer at position $i$ and filter $j$.
 
 Finally, we can use one or more fully connected layers to perform the final classification or regression task. The output of the pooling layer is flattened into a vector, and fed into a set of fully connected layers, with optional dropout regularization and batch normalization:
 
-$$z_j = f(\sum_{i=1}^n W_{i,j} y_i + b_j)$$
+\begin{equation}
+z_j = f(\sum_{i=1}^n W_{i,j} y_i + b_j)
+\end{equation}
 
 where $z$ is the output of the $j$-th fully connected layer, $W$ is the weight matrix, $y$ is the flattened output of the pooling layer, $b$ is the bias term, and $f$ is an activation function. 
 
-\section{Recurrent Neural Networks}
-\label{sec:3_rnns}
+\subsection{Recurrent Neural Networks}
+\label{subsec:3_rnns}
 
 Recurrent Neural Networks (RNNs) are a type of neural network that are designed to process sequential data, where the order of the input matters. They are widely used in a variety of applications such as natural language processing, speech recognition, image captioning, and time series prediction.
 
@@ -312,16 +325,16 @@ There are several types of RNNs, including the basic RNN, the Gated Recurrent Un
 
 The GRU is a variation of the basic RNN that uses gating mechanisms to control the flow of information through the network. It has fewer parameters than the LSTM and can be faster to train, but it may not perform as well as the LSTM on tasks that require more complex temporal dependencies.
 
-\section{Long Short-Term Memory}
-\label{sec:3_LSTMs}
+\subsubsection{Long Short-Term Memory}
+\label{subsubsec:3_LSTMs}
 
-LSTM networks were introduced to address the vanishing gradient problem in standard RNNs. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network. Figure \ref{fig:3_LSTM} provides a detailed overview of the LSTM cell structure, illustrating the workflow from the previous cell output and input at time $t-1$ in order to compute the current cell state and hidden state at time $t$.
+LSTM networks were introduced to address the vanishing gradient problem in standard RNNs. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network. Figure \ref{fig:chapter_3_theoretical_background/LSTM} provides a detailed overview of the LSTM cell structure, illustrating the workflow from the previous cell output and input at time $t-1$ in order to compute the current cell state and hidden state at time $t$.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\linewidth]{3_LSTM_cell.pdf}
+	\includegraphics[width=\linewidth]{chapter_3_theoretical_background/LSTM_cell.pdf}
 	\caption{Overview of the LSTM cell structure}
-	\label{fig:3_LSTM}
+	\label{fig:chapter_3_theoretical_background/LSTM}
 \end{figure}
 
 The three gates are called the input gate, forget gate, and output gate, and they are responsible for deciding which information to store in the memory cell, which information to forget, and which information to output, respectively.
@@ -357,8 +370,8 @@ This equation scales the memory cell value by the output gate activation, then a
 
 In summary, LSTMs use a memory cell and three gating mechanisms to learn long-term dependencies in sequential data. The input, forget, and output gates control the flow of information through the network, while the memory cell stores information over time. The equations for LSTMs involve computing the input, forget, and output gate activations, the candidate value, the new memory cell value, and the new hidden state.
 
-\section{Generative Adversarial Networks}
-\label{sec:3_gans}
+\subsection{Generative Adversarial Networks}
+\label{subsec:3_gans}
 
 A discriminative model is a type of machine learning model that learns the relationship between the input features and the target output directly. The goal of a discriminative model is to learn a decision boundary that separates different classes in the input data. In other words, discriminative models focus on learning the conditional probability distribution of the target variable given the input features.
 
@@ -397,8 +410,8 @@ There are some well-known types of GANs, such as:
 
 Nevertheless, in this work we focus on a particular type of GAN, known as conditional GAN or cGAN, where the generator is conditioned on some additional information, such as class labels or image annotations. The additional information is used to control the generated output, allowing for more specific generation of data. 
 
-\section{GAN vs cGAN}
-\label{sec:3_cGAN}
+\subsubsection{GAN vs cGAN}
+\label{subsubsec:3_cGAN}
 
 The main difference between the original GAN and cGAN is that the original GAN generates samples without any control over the generated output, whereas the cGAN generates samples conditioned on some additional information.
 
@@ -406,12 +419,12 @@ In the original GAN, the generator network takes as input a random noise vector,
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\linewidth]{3_GAN.pdf}
+	\includegraphics[width=0.5\linewidth]{chapter_3_theoretical_background/GAN.pdf}
 	\caption{Comparison between the original Generative Adversarial Network (GAN) and conditional GAN (cGAN)}
-	\label{fig:3_GAN}
+	\label{fig:chapter_3_theoretical_background/GAN}
 \end{figure}
 
-In contrast, a cGAN is a GAN that is conditioned on some additional information, such as class labels or image annotations. The generator network in a cGAN takes as input both a random noise vector and a condition vector, and generates a sample that is conditioned on the additional information. The discriminator network also takes as input both the sample and the condition vector, and tries to distinguish between real data and generated data based on the condition. Figure \ref{fig:3_GAN} illustrates the differences between the original GAN and the corresponding conditioned architecture.
+In contrast, a cGAN is a GAN that is conditioned on some additional information, such as class labels or image annotations. The generator network in a cGAN takes as input both a random noise vector and a condition vector, and generates a sample that is conditioned on the additional information. The discriminator network also takes as input both the sample and the condition vector, and tries to distinguish between real data and generated data based on the condition. Figure \ref{fig:chapter_3_theoretical_background/GAN} illustrates the differences between the original GAN and the corresponding conditioned architecture.
 
 The cGAN can be used for a variety of applications, such as image-to-image translation, where the additional information is an input image that is translated to a different output image. For example, a cGAN can be trained to convert grayscale images to color images, or to transform images of one type of object to another type of object.
 
@@ -419,8 +432,8 @@ The training process for a cGAN is similar to that of the original GAN, but the 
 
 The cGAN can be used for a variety of applications, such as image-to-image translation, where the additional information is an input image that is translated to a different output image. For example, a cGAN can be trained to convert grayscale images to color images, or to transform images of one type of object to another type of object.
 
-\section{Attention Mechanism}
-\label{sec:3_attention}
+\subsection{Attention Mechanism}
+\label{subsec:3_attention}
 
 The attention mechanism is a computational method used in deep learning models to help the model focus on the most important parts of the input data. It is commonly used in natural language processing, speech recognition, and computer vision.
 
@@ -450,8 +463,8 @@ where $a_i$ is the attention weight for the $i$th element of the input. Finally,
 	o = \sum_{i=1}^{n} a_i v_i
 \end{equation}
 
-\subsection{Positional Encoding}
-\label{subsec:3_positional_encoding}
+\subsubsection{Positional Encoding}
+\label{subsubsec:3_positional_encoding}
 
 In the attention mechanism, positional encoding is used to incorporate the order of the input sequence into the model. Positional encoding involves adding a fixed-length vector to the input embeddings that encodes the position of each element in the sequence.
 
@@ -471,8 +484,8 @@ The choice of the constants used in the positional encoding formulation, such as
 
 Positional encoding has been shown to be an effective way of incorporating sequential information into transformer-based models, and it has been used successfully in a variety of natural language processing tasks, including machine translation, language modeling, and sentiment analysis.
 
-\subsection{Multi-Head Attention}
-\label{subsec:3_multi_head_attention}
+\subsubsection{Multi-Head Attention}
+\label{subsubsec:3_multi_head_attention}
 
 Multi-head attention is a type of attention mechanism used in deep learning models, particularly in transformer-based architectures, to allow the model to attend to multiple parts of the input simultaneously. It involves splitting the input into multiple heads and computing separate attention scores for each head, which are then combined to produce the final output.
 
@@ -514,8 +527,8 @@ where $\text{head}_i$ is the output of the $i$th head, and $h$ is the number of 
 
 The multi-head attention mechanism allows the model to attend to multiple parts of the input at once, which can be useful for capturing complex relationships between different parts of the input. It is often used in transformer-based architectures for natural language processing and other tasks.
 
-\subsection{Self-Attention vs Cross-Attention}
-\label{subsec:3_self_attention_vs_cross_attention}
+\subsubsection{Self-Attention vs Cross-Attention}
+\label{subsubsec:3_self_attention_vs_cross_attention}
 
 Self-attention is a type of attention mechanism used in deep learning models, particularly in transformer-based architectures, that allows the model to attend to different parts of the input sequence to compute a representation of each input element.
 
@@ -551,19 +564,19 @@ Self-attention operates on a single sequence, while cross-attention operates on 
 In self-attention, the query, key, and value vectors are all derived from the same input sequence, while in cross-attention, the key-value sequence provides the key and value vectors.
 Self-attention is used to capture relationships between elements within a sequence, while cross-attention is used to capture relationships between elements in different sequences.
 
-\subsection{Transformer}
-\label{subsec:3_transformer}
+\subsubsection{Transformer}
+\label{subsubsec:3_transformer}
 
 % https://lena-voita.github.io/nlp_course/seq2seq_and_attention.html
 
-Along this section the attention mechanism has been stated, from the main idea to the differences between self-attention and cross-attention. The Transformer model wraps-up all these concepts into a single and elegant architecture which allows the model to weigh the importance of different parts of the input sequence when computing a representation of each element in the sequence. Introduced in 2017 \cite{vaswani2017attention}, it has become the absolute standard for Natural language Processing (NLP) tasks such as language modeling, question answering or machine translation. Figure \ref{fig:3_transformer} depicts the Transformer architecture proposed in the original paper.
+Along this section the attention mechanism has been stated, from the main idea to the differences between self-attention and cross-attention. The Transformer model wraps-up all these concepts into a single and elegant architecture which allows the model to weigh the importance of different parts of the input sequence when computing a representation of each element in the sequence. Introduced in 2017 \cite{vaswani2017attention}, it has become the absolute standard for Natural language Processing (NLP) tasks such as language modeling, question answering or machine translation. Figure \ref{fig:chapter_3_theoretical_background/transformer} depicts the Transformer architecture proposed in the original paper.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.5\linewidth]{3_transformer.png}
+	\includegraphics[width=0.5\linewidth]{chapter_3_theoretical_background/transformer.png}
 	\caption{Overview of the Transformer architecture}
 	Source: \textit{Attention Is All You Need} \cite{vaswani2017attention}
-	\label{fig:3_transformer}
+	\label{fig:chapter_3_theoretical_background/transformer}
 \end{figure}
 
 The Transformer architecture consists of an encoder and a decoder. The encoder takes as input a sequence of embeddings, such as word embeddings or character embeddings, and produces a sequence of hidden states that capture the information in the input sequence. The decoder takes as input the encoder hidden states and produces a sequence of output embeddings that represent the output sequence.
@@ -576,8 +589,8 @@ The Transformer architecture uses residual connections and layer normalization t
 
 Overall, the Transformer architecture has achieved state-of-the-art results on a wide range of natural language processing tasks, and its success has led to the development of a variety of transformer-based architectures, such as BERT, GPT, and T5.
 
-\section{Graphs}
-\label{sec:3_graphs}
+\subsection{Graphs}
+\label{subsec:3_graphs}
 
 % https://arxiv.org/abs/2204.07697
 % http://www.deepnlp.org/blog/latex-code-graph-neural-network
@@ -596,8 +609,8 @@ Nevertheless, Graph-based data structures have drawbacks, and researchers must u
 	\item Large size and dimensionality will increase the graph's complexity for human interpretations. The dense structure with multiple nodes and thousands of edges is harder to understand and extract insights. 
 \end{itemize}
 
-\subsection{Graph Neural Networks}
-\label{subsec:3_gnns}
+\subsubsection{Graph Neural Networks}
+\label{subsubsec:3_gnns}
 
 GNNs are a class of neural networks that operate on graphs, which are collections of nodes and edges. A typical graph is represented by a set of node features, represented by a matrix $X \in \mathbb{R}^{N \times D}$, where $N$ is the number of nodes, and $D$ is the number of features associated with each node. Each node is also connected to other nodes via edges, which are represented by an adjacency matrix $A \in {0,1}^{N \times N}$, where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
 
@@ -611,7 +624,9 @@ The basic idea behind GNNs is to iteratively update the node representations usi
 
 One common way to implement this idea is to use the following update rule:
 
-$h_i^{(l+1)} = f(h_i^{(l)}, \sum_{j} A_{ij} h_j^{(l)})$
+\begin{equation}
+h_i^{(l+1)} = f(h_i^{(l)}, \sum_{j} A_{ij} h_j^{(l)})
+\end{equation}
 
 where $h_i^{(l)}$ is the representation of node $i$ at iteration $l$, $f$ is a non-linear activation function, and $\sum_{j} A_{ij} h_j^{(l)}$ is the sum of the representations of the neighbors of node $i$ at iteration $l$.
 
@@ -634,24 +649,26 @@ The majority of GNNs are Graph Convolutional Networks (GCNs), which are a specif
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\linewidth]{3_gcn_vs_cnn.pdf}
+	\includegraphics[width=0.6\linewidth]{chapter_3_theoretical_background/gcn_vs_cnn.pdf}
 	\caption{Overview of the sliding kernel of a 2D-CNN vs GCN}
 	Source: \textit{A comprehensive survey on graph neural networks} \cite{wu2020comprehensive}
-	\label{fig:3_gcn_vs_cnn}
+	\label{fig:chapter_3_theoretical_background/gcn_vs_cnn}
 \end{figure}
 
-The major difference between GCN and CNN is that it is developed to work on non-euclidean data structures where the order of nodes and edges can vary, as it can be appreciated in Figure \ref{fig:3_gcn_vs_cnn}. In 2D convolution, each pixel in an image is taken as a node where neighbours are determined by the filter size. The 2D convolution takes the weighted average of pixel values of the red node along with its neighbors. The neighbours of a node are ordered and have a fixed size. On the other hand, to get a hidden representation of a given node red, one simple solution of the graph convolutional operation is to take the average value of the node features of the red node along with its neighbors. Different from image data, the neighbors of a node are unordered and variable in size.
+The major difference between GCN and CNN is that it is developed to work on non-euclidean data structures where the order of nodes and edges can vary, as it can be appreciated in Figure \ref{fig:chapter_3_theoretical_background/gcn_vs_cnn}. In 2D convolution, each pixel in an image is taken as a node where neighbours are determined by the filter size. The 2D convolution takes the weighted average of pixel values of the red node along with its neighbors. The neighbours of a node are ordered and have a fixed size. On the other hand, to get a hidden representation of a given node red, one simple solution of the graph convolutional operation is to take the average value of the node features of the red node along with its neighbors. Different from image data, the neighbors of a node are unordered and variable in size.
 
 The convolution in GCN is the same as a convolution in convolutional neural networks. It multiplies neurons with weights (filters) to learn from data features. A convolutional operation on a graph is defined as:
 
-$H^{(l+1)} = \sigma(D^{-\frac{1}{2}} A D^{-\frac{1}{2}} H^{(l)} W^{(l)})$
+\begin{equation}
+H^{(l+1)} = \sigma(D^{-\frac{1}{2}} A D^{-\frac{1}{2}} H^{(l)} W^{(l)})
+\end{equation}
 
 where $H^{(l)}$ is the matrix of node representations at iteration $l$, $W^{(l)}$ is the weight matrix of the $l$-th layer, $A$ is the adjacency matrix of the graph, $D$ is the degree matrix of the graph, and $\sigma$ is a non-linear activation function.
 
 The operation $D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ is a normalization step that scales the adjacency matrix by the inverse square root of the degree matrix. This normalization ensures that nodes with different degrees have similar influence in the convolutional operation. By stacking multiple layers of such convolutions, a GCN can learn increasingly complex features of the graph.
 
-\section{Training}
-\label{sec:3_training}
+\subsection{Training}
+\label{subsec:3_training}
 
 Training is the process of iterating through a dataset to make the network learn the optimal mapping (combination of weights) from input to desired output in the data samples. In each iteration, a forward pass through the network is performed, computing the output of each layer until the end. This produces the output response of the network, which is then compared to a desired output with a defined Loss function (L). This function estimates the amount of error, which is back-propagated through the network to update its weights with the aim of minimizing the error. 
 
@@ -661,10 +678,10 @@ The backpropagation algorithm consists of two phases: the forward pass and the b
 
 The backpropagation algorithm is based on the chain rule of calculus, which allows the gradient of the loss function with respect to each weight and bias to be computed recursively from the output layer to the input layer of the network. The gradient descent algorithm is then used to update the weights and biases in the direction of the negative gradient of the loss function. In that sense, the main losses used in this work are described throughout the remaining content of this Chapter.
 
-\subsection{Optimizer and learning rate}
-\label{subsec:3_optimizer_and_lr}
+\subsubsection{Optimizer and learning rate}
+\label{subsubsec:3_optimizer_and_lr}
 
-There are several optimizers commonly used for training deep neural networks in the literature, such as Stochastic Gradient Descent (SGD), Adagrad, Root Mean Square Propagation (RMSprop) or Adadelta. In this work we use one of the most extended, the ADAM optimizer. It is a popular optimization algorithm used in deep learning, particularly for training neural networks. It is an adaptive learning rate optimization algorithm that is well suited for large datasets and high-dimensional parameter spaces.
+There are several optimizers commonly used for training deep neural networks in the literature, such as Stochastic Gradient Descent (SGD) \cite{robbins1951stochastic}, Adagrad \cite{duchi2011adaptive}, Root Mean Square Propagation (RMSprop) \cite{zou2019sufficient} or Adadelta \cite{zeiler2012adadelta}. In this work we use one of the most extended, the ADAM \cite{kingma2014adam} optimizer. It is a popular optimization algorithm used in deep learning, particularly for training neural networks. It is an adaptive learning rate optimization algorithm that is well suited for large datasets and high-dimensional parameter spaces.
 
 The basic idea behind ADAM is to compute adaptive learning rates for each parameter based on estimates of the first and second moments of the gradients. The algorithm computes a moving average of the gradients and their squared values, and uses these estimates to update the parameters with a learning rate that adapts to the local curvature of the loss function. The algorithm also includes bias-correction terms to ensure that the estimates are unbiased, especially in the early stages of training when the estimates are highly uncertain.
 
@@ -698,7 +715,7 @@ One common technique to adjust the learning rate during training is called learn
 
 Overall, the learning rate plays a crucial role in the optimization process of machine learning algorithms, including optimizer updates like the ADAM optimizer. Selecting an appropriate learning rate is important for achieving fast and stable convergence to the optimal solution.
 
-\subsection{Regression losses}
+\subsubsection{Regression losses}
 \label{subsec:3_regression_losses}
 
 % https://blmoistawinde.github.io/ml_equations_latex/
@@ -707,8 +724,8 @@ A regression loss is a type of loss function used in regression problems to meas
 
 In regression problems, the goal is to learn a function that maps input features to output values. A regression loss is used to train the model by penalizing the difference between the predicted and true output values. The loss function is typically minimized during training, so that the model learns to make more accurate predictions. There are several types of regression loss functions, such as the Quantile loss, Log-Cosh or Mean Absolute Error (MAE). In this work we mainly focus on the Mean Square Error (MSE) and SmoothL1, also known as Huber loss.
 
-\subsubsection{Mean Square Error loss}
-\label{subsubsec:3_mse_loss}
+\paragraph{Mean Square Error loss}
+\label{par:3_mse_loss}
 
 The Mean Squared Error (MSE) loss is a commonly used loss function in regression problems. It measures the average squared difference between the predicted and true values of a continuous variable. The MSE loss is given by:
 
@@ -722,8 +739,8 @@ The MSE loss penalizes large errors more strongly than small errors, since it us
 
 The MSE loss is used in many regression problems, such as linear regression, polynomial regression, and neural networks. It is often used as a performance metric to evaluate the quality of the model's predictions.
 
-\subsubsection{SmoothL1 loss}
-\label{subsubsec:3_smoothL1_loss}
+\paragraph{SmoothL1 loss}
+\label{par:3_smoothL1_loss}
 
 SmoothL1 loss, also known as Huber loss, is a loss function used in regression problems to measure the difference between the predicted and true values of a continuous variable. It is a variant of the L1 loss that is less sensitive to outliers and has a smooth gradient near zero.
 
@@ -744,8 +761,8 @@ The SmoothL1 loss function behaves like the L1 loss for small errors and like th
 
 The SmoothL1 loss is used in regression problems when the data contains outliers or when the model needs to be less sensitive to large errors. It is commonly used in object detection and localization tasks, where the predicted bounding boxes can be highly sensitive to small changes in the input data.
 
-\subsection{Softmax loss}
-\label{subsec:3_softmax_loss}
+\paragraph{Softmax loss}
+\label{par:3_softmax_loss}
 
 The softmax loss, also known as the cross-entropy loss, is a commonly used loss function in classification problems. It measures the difference between the predicted probability distribution and the true probability distribution of a categorical variable. The softmax loss is given by:
 
@@ -765,10 +782,10 @@ where $z_{i,j}$ is the unnormalized score or logit for class $j$ of the $i$-th d
 
 The softmax loss penalizes the model more heavily for predictions that are far from the true probabilities. It encourages the model to assign higher probabilities to the correct classes and lower probabilities to the incorrect classes.
 
-The softmax loss is used in many classification problems, such as image classification, natural language processing, and speech recognition. It is often used as a performance metric to evaluate the quality of the model's predictions.
+The softmax loss is used in many classification problems, such as image classification, natural language processing, and speech recognition. It is often used as a performance metric to evaluate the quality of the model predictions.
 
-\subsection{Negative Log-Likelihood loss}
-\label{subsec:3_NLL_loss}
+\paragraph{Negative Log-Likelihood loss}
+\label{par:3_NLL_loss}
 
 Negative Log Likelihood (NLL) loss is a loss function commonly used in classification problems, particularly in deep learning models that output probabilities for each class. It is a type of maximum likelihood estimation (MLE) loss, which means it attempts to maximize the likelihood of the predicted probabilities given the true labels.
 
@@ -784,8 +801,8 @@ The NLL loss penalizes the model for assigning low probabilities to the true lab
 
 The NLL loss is used in classification problems because it provides a gradient that can be used to update the model parameters during training, in order to improve the accuracy of the predicted probabilities. It is commonly used in conjunction with softmax activation function, which ensures that the predicted probabilities sum to one across all classes.
 
-\subsection{Winner-Takes-All loss}
-\label{subsec:3_WTA_loss}
+\paragraph{Winner-Takes-All loss}
+\label{par:3_WTA_loss}
 
 Winner-Takes-All (WTA) loss is a loss function used in clustering problems, particularly in competitive learning models. It is a type of unsupervised learning, which means that it does not require labeled data for training.
 
@@ -806,8 +823,8 @@ The WTA loss function penalizes the model for assigning a data point to the wron
 
 The WTA loss is used in clustering problems because it encourages the model to learn a set of representative clusters that capture the structure of the data, without requiring any prior knowledge of the true labels. It is commonly used in conjunction with competitive learning algorithms, such as self-organizing maps (SOMs), that use local competition between neurons to learn a topology-preserving mapping from the input space to the output space.
 
-\subsection{Hinge loss}
-\label{subsec:3_hinge_loss}
+\paragraph{Hinge loss}
+\label{par:3_hinge_loss}
 
 Hinge loss is a loss function used in classification problems, particularly in support vector machines (SVMs). It is a type of max-margin loss, which means it attempts to maximize the margin between the decision boundary and the data points.
 
@@ -823,8 +840,8 @@ If $y_i f(x_i) \geq 1$, then the point is correctly classified and the loss is z
 
 The hinge loss is used in SVMs because it encourages the model to find a decision boundary that maximizes the margin between the classes, while still correctly classifying the data points. This results in a more robust and generalizable model.
 
-\subsection{Regularization techniques}
-\label{subsec:3_regularization}
+\subsubsection{Regularization techniques}
+\label{subsubsec:3_regularization}
 
 Regularization techniques in deep learning are used to prevent overfitting and improve the generalization performance of a model. Overfitting occurs when a model fits the training data too closely and captures noise or irrelevant patterns, resulting in poor performance on new, unseen data. Here are some commonly used regularization techniques in deep learning:
 
@@ -850,10 +867,33 @@ The idea behind hard-mining is that by focusing on the difficult samples, the mo
 
 There are several ways to implement hard-mining in deep learning, including:
 
-Hard negative mining: This involves selecting the training samples that are misclassified with the highest confidence by the model and including them in the next batch of training data. By focusing on the difficult negative samples, the model can learn to better distinguish between the different classes and reduce the number of false negatives.
+\begin{itemize}
+	\item Hard negative mining involves selecting the training samples that are misclassified with the highest confidence by the model and including them in the next batch of training data. By focusing on the difficult negative samples, the model can learn to better distinguish between the different classes and reduce the number of false negatives.
+	
+	\item Hard positive mining involves selecting the training samples that are misclassified with the lowest confidence by the model and including them in the next batch of training data. By focusing on the difficult positive samples, the model can learn to better distinguish between the different classes and reduce the number of false positives.
+	
+	\item Curriculum learning involves gradually increasing the difficulty of the training data over time. The model is first trained on easy samples and then gradually exposed to more difficult samples. This can help the model learn more robust and generalizable features by gradually increasing the complexity of the training data.
+	
+	\item Overall, hard-mining is a useful technique in deep learning for improving the training of a model by focusing on the difficult samples. By incorporating hard-mining into the training process, the model can learn more discriminative features and improve its generalization performance on new, unseen data.
+\end{itemize}
 
-Hard positive mining: This involves selecting the training samples that are misclassified with the lowest confidence by the model and including them in the next batch of training data. By focusing on the difficult positive samples, the model can learn to better distinguish between the different classes and reduce the number of false positives.
+\section{Summary}
+\label{sec:3_summary}
 
-Curriculum learning: This involves gradually increasing the difficulty of the training data over time. The model is first trained on easy samples and then gradually exposed to more difficult samples. This can help the model learn more robust and generalizable features by gradually increasing the complexity of the training data.
+In this chapter, the mathematical background of various physics-based and \ac{DL}-based techniques used for \ac{MP} models is thoroughly examined. The chapter aims to provide a comprehensive understanding of these methods and their applications in the field of motion prediction.
 
-Overall, hard-mining is a useful technique in deep learning for improving the training of a model by focusing on the difficult samples. By incorporating hard-mining into the training process, the model can learn more discriminative features and improve its generalization performance on new, unseen data.
+The chapter begins by introducing the physics-based techniques, starting with the Kalman Filter. The Kalman Filter is a recursive algorithm used to estimate the state of a dynamic system by incorporating noisy measurements. Its mathematical foundation, including the state-space model and the prediction and update steps, is discussed in detail. Next, the Hungarian Algorithm is presented, which is a combinatorial optimization algorithm used for data association in multiple object tracking. The chapter delves into the mathematical formulation of the Hungarian Algorithm and how it can be applied to motion prediction tasks.
+
+Moving on to the physics-based models, the chapter explores the \ac{CTRV} and \ac{CTRA} models. These models are widely used for trajectory prediction and capture the motion dynamics of objects by considering their position, velocity, and acceleration. The mathematical equations for these models are examined, highlighting how they can be utilized to predict future motion paths.
+
+The chapter then transitions to deep learning-based techniques, which have gained significant attention in recent years due to their ability to capture complex patterns and dependencies in data. Several models are discussed in detail, starting with the 1D-Convolutional Neural Network (CNN). The mathematical architecture of the 1D-CNN is explained, emphasizing its ability to extract spatial and temporal features from sequential data for motion prediction.
+
+Next, the \ac{LSTM} model is introduced, which is a type of recurrent neural network (RNN) specifically designed to handle sequence data. The chapter provides an overview of the \ac{LSTM} architecture, including its memory cell and gate mechanisms, which enable it to capture long-term dependencies and predict future motion accurately.
+
+The chapter then explores \acp{GAN} and their application in motion prediction. \acp{GAN} consist of a generator and discriminator network that compete against each other, resulting in the generation of realistic and coherent motion trajectories. The mathematical formulation of \acp{GAN} and their training process are examined in detail.
+
+Furthermore, the Graph Convolutional Network (GCN) is discussed, which is a deep learning model capable of operating on graph-structured data. The chapter explains how GCNs can be used to represent and predict motion patterns in scenarios where objects interact with each other.
+
+Finally, the Attention mechanism is examined, which is a component commonly integrated into deep learning models to focus on relevant parts of the input data. The chapter explores the mathematical formulation of the Attention mechanism and its application in motion prediction models, highlighting its ability to assign different weights to different input features based on their relevance.
+
+Overall, this chapter provides a comprehensive overview of the mathematical foundations of various physics-based and deep learning-based techniques used in motion prediction models. By understanding the underlying principles and equations of these models, researchers and practitioners can gain a deep understanding of their capabilities and make informed decisions regarding their application in different scenarios.
