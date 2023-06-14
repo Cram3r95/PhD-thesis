@@ -26,7 +26,7 @@
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-\chapter{Efficient Baselines for Motion Prediction in Autonomous Driving}
+\chapter{Efficient Baselines for Multimodal Motion Prediction in Autonomous Driving}
 \label{cha:efficient_baseline_for_mp_in_ad}
 
 \begin{FraseCelebre}
@@ -44,9 +44,9 @@
 \section{Introduction}
 \label{sec:6_introduction}
 
-As observed in the previous section, our \ac{GAN}-based model (more specifically the generator) was able to compute the deep context regarding the agents past observations, attention-based social interaction and target points as physical context, but the prediction was limited to the unimodal case. In other words, the \ac{GAN}-based model is able to reason more complex interactions and future behaviours than SmartMOT (physics-based prediction), but it lacks one of the main features of a deep learning-based model as a preliminary stage before the local planning or decision-making layers: Multimodality. On top of that, at this point of the thesis the literature was re-visited and despite \acp{GAN}-based approaches \cite{sadeghian2019sophie, dendorfer2020goal, gupta2018social, gomez2022exploring} provide certain control since they are focused on more simple methods framed in an adversarial training, most competitive approaches on \ac{MP} benchmarks in the field of \ac{AD}, such as Argoverse \cite{chang2019argoverse}, NuScenes \cite{caesar2020nuscenes} or Waymo \cite{ettinger2021large}, \textbf{do not} use adversarial training, where the training complexity is one the main reasons.
+As observed in the previous Chapter, our \ac{GAN}-based model (more specifically the generator) was able to compute the deep context regarding the agents past observations, attention-based social interaction and target points as physical context, but the prediction was limited to the unimodal case. In other words, the \ac{GAN}-based model is able to reason more complex interactions and future behaviours than SmartMOT (physics-based prediction), but it lacks one of the main features of a deep learning-based model as a preliminary stage before the local planning or decision-making layers: Multimodality. On top of that, at this point of the thesis the literature was re-visited and despite \acp{GAN}-based approaches \cite{sadeghian2019sophie, dendorfer2020goal, gupta2018social, gomez2022exploring} provide certain control since they are focused on more simple methods framed in an adversarial training, most competitive approaches on \ac{MP} benchmarks in the field of \ac{AD}, such as Argoverse \cite{chang2019argoverse}, NuScenes \cite{caesar2020nuscenes} or Waymo \cite{ettinger2021large}, \textbf{do not} use adversarial training, where the training complexity is one the main reasons.
 
-\section{Efficient Baselines}
+\section{Efficient Social and Map Baselines}
 \label{sec:6_efficient_baselines}
 
 Considering the trade-off between curated input data and complexity, we aim to achieve competitive performance in the \ac{MP} using powerful DL techniques in terms of prediction metrics (\ac{minADE}, \ac{minFDE}), including attention mechanisms and \acp{GNN}, while reducing the number of parameters of operations with respect to other \ac{SOTA} methods. In particular, we propose two baselines, social and map baseline. 
@@ -69,7 +69,7 @@ Our social baseline is inspired in the architecture proposed by \cite{schmidt202
 \subsubsection{Preprocessing of past trajectories}
 \label{subsubsec:6_efficient_baselines_social_preprocessing}
 
-Multiple methods \cite{liang2020learning, schmidt2022crat} consider only the vehicles that are observable at \textit{t=0}, handling those agents that are not observed over the full sequence spectrum (observation length = \textit{$obs_{len}$} + prediction length = \textit{$pred_{len}$}) by concatenating a binary flag $b_i^t$ that indicates if the agent is padded or not. In our case, we consider the agents that have information over the full history horizon $T_h$ = \textit{$obs_{len}$} + \textit{$pred_{len}$} (\emph{e.g.} 5s timeframe for Argoverse), reducing the number of agents to be considered in complex traffic scenarios. Furthermore, to make the model translation and rotation invariant, the coordinate system in our model is \ac{BEV} centered of a given target agent at $t = 0$, and we use the orientation from the target location given in the same timestamp as the positive $x$-axis. Note that this representation will benefit the model to have a common representation to enhance the generalization of the model and prevent overfitting. Once the scene has been translated and rotated, instead of using absolute 2D-BEV (\textit{xy} plane), the input for the agent \textit{i} is a series of relative displacements:
+In a similar way to the GAN-based model proposed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}, in these efficient baselines we only consider the agents that have information over the full history horizon $T_h$ = \textit{$obs_{len}$} + \textit{$pred_{len}$}, reducing the number of agents to be considered in complex traffic scenarios. Nevertheless, instead of only substracting the origin of the scene (last position of the target agent) to make the model translation-invariant, we also rotate the whole coordinate system, \ie \ the coordinate system in our model is centered on the target agent at $t = 0$, and we use the orientation from the target location in the same timestamp as the positive $x$-axis. Note that this representation will benefit the model to have a common representation to enhance the generalization of the model and prevent over-fitting. Once the scene has been translated and rotated, instead of using absolute 2D-BEV (\textit{xy} plane), the input for the agent \textit{i} is a series of relative displacements:
 
 \begin{equation}
 	\Delta \boldsymbol{\nu}^{t}_i = \boldsymbol{\nu}^{t}_i - \boldsymbol{\nu}^{t-1}_i
@@ -315,55 +315,151 @@ Therefore, our loss function is:
 \section{Experimental Results}
 \label{sec:6_experimental_results}
 
-\paragraph{Efficiency discussion}
+\subsection{Implementation details}
+\label{subsec:6_implementation_details}
 
-In terms of \textbf{efficiency discussion}, to the best of our knowledge, very few methods reports efficiency-related information \cite{gilles2021gohome, gilles2021home, liu2021multimodal, gao2020vectornet}. Furthermore, comparing runtimes is difficult, as only a few competitive methods provide code and models. The Argoverse Benchmark~\cite{chang2019argoverse} provides insightful metrics about the model's performance, mainly related with the predictions error. However, there are no metrics about efficiency (i.e. model complexity in terms of parameters or FLOPs). In the AD context, we consider these metrics as important as the error evaluation because, in order to design a reliable AD stack, we must produce reliable predictions on time, meaning the inference time (related to model's complexity and inputs) is crucial. SOTA methods already provide predictions with an error lesser than 1 meter in the multi-modal case. In our opinion, an accident will rarely happen because some obstacle predictions are offset by one or half a meter, this uncertainty in prediction can be acceptable in the design of AV, but rather because lack of coverage or delayed response time. Despite its high accuracy and fast inference time, LaneGCN \cite{liang2020learning} makes use of multiple GNN layers that can lead to issues with over-smoothing for map-encoders \cite{li2018deeper}. Moreover, as mentioned in \cite{gao2020vectornet}, CNN-based models for processing the HD map information are able to capture social and map interactions, but most of them are computationally too expensive. LaneRCNN \cite{zeng2021lanercnn} adds huge number of hyperparameters to the model, making it quite complex since it proposes to capture agent and map interactions with a local interaction graph per agent, not just a single vector. 
+To validate these efficient baselines (social, map and augmented baseline), we use the Argoverse 1 Motion Forecasting, as discussed in Section \ref{subsec:5_dataset}. In terms of evaluation metrics, we evaluate the performance of our models using the standard metrics \ac{ADE} and \ac{FDE}. Unlike the GAN-based model, the output of the models in this Chapter is multimodal, then we generate $k$ outputs (also known as modes) per prediction step and report the metrics for the best out of $k$ outputs, regarding the agent $i$.
 
-\begin{table}[h]
+We report results for $k=1$ (unimodal case, only the mode with the best confidence is considered) and $k=6$ as this is the standard in the Argoverse Motion Forecasting dataset in order to compare with other models.
+
+We train our models to convergence using a single NVIDIA \textbf{RTX 3090}, and validate our results on the official Argoverse validation set~\cite{chang2019argoverse}. We use Adam optimizer with learning rate $0.001$ and default parameters, batch size $1024$ and linear LR Scheduler with factor $0.5$ decay on plateaus. We rotate the whole scene regarding the orientation in the last observation frame of the target agent to align this agent with the positive y-axis. The hidden dimension for the Motion History encoder is 64, where both the hidden state $\mathbf{h_{in}}$ and cell state $\mathbf{c_{in}}$ are initialized with zeros (dim = $128$), whilst the MLP encoder for both the specific centerline and plausible area is 128. Regarding the Social Interaction module, the latent vector of the Crystal-GCN layers is 128 and the number of heads in the MHSA module is $L_h = 4$. In terms of the Autoregressive predictor, the spatial embedding and \textit{dist2centerline} modules encode the past data and distance to the specific centerline using a \textit{window size} of 20. We set the number of plausible centerlines (\textit{M}) as 3, which cover most cases (if less than 3 plausible centerlines are available, we add padded centerlines as vector of zeros). The time tensor is a single number that represents the current timestep, in such a way the LSTM input is \textit{(2 $\times$ window size) + 1 = 41}. The regression head is represented by \textit{k=6} FC layers that map the output latent vector returned by the LSTM to the final output relative displacements (dim = 2, xy). Multimodal predictions are processed by an MLP residual of sizes 60, 60 and 6 with interspersed ReLU activations in order to obtain the corresponding confidences.
+
+\paragraph{Augmentations} 
+
+(i) Dropout and swapping random points from the past trajectory, (ii) point location perturbations under a $\mathcal{N}(0, 0.2)$ [m] noise distribution~\cite{ye2021tpcn}. We also apply the well-known hard-mining technique to improve the model's generalization under difficult scenarios. To perform this technique, once we have the social and map baselines, we perform inference on the training set to find the most difficult scenes in terms of minADE. Then, we mine those scenes such that the baselines models perform poorly, and increase their proportion in the batch during training.
+
+\subsection{Model results}
+\label{subsec:6_model_results}
+
+\begin{table}[thpb]
+	\caption{\textbf{Ablation Study for map-free MP on the Argoverse~\cite{chang2019argoverse} validation set}. Our methods are indicated with $\dag$, our highlighted method indicates our map-free baseline (Best Social Model = BSM). Prediction metrics (minADE, minFDE) are reported in meters.}
+	\label{table:results_val_social}
+	\setlength{\tabcolsep}{5pt}
 	\centering
-	\caption{Efficiency comparison among SOTA methods. We show the number of parameters for each model, FLOPs, minADE (k=6) in the Argoverse test set, and runtime. Works from \cite{gao2020vectornet} focus on unimodal predictions (k=1). \textit{N/A} stands for \textit{Not Available}. Time measured on a RTX 2080 Ti (using batch 32). Some numbers are borrowed from \cite{zhou2022hivt, bhattacharyya2022ssllanes}.
-	}
 	\resizebox{\linewidth}{!}{
-		\begin{tabular}{lcccc}
-			\toprule
-			Model & \# Par.~(M) & FLOPs (G)~$\downarrow$ & minADE~(m) $\downarrow$ & Run~(ms) $\downarrow$ \\
-			\midrule
-			CtsConv~\cite{walters2020trajectory} & 1.08 & 0.34 & 1.85 & 684  \\
-			%$\rho_1$-ECCO~\cite{walters2020trajectory} & 0.051 & 1.7 & 3.89 \\
-			%mmTransformer~\cite{liu2021mmtransf} & 4 & 1.77 & & 0.66 \\
-			R18-k3-c1-r100~\cite{gao2020vectornet} & 0.25 & 0.66 & 2.21 & \textit{N/A} \\
-			R18-k3-c1-r400~\cite{gao2020vectornet} & 0.25 & 10.56 & 2.16 & \textit{N/A} \\
-			VectorNet~\cite{gao2020vectornet} & \textbf{0.072} & 0.41 & 1.66 & 1103 \\
-			DenseTNT (w/ 100ms opt.) \cite{gu2021densetntwaymo} & 1.1 & 0.763 & 0.88 & 2644 \\
-			DenseTNT (w/ goal set pred.) \cite{gu2021densetntwaymo} & 1.1 & 0.763 & 0.85 & 531 \\
-			LaneGCN \cite{liang2020learning} & 3.7 & 1.071 & 0.87 & 173 \\
-			mmTransformer \cite{liu2021multimodal} & 2.607 & 0.177 & 0.84 & \textit{N/A} \\
-			MF-Transformer \cite{he2022multi} & 2.469 & 0.408 & \textbf{0.82} & \textit{N/A} \\
-			HOME+GOHOME~\cite{gilles2021gohome} & 0.40 & 0.09 & 0.94 & 32 \\
-			\midrule
-			GAN-based 
-			MAPFE4MP (Social baseline) \cite{gomez2022exploringmapbased} & 0.105 & \textbf{0.007} & 1.26 & 7 \\
-			MAPFE4MP (Map baseline) \cite{gomez2022exploringmapbased} & 0.621 & 0.047 & 0.96 & 31 \\
-			
-			Ours & 1.235 & \textbf{0.038} & 0.91 & \textbf{16} \\
-			\bottomrule
-	\end{tabular}}
-	\label{table:6_argoverse_1_efficiency_comparison}
+	\begin{tabularx}{\textwidth}{lccccc}
+		\toprule
+		\multirow{2}{*}{Method} & \multirow{2}{*}{Number of Parameters} &
+		\multicolumn{2}{c}{$k=1$} & \multicolumn{2}{c}{$k=6$} \\ 
+		& & minADE & minFDE & minADE & minFDE  \\ 
+		\midrule
+		TPCN \cite{ye2021tpcn} & - & 1.42 & 3.08 & 0.82 & 1.32 \\
+		LaneGCN  \cite{liang2020learning} (w/o map) & $\approx 1 M $ & 1.58 & 3.61 & 0.79 & \textbf{1.29} \\
+		WIMP \cite{khandelwal2020if} (w/o map) & $> 20 M$ & $1.61$ & 5.05 & 0.86 & 1.39 \\
+		CRAT-Pred (LSTM + GNN + Lin. Residual) \cite{schmidt2022crat} & 449K & 1.44 & 3.17 & 0.86 & 1.47 \\
+		CRAT-Pred (LSTM + GNN + Multi-Head Self-Attention + Lin. Residual) \cite{schmidt2022crat} & 515K & \textbf{1.41} & \textbf{3.10} & 0.85 & 1.44 \\ 
+		\midrule
+		$\dag$ LSTM-128 + GNN + MHSA (Baseline social) &  351K  & 1.82 & 3.72 & 0.87 & 1.63 \\
+		$\dag$ LSTM-64 + GNN + MHSA &  \textbf{97K}  & 1.77 & 3.68 & 0.86 & 1.61 \\
+		$\dag$ LSTM-128 + GNN + MHSA + Lin. Residual &  552K  & 2.02 & 4.16 & 1.02 & 1.95 \\
+		$\dag$ LSTM-128 (TDec) + GNN + MHSA  &  365K  & 1.81 & 4.04 & 0.83 & 1.57 \\
+		$\dag$ LSTM-64 (TDec) + GNN + MHSA \quad (Best Social Model)  &  105K  & 1.79 & 4.01 & 0.81 & 1.56 \\
+		\midrule
+		$\dag$ Best Social Model + HardM (10 \%) &  105K  & 1.76 & 3.97 & 0.80 & 1.53 \\
+		\rowcolor{gray}$\dag$ Best Social Model + HardM (10 \%) \emph{w/} Loss Hinge + WTA &  105K  & 1.62 & 3.57 & \textbf{0.76} & 1.43 \\
+		\bottomrule
+	\end{tabularx}}
 \end{table}
 
-Similar to image classification, where model efficiency depends on its accuracy and parameters/FLOPs, we use the same criteria to compare models. We show the \textbf{efficiency comparison} with other relevant methods in Table \ref{table:6_argoverse_1_efficiency_comparison}. We calculate FLOPs and parameters using a third-party library \footnote{https://github.com/facebookresearch/fvcore}. Some minor operations were not supported, yet, their contributions to the number of FLOPs were residual and ignored. 
-The results for the other methods are consulted from \cite{gilles2021home} \cite{gilles2021gohome} \cite{gao2020vectornet} \cite{he2022multi}. We calculate FLOPs using the relation: $\text{GMACs} \approx 0.5 * \text{GFLOPs}$ using \url{https://github.com/facebookresearch/fvcore}.
+\paragraph{Ablation studies}
 
-In order to calculate the FLOPs, we follow the common practice \cite{gao2020vectornet} \cite{gu2021densetnt} \cite{gilles2022gohome} of fixing the number of lanes \emph{i.e.,} the number of centerlines is limited to 3. %, since we focus on the plausible area around the target agent.
-% 40 and 10 the number of lanes (if the method is based on polyline or GNN, not raster) and agents per traffic scenario, respectively.
-%
-\cite{gao2020vectornet} compares its GNN backbone with CNNs of different kernel sizes and map resolution to compute deep map features (decoder operations and parameters are excluded, min), demonstrating how CNN based methods noticeably increase the amount of parameters and operations per second. We do not require CNNs to extract features from the HD map since we use our map-based feature extractor to obtain the feasible area (see Section \ref{subsec:map_baseline}), assuming anisotropic driving (the most important features are ahead) and non-holonomic constraints, in such a way these features are interpretable in comparison with CNNs high-dimensional outputs. Note that, in both variants (social and map baselines), the self-attention module is used with a dynamic number of input agents, this typically implies a quadratic growth in complexity with the number of agents in the scene~\cite{vaswani2017attention}, yet, this only applies to the MHSA layers.
+As we state in Section~\ref{sec:introduction} and~\ref{sec:our_approach}, our main goal is to achieve competitive results while being efficient in terms of model complexity, in particular in terms of \textbf{FLOPs} (Floating-Point Operations per second) and \textbf{parameters} in order to enable these models for real-time operation. For this reason, we have proposed light-weight models, whose main input is the history of past trajectories of the agents, complemented by interpretable map-based features. 
 
-Even though our method do not obtain the best regression metrics, we achieve comparable results (Table~\ref{table:effcomp}) against other SOTA approaches whilst our number of FLOPs is several orders of magnitude smaller than other approaches \cite{gu2021densetntwaymo} \cite{liang2020learning}, obtaining a good trade-off between model complexity and error (minADE, k=6).
+In this section we analyze our results and ablation studies, and prove the benefits of our approach for self-driving MP. Table \ref{table:results_val_social} and \ref{table:results_val_map} illustrate our ablation study regarding our social and map baselines respectively. First, we compare our social model with other SOTA models \cite{liang2020learning} \cite{khandelwal2020if} \cite{schmidt2022crat} without map information or with the corresponding module disabled. Our social baseline, trained with NLL loss, presents a number of 351K parameters and 0.87 / 1.63 for minADE and minFDE (k=6) respectively. \\
 
-Moreover, as it is well known in machine learning, the number of parameters is not always proportional to the inference speed. In that sense, our transformer approach also has certain benefits in comparison to LSTM/RNN temporal encoding, since these are non-parallelizable, therefore, despite having more parameters, transformers are faster~\cite{vaswani2017attention}.
+We perform the following \textbf{ablation studies} in Table \ref{table:results_val_social}: Reduce social hidden dim (including LSTM, GNN and MHSA modules) from 128 to 64, replace the standard head with residual head, replace only last data (standard autoregressive decoder input) with last $N$ data (temporal decoder). We obtain better results with hidden dim = 64, decreasing the number of parameters. Linear residual, standard in most MP models, presents worse results with a much higher number of parameters, since most works use it in a non-autoregressive way, decoding directly from the latent space. On the other hand, using temporal decoder instead of only the last position as LSTM input achieves better results with a slightly higher number of parameters. Then, we conclude our Best Social Model (BSM), as a preliminary stage before implementing the map features, presents the following modifications: social hidden dim = 64 and temporal decoder. Hard-mining and additional losses (Hinge and WTA) applied to the best social model achieve the best social results (Social Baseline).
 
-We illustrate the qualitative results of our best model.
+To integrate the map features (Table \ref{table:results_val_map}) we start from the BSM without hard-mining and with the initial loss (NLL), in order to check how implementing these additional regularization terms help the model to generalize better in both experiments (only social and social+map). We perform the following ablations: compute the most plausible centerline (\textit{M}=1) returned by the \textbf{Argoverse API}, consider \textit{M}=3 centerlines, replace MLP encoder with 1D-CNN encoder in a similar way \cite{mercat2020multi}, explicitly iterate over all centerlines as \textbf{specific} deep physical context instead of decoding from a common latent space, add low-level features (feasible area) as a common \textbf{static} deep physical context for each iteration and finally adding an additional component to the LSTM input determined by the vector distance between the considered input window (last $N$ data) and the corresponding centerline. It can be observed that introducing map features increases the number of parameters in exchange of a noticeable metrics decrement, specially in terms of minFDE ($k$ = 6). Considering \textit{M}=3 centerlines instead of only the most plausible centerline allows the model to compute a more diverse set of predictions, while replacing a standard MLP encoder with 1D-CNN encoder increases the number of parameters achieving worse metrics, according to this experimental setup. 
+
+%\begin{table*}[thpb]
+\begin{table}[]
+	\caption{\textbf{Ablation Study for map-based motion forecasting on the Argoverse~\cite{chang2019argoverse} validation set}. Our methods are indicated with $\dag$. We highlight our map-based baseline method, as a reference for future comparisons.}
+	\label{table:results_val_map}
+	\setlength{\tabcolsep}{5pt}
+	\centering
+	\resizebox{\linewidth}{!}{
+	\begin{tabularx}{\textwidth}{lccccc}
+		\toprule
+		\multirow{2}{*}{Method} & \multirow{2}{*}{Number of Parameters} &
+		\multicolumn{2}{c}{$k=1$} & \multicolumn{2}{c}{$k=6$} \\ 
+		&               & minADE & minFDE & minADE & minFDE  \\ 
+		\midrule
+		\textbf{$\dag$ Our Map-free Baseline (BSM, No Hard-mining, Loss = NLL)} &  105K  & 1.79 & 4.01 & 0.81 & 1.56 \\
+		LaneGCN  \cite{liang2020learning} & 3.7M & \textbf{1.35} & \textbf{2.97} & \textbf{0.71} & \textbf{1.08} \\
+		WIMP \cite{khandelwal2020if} (w/o map, NLL loss) & $> 25 M$ & 1.41 & 6.38 & 1.07 & 1.61 \\
+		WIMP \cite{khandelwal2020if} (w/o map, EWTA loss) & $> 25 M$ & 1.45 & 3.19 & 0.75 & 1.14 \\
+		\midrule
+		$\dag$ BSM + Oracle &  \textbf{277K}  & 1.62 & 3.56 & 0.77 & 1.42 \\
+		$\dag$ BSM + centerlines=3 &  307K  & 1.60 & 3.53 & 0.76 & 1.39 \\
+		$\dag$ BSM + centerlines=3 (1D-CNN) &  432K  & 1.63 & 3.59 & 0.78 & 1.43 \\
+		$\dag$ BSM + centerlines=3 loop &  326K  & 1.62 & 3.41 & 0.76 & 1.40 \\
+		$\dag$ BSM + centerlines=3 loop + Feasible area &  458K  & 1.62 & 3.40 & 0.76 & 1.40 \\
+		$\dag$ BSM + centerlines=3 loop + Feasible area + Dist2Centerline (Best Global Model) &  459K  & 1.61 & 3.40 & 0.75 & 1.39 \\
+		\midrule
+		$\dag$ Best Global model + HardM (10 \%)  & 459K  & 1.55 & 3.31 & 0.75 & 1.36 \\
+		\rowcolor{gray}$\dag$ Best Global model + HardM (10 \%) \emph{w/} Loss Hinge + WTA &  459K  & 1.46 & 3.22 & 0.72 & 1.28 \\
+		\bottomrule
+	\end{tabularx}}
+\end{table}
+
+Finally, we include our low-level (static) features as a static deep physical context which is common to all iterations over the different centerlines and an additional vector distance to the corresponding centerline, achieving our best results without additional regularization terms (hard-mining and Hinge / WTA losses). In both cases (social and map baselines), we obtain regression metrics (minADE and minFDE with both $k$ = 1 and 6) up-to-pair with other SOTA models with a noticeable lower number of parameters, specially in the ablation study for map-based MP models, demonstrating how focusing on the most important map-features drastically decreases the network complexity obtaining similar results in terms of accuracy. This representation not only gathers information about the feasible area around the agent, but also represents potential goal points \cite{dendorfer2020goal} (\ie \ potential destinations or end-of-trajectory points for the agents). Moreover, this information is \textit{"cheap"} and \textit{interpretable}, therefore, we do not need further exhaustive annotations from the HD Map in comparison with other methods like HOME, which gets as input a 45-channel encoded map \cite{gilles2021home}. We prove this qualitatively in Fig. \ref{fig:results}, where we can see how the estimated centerlines represent a good guidance for the model. 
+
+\paragraph{Comparison with the State-of-the-Art}
+
+The Argoverse Benchmark~\cite{chang2019argoverse} has over 290 submitted methods, however, the top approaches achieve, in our opinion, essentially the same performance. In order to do a fair comparison, we analyze the \textit{state-of-the-art} performance in this benchmark, we show the results in Table~\ref{table:results_test}. Given the standard deviations (in meters) of the most important regression metrics (minADE and minFDE, both in the unimodal and multimodal case), we conclude that there are no significant performance differences for the top-25 models. In fact, Argoverse 2 \cite{wilson2023argoverse}. explicitly mentions that there is a \textit{"goldilocks zone"} of task difficulty in the Argoverse 1 test set, since it has begun to plateau. \\
+
+%we conclude there is no significant performance difference for the top-25 models. We achieve competitive results using efficient models and minimal HD map information. % (both static context and specific plausible centerlines) leads to a better performance. 
+
+%It would be more accurate to claim e.g. that your method is more efficient than the most efficient method on the leaderboard in terms of FLOPs (your table 3 suggests the most efficient method is VectorNet) and also beats it in performance.
+
+%We define $\mu$ADE$_k$ and $\mu$FDE$_k$ as the average ADE and FDE of the top-$k$ ranked methods, in the same way we define $\sigma$ADE$_k$ and $\sigma$FDE$_k$ for the standard deviation of the results. 
+%Table~\ref{tab:sota} shows these statistics. Given the small $\sigma$ADE$_k$ and $\sigma$FDE$_k$ values (in meters), we can conclude that there is no significant performance difference for the top-25 models, however, we cannot get enough information from the benchmark to test this hypothesis properly.
+
+\begin{table}
+	\centering
+	\caption{\textbf{Results on the Argoverse 1.0 Benchmark~\cite{chang2019argoverse}}. We borrow some numbers from~\cite{chang2019argoverse, gilles2021home, gilles2022gohome}. We specify the map info for each model: Raster, GNN or polyline, as stated in Table \ref{table:related_work}. We indicate the error \textcolor{blue}{difference} of our method \emph{w.r.t.} top-25 SOTA methods, in centimeters. Our predictions differ \emph{w.r.t.} top-25 SOTA only \textcolor{blue}{10cm} and \textcolor{blue}{15cm} for the unimodal and multimodal minADE metric respectively, yet our model is much more efficient.}
+	%\begin{tabular}{lc>{\columncolor[gray]{0.9}}c>{\columncolor[gray]{0.9}}c c c}
+	\begin{tabular}{l c c c c c}
+		\toprule
+		%\rowcolor[gray]{0.9} Model & Map info & \multicolumn{2}{c}{K=1} & \multicolumn{2}{c}{K=6}\\
+		Model & Map info & \multicolumn{2}{c}{K=1} & \multicolumn{2}{c}{K=6}\\
+		& & minADE $\downarrow$ & minFDE $\downarrow$ & minADE $\downarrow$ & minFDE $\downarrow$ \\
+		\midrule
+		Constant Velocity~\cite{chang2019argoverse} & - & 3.53 & 7.89 &  &  \\ 
+		Argoverse Baseline (NN)~\cite{chang2019argoverse} & - & 3.45 & 7.88 & 1.71 & 3.29 \\
+		Argoverse Baseline (LSTM)~\cite{chang2019argoverse} & Polyline & 2.96 & 6.81 & 2.34 & 5.44  \\
+		Argoverse Baseline (NN)~\cite{chang2019argoverse} & Polyline & 3.45 & 7.88 & 1.71 & 3.29  \\
+		\midrule
+		% SGAN~\cite{gupta2018sgan} & Map + Traj. & 3.61 & 5.39 &  &  \\
+		%TPNet~\cite{fang2020tpnet} & Map + Traj. & 2.33 & 5.29 &  &   \\
+		%TPNet-map~\cite{fang2020tpnet} & Map + Traj. & 2.23 & 4.71 &  &   \\
+		%TPNet-map-safe~\cite{fang2020tpnet} & Map + Traj. & 2.23 & 4.70 &  &  \\
+		TPNet-map-mm~\cite{fang2020tpnet} & Raster & 2.23 & 4.70 & 1.61 & 3.70 \\
+		% Alibaba-ADLab & Map + Traj. & 1.97 & 4.35 & 0.92 & 1.48 \\ 
+		% HIKVISION-ADLab-HZ  & Map + Traj. & 1.94 & 3.90 & 1.21 & 1.83 \\
+		Challenge Winner: uulm-mrm (2nd)~\cite{chang2019argoverse} & Polyline & 1.90 & 4.19 & 0.94 & 1.55 \\
+		Challenge Winner: Jean (1st)~\cite{mercat2020multi, chang2019argoverse} & Polyline & 1.74 & 4.24 & 0.98 & 1.42 \\
+		TNT~\cite{zhao2021tnt} & GNN & 1.77 & 3.91 & 0.94 & 1.54 \\
+		mmTransformer~\cite{liu2021multimodal} & Polyline & 1.77 & 4.00 & 0.84 &  1.33 \\
+		HOME~\cite{gilles2021home} & Raster & 1.72 & 3.73 & 0.92 & 1.36 \\
+		LaneConv~\cite{deo2018convolutionalmotion} & Raster & 1.71 & 3.78 & 0.87 & 1.36 \\
+		UberATG~\cite{liang2020learning} & GNN & 1.70 & 3.77 & 0.87 & 1.36 \\
+		LaneRCNN~\cite{zeng2021lanercnn} & GNN & 1.70 & 3.70 & 0.90 & 1.45 \\
+		GOHOME~\cite{gilles2022gohome} & GNN & 1.69 & 3.65 & 0.94 & 1.45 \\
+		% TPCN~\cite{ye2021tpcn} & Map + Traj. & 1.58 & 3.49 & 0.82 & 1.24 \\
+		\textbf{State-of-the-art (top-10)}~\cite{gilles2022gohome, liu2021multimodal, varadarajan2022multipath++, ye2021tpcn} &  & \textbf{1.57}$\pm$0.06 &  \textbf{3.44}$\pm$0.15 & \textbf{0.79}$\pm$0.02 & \textbf{1.17}$\pm$0.04  \\
+		\textbf{State-of-the-art (top-25)}~\cite{gilles2022gohome, liu2021multimodal, varadarajan2022multipath++, ye2021tpcn} &  & \textbf{1.63}$\pm$0.08 & \textbf{3.59}$\pm$0.20 & \textbf{0.81}$\pm$0.03 & \textbf{1.22}$\pm$0.06  \\
+		% mean and variance
+		\midrule
+		Ours (Social baseline, including HardM and losses) & - & 2.57 & 4.36 & 1.26 & 2.67 \\
+		\rowcolor{gray} Ours (Map baseline, including HardM and losses) & Polyline & 
+		1.73~{\scriptsize{\textcolor{blue}{(10cm)}}} & 3.89~{\scriptsize{\textcolor{blue}{(30cm)}}} & 0.96~{\scriptsize{\textcolor{blue}{(15cm)}}} & 1.63~{\scriptsize{\textcolor{blue}{(41cm)}}} \\
+		\bottomrule
+	\end{tabular}
+	\label{table:results_test}
+\end{table}
+
+We illustrate the qualitative results of our best model (Augmented baseline).
 
 \begin{figure}[h]
 	\centering
@@ -407,15 +503,66 @@ We illustrate the qualitative results of our best model.
 		
 		General view & Plausible HDMap & $k$=1 prediction & $k$=6 predictions \tabularnewline
 	\end{tabular}
+	\captionsetup{justification=Justified}
 	\caption[Qualitative Results on challenging scenarios in the Argoverse 1 validation set using our best model]{Qualitative Results on challenging scenarios in the Argoverse 1 validation set using our best model.	We represent: our vehicle (\textbf{\textcolor{blue}{ego}}), the \textbf{\textcolor{YellowOrange}{target agent}}, and \textbf{\textcolor{gray75}{other agents}}. We can also see the \textbf{\textcolor{red}{ground-truth}} trajectory of the target agent, our \textbf{\textcolor{ForestGreen}{multimodal predictions}} (with the corresponding confidences) and \textbf{plausible centerlines}. Circles represent last observations and diamonds last future positions. As we can see the plausible HDMap serves as a good guidance to our model, which can predict reasonable trajectories in presence of multiple agents and challenging scenarios. We show, from left to right, a general view of the traffic scenario (including social and map information), our calculated plausible HDMap, unimodal prediction (best mode in terms of confidence) and multimodal prediction (\textit{k} = 6), including confidences (the higher, the most probable)}
 	\label{fig:6_results}
 \end{figure}
 
+\subsection{Efficiency discussion}
+\label{subsec:6_efficiency_discussion}
+
+In terms of \textbf{efficiency discussion}, to the best of our knowledge, very few methods reports efficiency-related information \cite{gilles2022gohome, gilles2021home, liu2021multimodal, gao2020vectornet}. Furthermore, comparing runtimes is difficult, as only a few competitive methods provide code and models. The Argoverse Benchmark~\cite{chang2019argoverse} provides insightful metrics about the model's performance, mainly related with the predictions error. However, there are no metrics about efficiency (\ie \ model complexity in terms of parameters or FLOPs). In the AD context, we consider these metrics as important as the error evaluation because, in order to design a reliable AD stack, we must produce reliable predictions on time, meaning the inference time (related to model complexity and inputs) is crucial. SOTA methods already provide predictions with an error lesser than 1 meter in the multi-modal case. In our opinion, an accident will rarely happen because some obstacle predictions are offset by one or half a meter, this uncertainty in prediction can be acceptable in the design of AV, but rather because lack of coverage or delayed response time. Despite its high accuracy and fast inference time, LaneGCN \cite{liang2020learning} makes use of multiple GNN layers that can lead to issues with over-smoothing for map-encoders \cite{li2018deeper}. Moreover, as mentioned in \cite{gao2020vectornet}, CNN-based models for processing the HD map information are able to capture social and map interactions, but most of them are computationally too expensive. LaneRCNN \cite{zeng2021lanercnn} adds huge number of hyperparameters to the model, making it quite complex since it proposes to capture agent and map interactions with a local interaction graph per agent, not just a single vector. 
+
+\begin{table}[h]
+	\centering
+	\caption{Efficiency comparison among SOTA methods. We show the number of parameters for each model, FLOPs, minADE (k=6) in the Argoverse test set, and runtime. Works from \cite{gao2020vectornet} focus on unimodal predictions (k=1). \textit{N/A} stands for \textit{Not Available}. Time measured on a RTX 2080 Ti (using batch 32). Some numbers are borrowed from \cite{zhou2022hivt, bhattacharyya2023ssl}.
+	}
+	\resizebox{\linewidth}{!}{
+		\begin{tabular}{lcccc}
+			\toprule
+			Model & \# Par.~(M) & FLOPs (G)~$\downarrow$ & minADE~(m) $\downarrow$ & Run~(ms) $\downarrow$ \\
+			\midrule
+			CtsConv~\cite{walters2020trajectory} & 1.08 & 0.34 & 1.85 & 684  \\
+			%$\rho_1$-ECCO~\cite{walters2020trajectory} & 0.051 & 1.7 & 3.89 \\
+			%mmTransformer~\cite{liu2021mmtransf} & 4 & 1.77 & & 0.66 \\
+			R18-k3-c1-r100~\cite{gao2020vectornet} & 0.25 & 0.66 & 2.21 & \textit{N/A} \\
+			R18-k3-c1-r400~\cite{gao2020vectornet} & 0.25 & 10.56 & 2.16 & \textit{N/A} \\
+			VectorNet~\cite{gao2020vectornet} & \textbf{0.072} & 0.41 & 1.66 & 1103 \\
+			DenseTNT (w/ 100ms opt.) \cite{gu2021densetnt} & 1.1 & 0.763 & 0.88 & 2644 \\
+			DenseTNT (w/ goal set pred.) \cite{gu2021densetnt} & 1.1 & 0.763 & 0.85 & 531 \\
+			LaneGCN \cite{liang2020learning} & 3.7 & 1.071 & 0.87 & 173 \\
+			mmTransformer \cite{liu2021multimodal} & 2.607 & 0.177 & 0.84 & \textit{N/A} \\
+			MF-Transformer \cite{he2022multi} & 2.469 & 0.408 & \textbf{0.82} & \textit{N/A} \\
+			HOME+GOHOME~\cite{gilles2022gohome} & 0.40 & 0.09 & 0.94 & 32 \\
+			\midrule
+			% OURS
+			% GAN-based 
+			% MAPFE4MP (Social baseline) \cite{gomez2022exploringmapbased} & 0.105 & \textbf{0.007} & 1.26 & 7 \\
+			% MAPFE4MP (Map baseline) \cite{gomez2022exploringmapbased} & 0.621 & 0.047 & 0.96 & 31 \\
+			
+			Ours & 1.235 & \textbf{0.038} & 0.91 & \textbf{16} \\
+			\bottomrule
+	\end{tabular}}
+	\label{table:6_argoverse_1_efficiency_comparison}
+\end{table}
+
+Similar to image classification, where model efficiency depends on its accuracy and parameters/FLOPs, we use the same criteria to compare models. We show the \textbf{efficiency comparison} with other relevant methods in Table \ref{table:6_argoverse_1_efficiency_comparison}. We calculate FLOPs and parameters using a third-party library \footnote{https://github.com/facebookresearch/fvcore}. Some minor operations were not supported, yet, their contributions to the number of FLOPs were residual and ignored. 
+The results for the other methods are consulted from \cite{gilles2021home} \cite{gilles2022gohome} \cite{gao2020vectornet} \cite{he2022multi}. We calculate FLOPs using the relation: $\text{GMACs} \approx 0.5 * \text{GFLOPs}$ using \url{https://github.com/facebookresearch/fvcore}.
+
+In order to calculate the FLOPs, we follow the common practice \cite{gao2020vectornet} \cite{gu2021densetnt} \cite{gilles2022gohome} of fixing the number of lanes \emph{i.e.,} the number of centerlines is limited to 3. %, since we focus on the plausible area around the target agent.
+% 40 and 10 the number of lanes (if the method is based on polyline or GNN, not raster) and agents per traffic scenario, respectively.
+%
+\cite{gao2020vectornet} compares its GNN backbone with CNNs of different kernel sizes and map resolution to compute deep map features (decoder operations and parameters are excluded, min), demonstrating how CNN based methods noticeably increase the amount of parameters and operations per second. We do not require CNNs to extract features from the HD map since we use our map-based feature extractor to obtain the feasible area (see Section \ref{subsec:map_baseline}), assuming anisotropic driving (the most important features are ahead) and non-holonomic constraints, in such a way these features are interpretable in comparison with CNNs high-dimensional outputs. Note that, in both variants (social and map baselines), the self-attention module is used with a dynamic number of input agents, this typically implies a quadratic growth in complexity with the number of agents in the scene~\cite{vaswani2017attention}, yet, this only applies to the MHSA layers.
+
+Even though our method do not obtain the best regression metrics, we achieve comparable results (Table~\ref{table:effcomp}) against other SOTA approaches whilst our number of FLOPs is several orders of magnitude smaller than other approaches \cite{gu2021densetnt} \cite{liang2020learning}, obtaining a good trade-off between model complexity and error (minADE, k=6).
+
+Moreover, as it is well known in machine learning, the number of parameters is not always proportional to the inference speed. In that sense, our transformer approach also has certain benefits in comparison to LSTM/RNN temporal encoding, since these are non-parallelizable, therefore, despite having more parameters, transformers are faster~\cite{vaswani2017attention}.
+
 \section{Summary}
 \label{sec:6_summary}
 
-Even though our methods do not obtain the best regression metrics, we achieve up-to-pair results (Table~\ref{table:effcomp}) against other SOTA approaches whilst our number of FLOPs is several orders of magnitude smaller than other approaches \cite{gu2021densetntwaymo} \cite{liang2020learning}, obtaining a good trade-off (specially the map baseline) between model complexity and accuracy (minADE, k=6), making it suitable for real-time operation in the field of AD. In our case, considering the top-25 regression metrics we achieve near SOTA results (just 15 cm, which represents 18.5 \%, worse in terms of minADE k=6 regarding our final approach) while achieving an impressive reduction of parameters and FLOPs. As observed in Table \ref{table:effcomp}, if we compare our final model, which includes social information, agents interaction and preliminary road information, and the methods with the closest minADE k=6 [m] (LaneGCN \cite{liang2020learning}, HOME \cite{gilles2021home} and GOHOME \cite{gilles2021gohome}), we obtain a reduction of 96 \%, 99 \% and 48 \% respectively in terms of FLOPs. It can be observed how including preliminary road information assuming non-holonomic \cite{triggs1993motion} and anisotropic \cite{ross1989planning} constraints respectively (that is, we mostly focus on the front driveable area) instead of processing the whole map, as well as computing social interactions via graph convolutional networks, boost our model for further integration edge-computing devices with a minimum accuracy loss acceptable for real-world Autonomous Driving applications.
+Even though our methods do not obtain the best regression metrics, we achieve up-to-pair results (Table~\ref{table:effcomp}) against other SOTA approaches whilst our number of FLOPs is several orders of magnitude smaller than other approaches \cite{gu2021densetnt} \cite{liang2020learning}, obtaining a good trade-off (specially the map baseline) between model complexity and accuracy (minADE, k=6), making it suitable for real-time operation in the field of AD. In our case, considering the top-25 regression metrics we achieve near SOTA results (just 15 cm, which represents 18.5 \%, worse in terms of minADE k=6 regarding our final approach) while achieving an impressive reduction of parameters and FLOPs. As observed in Table \ref{table:effcomp}, if we compare our final model, which includes social information, agents interaction and preliminary road information, and the methods with the closest minADE k=6 [m] (LaneGCN \cite{liang2020learning}, HOME \cite{gilles2021home} and GOHOME \cite{gilles2022gohome}), we obtain a reduction of 96 \%, 99 \% and 48 \% respectively in terms of FLOPs. It can be observed how including preliminary road information assuming non-holonomic \cite{triggs1993motion} and anisotropic \cite{ross1989planning} constraints respectively (that is, we mostly focus on the front driveable area) instead of processing the whole map, as well as computing social interactions via graph convolutional networks, boost our model for further integration edge-computing devices with a minimum accuracy loss acceptable for real-world Autonomous Driving applications.
 
-Even though our method do not obtain the best regression metrics, we achieve comparable results (Table~\ref{table:effcomp}) against other SOTA approaches whilst our number of FLOPs is several orders of magnitude smaller than other approaches \cite{gu2021densetntwaymo} \cite{liang2020learning}, obtaining a good trade-off between model complexity and error (minADE, k=6).
+Even though our method do not obtain the best regression metrics, we achieve comparable results (Table~\ref{table:effcomp}) against other SOTA approaches whilst our number of FLOPs is several orders of magnitude smaller than other approaches \cite{gu2021densetnt} \cite{liang2020learning}, obtaining a good trade-off between model complexity and error (minADE, k=6).
 
 Moreover, as it is well known in machine learning, the number of parameters is not always proportional to the inference speed. In that sense, our transformer approach also has certain benefits in comparison to LSTM/RNN temporal encoding, since these are non-parallelizable, therefore, despite having more parameters, transformers are faster~\cite{vaswani2017attention}.
