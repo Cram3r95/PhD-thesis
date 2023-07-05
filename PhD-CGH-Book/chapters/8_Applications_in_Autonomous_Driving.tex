@@ -342,24 +342,163 @@ The messages created by CARLA contain the information of the different objects o
 \subsubsection{Ray-Tracking-based Filtering}
 \label{subsubsec:8_ad_perdevkit_object_visibility}
 
-One main issue for the GT calculation is that CARLA always render all the objects, even when they are not visible by the camera, LiDAR or Radar, which is a problem for any training process.
-There are many studies about ray tracing that solve this issue. These techniques \cite{raytracing1} \cite{raytracing2} are computationally very expensive so it is very difficult to implement them in real-time.\par
-We propose a method for the calculation of visibility in CARLA and ROS using directly the point cloud calculated by CARLA. A vehicle will be considered as visible, as long as a point of the LiDAR point cloud is found inside an object, in the same way as it is done in the nuScenes dataset \cite{caesar2020nuscenes}. The steps to be performed are the following:
-\begin{enumerate}
-	\item Remove objects furthest than the maximum LiDAR distance.
-	\item Deletion of the points of the point cloud with the height higher or lower than the objects in the surroundings.
-	\item Elimination of points outside the area in which the objects are located, taking into account all possible rotations.
-	\item Selection of the visible objects having at least one point in the point cloud taking into account the rotation of the different objects.
-\end{enumerate}
+One main issue for the \ac{GT} calculation is that \ac{CARLA} always render all the objects, even when they are not visible by the camera, LiDAR or Radar, which is a problem for any training or validation process. In other words, it is necessary to calculate the visibility of the objects from the vehicle, since, otherwise, when proceeding with the evaluation, the precision of the models would be reduced due to not being able to detect some occluded or invisible objects. As aforementioned, to solve that calculation of object visibility (\ie \ an object that could be preliminarily observed by a \ac{SOTA} sensor fusion module), we make use of the ray-tracing paradigm.
 
-In order to obtain a much simplified and reduced GT to work with, the tool has been designed with sensor synchronization as the basis. In this way, GT does not have to be calculated every time data is obtained from a sensor, or in certain timestamps in which data is available. Because of this, it is necessary to activate the CARLA synchronization option for the correct functioning of the tool.
+There are many studies about ray tracing that solve this issue. These techniques \cite{raytracing1, raytracing2} are computationally very expensive so it is very difficult to implement them in real-time. In that sense, we propose a method using directly the point-cloud calculated by the simulator. Regarding this, a vehicle will be considered as visible, as long as a point of the LiDAR point-cloud is found inside an object, in the same way as it is done in the nuScenes dataset \cite{caesar2020nuscenes}. 
+
+Moreover, it is important to note that this tool is designed to work either for offline or online \ac{GT} generation. On the other hand, one of the most important and delicate parts for the real-time use of this application is efficiency, so it is necessary to perform a method similar to the \ac{SOTA} in terms of ray-tracing, but with low computational cost. Therefore, it was decided to use the latest point-cloud processed by our \ac{ROS} bridge from ROS to filter the objects in the environment given a frequency of 10 Hz (standard in the \ac{AD} industry, and particularly in the \ac{CARLA} Autonomous Driving Leaderboard). For the implementation of this operation, vectorization of the operations is necessary, as computation needs to be done in less than $10^{-2}$ seconds. It must be noted that only vehicles and walkers are considered for our purposes, since \ac{CARLA} also provides the traffic lights and other traffic infrastructure as World agents or actors. The steps to be performed are the summarized in Algorithm \ref{alg:8_ray_tracing_object_visibility}, where a maximum distance of 120 m is considered to filter the furthest agents:
+
+\begin{comment}
+	\BlankLine
+	
+	\textbf{Function} $f_{\text{visible_{bb}}}(\text{bb}, \text{points})$:\;
+	\Indp
+	\textbf{return} $\text{np.logical_{and}} \\
+	
+	(\left( \text{np.logical_{and}} \left( \text{bb}[0] - \frac{\text{bb}[3]}{2} \leq \text{np.array(points[:, 0])}, \\
+	\text{np.array(points[:, 0])} \leq \text{bb}[0] + \frac{\text{bb}[3]}{2} \right), \\
+	\text{bb}[1] - \frac{\text{bb}[4]}{2} \leq \text{np.array(points[:, 1])} \right), \\
+	\left( \text{np.logical_{and}} \left(\text{np.array(points[:, 1])} \leq \text{bb}[1] + \frac{\text{bb}[4]}{2} \right), \\
+	\text{bb}[2] - \frac{\text{bb}[5]}{2} \leq \text{np.array(points[:, 2])}, \\
+	\text{bb}[2] \leq \frac{\text{bb}[5]}{2})) $\;
+	\Indm
+	
+	\BlankLine
+	
+	5. Select visible objects having at least one point in the point cloud, considering the rotation of different objects;
+	
+	\BlankLine
+	
+	$n_{\text{points\_in\_bb}} = 0$\;
+	
+	\If{\text{pointcloud is not None}}{
+		$points\_in\_bb = f_{\text{visible\_bb}} \left( (\text{obj.position\_x}, \text{obj.position\_y}, \\ \text{obj.position\_z}, \text{obj.l}, \text{obj.w}, \text{obj.h}), \\
+		\text{self.pointcloud} \right)$\;
+		$n_{\text{points\_in\_bb}} = \text{np.add.reduce}(points\_in\_bb)$\;
+	}
+\end{comment}
+
+\begin{algorithm}[H]
+	\SetAlgoLined
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	\Input{Point cloud provided by the simulator and CARLA world agents}
+	\Output{Bounding box parameters of agents with at least one LiDAR point of incidence}
+	
+	\caption{Ray-tracing-based filtering algorithm to perform object visibility}
+	\label{alg:8_ray_tracing_object_visibility}
+	
+	\BlankLine
+	
+	1. Transform LiDAR raw data and CARLA World objects into \ac{ROS} format to enhance matrix operations and interpretability.
+	
+	2. Remove objects furthest than the maximum LiDAR distance.
+	
+	3. Delete points in the point cloud with heights higher or lower than the objects in the surroundings.
+	
+	4. Eliminate points outside the area where the objects are located, considering all possible rotations.
+	
+	\BlankLine
+	
+	\textbf{Function} $f_{\text{visible\_bb}}(\text{bb}, \text{points})$:\;
+	\Indp
+	\textbf{return} $\text{np.logical\_and} \left( \text{np.logical\_and} \left( \text{bb}[0] - \frac{\text{bb}[3]}{2} \leq \text{np.array(points[:, 0])}, \text{np.array(points[:, 0])} \leq \text{bb}[0] + \frac{\text{bb}[3]}{2} \right), \text{bb}[1] - \frac{\text{bb}[4]}{2} \leq \text{np.array(points[:, 1])} \right), \text{bb}[2] - \frac{\text{bb}[5]}{2} \leq \text{np.array(points[:, 2])} \leq \text{bb}[2] + \frac{\text{bb}[5]}{2} $\;
+	\Indm
+	
+	\BlankLine
+	
+	5. Select visible objects having at least one point in the point cloud, considering the rotation of different objects;
+	
+	\BlankLine
+	
+	$n_{\text{points\_in\_bb}} = 0$\;
+	\If{\text{self.pointcloud is not None}}{
+		$points\_in\_bb = f_{\text{visible\_bb}} \left( (\text{obj.position\_x}, \text{obj.position\_y}, \text{obj.position\_z}, \text{obj.l}, \text{obj.w}, \text{obj.h}), \text{self.pointcloud} \right)$\;
+		$n_{\text{points\_in\_bb}} = \text{np.add.reduce}(points\_in\_bb)$\;
+	}
+
+\end{algorithm}
 
 \subsection{Experimental results}
 \label{subsec:8_experimental_results}
 
-The simulator runs at 13 fps over a computer
-consisting of an Intel i7-9700k (overclocked to 4.9 GHz), NVIDIA 2080 Ti and 32 GB of
-RAM (3200 MHz).
+Once we have calculated the 360 \degree visible objects in a frame $t$, as additional post-processing steps the \ac{AD-PerDevKit} tool fills a buffer with the past positions of the corresponding object (simulating a real-world buffered Multi-Object Tracker). Nevertheless, since the proposed prediction model has been trained in Argoverse 2 using an observation length of \textit{$obs_{len}$} = 50 (\ie 5s of motion history regarding a frequency of 10 Hz). Then, calculating the predictions with only 2 or 3 observations would not make sense, since even though there are several agents in Argoverse 1 and Argoverse 2 with only a few observations (for example, an object is relevant in the scene since it is relevant to the \ac{ADS} in $t=0$, with only has 4 observations because suddenly appeared in the traffic scenario). To this end, we filter those obstacles with a number of observations less than a certain threshold, set to 20 in this case. Figure \ref{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ} depicts an example of the \ac{AD-PerDevKit} output while driving our \ac{ADS} in the \ac{CARLA} simulator (particularly Town03). Filtered objects and observations are plotted in the well-established RVIZ simulator. 
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/simulator_CARLA_RVIZ.png}
+	\caption{Ray-tracing-based filtering example in the RVIZ simulator}
+	\label{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ}
+\end{figure}
+
+The experiments were run in a computer consisting of an Intel i7-9700k (overclocked to 4.9 GHz), NVIDIA 3090 RTX Ti and 32 GB of RAM (3200 MHz). To illustrate the importance of the prediction, we have selected several interesting use cases of the CARLA Autonomous Driving Leadeboard inspired in the \ac{NHTSA} where either the prediction module is of vital importance to take the optimal action in the short/long term, or scenarios where the model is able to reason in an intelligent way, even though map information is not included for simplicity, which agents should keep their position in future frames (\eg \ agents stopped in front of a red traffic light or stop) and which agents, even though they are currently stopped, must be predicted since ahead vehicles have started moving. Dynamic agents, as expected, are predicted in all different scenarios. 
+
+For each figure, we illustrate the \textbf{\textcolor{blue}{past observations}} (until \textit{$obs_{len}$} = 50) of the relevant agents, as well as the \textbf{\textcolor{red}{ego-vehicle}} observations, taking into account that the model will be able to predict only if the ego-vehicle has at least two observations, since to compute the rotation angle the current and past observations must be considered. Moreover, \textbf{\textcolor{ForestGreen}{multimodal predictions}} are calculated for each agent (including the ego-vehicle, treated as a standard agent, not taking into account the \ac{CMP} paradigm as explained in Chapter \ref{cha:related_works}). Note that for visualization purposes, we avoid plotting those modes with a confidence value lower than a certain threshold, in this case set to 0.2. Note that in \ac{CARLA} our ego-vehicle is a gray Lincoln MKZ 2017, while in \ac{RVIZ}, for visualization purposes, it is the red vehicle.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/crowded_highway.png}
+	\caption{Crowded high-way use case}
+	\label{fig:chapter_8_Applications/use_cases/crowded_highway}
+\end{figure}
+
+Figure \ref{fig:chapter_8_Applications/use_cases/crowded_highway} illustrates a traffic jam in crowded highway, for example a standard situation when approaching a metropolis in the morning at work time. In this case, we may observe that the model does not compute multi-modal predictions towards different directions, but, as expected, it understands that all vehicles are driving in the same direction (either forward or reverse way) and the multi-modal prediction is computed in terms of different velocity profiles (that is, the agent can continue with the same velocity, suddenly break or accelerate in the mid/long term).
+
+\begin{figure}[!h]
+	\begin{subfigure}{\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/intersection_2_pre.png}
+		\label{subfig:chapter_8_Applications/use_cases/intersection_2_pre}
+		\caption{Intersection at frame $t$}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/intersection_2_post.png}
+		\label{subfig:chapter_8_Applications/use_cases/intersection_2_post}
+		\caption{Intersection at frame $t+20$}
+	\end{subfigure}
+	
+	\caption{Intersection use case}
+	\label{fig:chapter_8_Applications/use_cases/intersection}
+\end{figure}
+
+Figure \ref{fig:chapter_8_Applications/use_cases/intersection} shows an intersection where the Toyota Prius in front of the ego-vehicle can conduct a multi-modal prediction (either turn left or keep straight), understanding that it is in an intersection given the surrounding agents position and past observations. Then, after turning left, 2s in the future, the model does not predict different directions, but only keep straights assuming there is not another intersection close to him ahead.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/unexpected_pedestrian.png}
+	\caption{Unexpected Vulnerable Road User (VRU) use case}
+	\label{fig:chapter_8_Applications/use_cases/unexpected_pedestrian}
+\end{figure}
+
+As commented in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}, predicting the behaviour of \acp{VRU}, such as cyclists or pedestrians, is one of the most critical aspect of an \ac{ADS} to be deployed and scaled to real-world applications in urban scenarios. In this particular case (Figure \ref{fig:chapter_8_Applications/use_cases/unexpected_pedestrian}), we may observe that a kid suddenly appears behind a CocaCola vending machine, and, after taking into account the minimum number of observations, the model is able to correctly predict the future intentions of the agent. Nevertheless, an interesting point of view for future works could be how to assign the minimum number of observations depending on the agent type or potential risks associated to the traffic situation. For example, in this particular case, even though the model has been trained with way more past observations, the model should predict the agent as fast as possible, even though several modes are computed in non-plausible or non-sense directions.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/stop_2_post.png}
+	\caption{Stop use case}
+	\label{fig:chapter_8_Applications/use_cases/stop}
+\end{figure}
+
+Figure \ref{fig:chapter_8_Applications/use_cases/stop} illustrates a standard Stop traffic scenario, where the model is clearly able to distinguish among dynamic and static objects, predicting the trajectories in the same point for agents stopped for a while. Moreover, it can be slightly appreciated a multi-modal prediction for the white and red van, but probably the model discards the possibility of turning right given the vehicle that is present in that lane in the current timestamp. Conducting transfer learning and fine-tuning the model with \ac{CARLA} scenarios could be an option to help the models understand the situation in an enhanced way.  
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/roundabout.png}
+	\caption{Roundabout use case}
+	\label{fig:chapter_8_Applications/use_cases/roundabout}
+\end{figure}
+
+Finally, Figure \ref{fig:chapter_8_Applications/use_cases/roundabout} shows one of the most challenging traffic situations in urban scenarios, that is, a roundabout full of agents, considering incoming, outcoming and present agents in the current time-stamp. To help the behavioural and local planning modules to take the optimal action, the model clearly predicts the circular motion of the agents, either for the agents that are in the roundabout with different velocity profiles or even for the incoming agents which are going to get into the roundabout and probably intersect with the trajectory of our ego-vehicle if the adversary does not respect the give-way traffic signal. Then, understanding this complex situation and taking account all different scenarios, from least dangerous to most optimistic, is the key to build a robust and reliable architecture.
+
+\section{Summary}
+\label{sec:8_summary}
+
+In this Chapter we have evaluated our efficient social-based prediction model, where the incorporation of map information has been avoided for simplicity purposes given the model has been evaluated in two different frameworks, the SMARTS and CARLA simulator, with a graph map structure way different to Argoverse 2.
+
+In terms of the decision-making application, the prediction module must calculate the future positions of vehicles within the scenario to improve a Reinforcement Learning-based Decision Making module. The results of the study demonstrate that our approach achieves significant performance improvements, particularly in scenarios involving high velocities.
+
+On the other hand, we have successfully integrated the prediction algorithm in our \ac{ADS} in simulation using CARLA and studied the domain adaptation of the algorithm from a static dataset (Argoverse 2) to an hyper-realistic environment, using some scenarios inspired in the well-established \ac{NHTSA} typology. Given the amount of work and complexity required to develop an efficient and accurate 360 \degree \ac{DAMOT} pipeline, we make use of the \ac{AD-PerDevKit} pipeline to generate a realistic \ac{GT} (avoiding to store all agents of the simulator, which would not make sense) given a ray-tracing-based filtering algorithm and some post-processing steps to obtain a buffer of past observations for each agent, removing those agents with a number of observations lower than a certain threshold. As observed, the model is able to compute multi-modal predictions in terms of different directions and velocity profiles, or even predicting the trajectories in the same point for agents stopped for a while, understanding the past motion and complex interactions among the agents and corresponding neighbours. 
+
+% This research opens up several potential directions for future work. The proposed approach can be evaluated in a broader range of urban driving scenarios to assess its robustness and scalability, up-to-pair with the difficulty of the Argoverse 2 dataset scenarios (specially in terms of intersections or lane change behaviours at high speed) where multimodal predictions with higher prediction horizons will be required. Furthermore, the Reinforcement Learning-based Decision Making module can be enhanced by exploring advanced algorithms.
 
 \begin{comment}
 	IDEAS:
@@ -382,63 +521,3 @@ RAM (3200 MHz).
 	
 	Si todo fuese bien, y hasta la fecha de la lectura, mi idea es ayudar al equipo a meter detección, fusión y tracking en simulación y real, aunque no sean integraciones mid-level, y quitar el by-pass, pero lo anterior es más prioritario.
 \end{comment}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/simulator_CARLA_RVIZ.png}
-	\caption{Ray-tracing-based filtering example in the RVIZ simulator}
-	\label{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/crowded_highway.png}
-	\caption{Crowded high-way use case}
-	\label{fig:chapter_8_Applications/use_cases/crowded_highway}
-\end{figure}
-
-\begin{figure}[h]
-	\begin{subfigure}{\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/intersection_2_pre.png}
-		\label{subfig:chapter_8_Applications/use_cases/intersection_2_pre}
-	\end{subfigure}
-	\begin{subfigure}{\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/intersection_2_post.png}
-		\label{subfig:chapter_8_Applications/use_cases/intersection_2_post}
-	\end{subfigure}
-	
-	\caption{Intersection use case}
-	\label{fig:chapter_8_Applications/use_cases/intersection}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/unexpected_pedestrian.png}
-	\caption{Unexpected Vulnerable Road User (VRU) use case}
-	\label{fig:chapter_8_Applications/use_cases/unexpected_pedestrian}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/stop_2_post.png}
-	\caption{Stop use case}
-	\label{fig:chapter_8_Applications/use_cases/stop}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/roundabout.png}
-	\caption{Roundabout use case}
-	\label{fig:chapter_8_Applications/use_cases/roundabout}
-\end{figure}
-
-\section{Summary}
-\label{sec:8_summary}
-
-In terms of the decision-making application, the proposed method incorporates an Efficient Social-based Motion Prediction module, which predicts the future positions of vehicles within the scenario. These predictions improve a Reinforcement Learning-based Decision Making module. The results of the study demonstrate that our approach achieves significant performance improvements, particularly in scenarios involving high velocities.
-
-Moreover, the scope of your thesis may limit the extent to which you can tackle the complexities of developing a comprehensive detector and tracker for multiple obstacles. Such an endeavor would likely require a significant amount of time, resources, and expertise, potentially extending beyond the time frame and objectives of your research. By choosing to work with ray-tracing-based ground-truth, you can prioritize the main focus of your thesis—motion prediction—while still incorporating a realistic and accurate representation of the environment. This decision ensures that your research remains focused, feasible, and aligned with the intended objectives.
-
-In conclusion, justifying the use of ray-tracing-based ground-truth instead of coding a detector and tracker for multiple obstacles in a 360º autonomous driving scenario is a reasonable approach given the limitations and purpose of your thesis. It allows you to achieve meaningful results in motion prediction while avoiding the extensive workload and technical complexities associated with developing a comprehensive obstacle detection and tracking system. By leveraging the realistic nature of ray-tracing-based ground-truth, you can provide reliable input data, optimize computational efficiency, and maintain focus on your research objectives. 
-
-% This research opens up several potential directions for future work. The proposed approach can be evaluated in a broader range of urban driving scenarios to assess its robustness and scalability, up-to-pair with the difficulty of the Argoverse 2 dataset scenarios (specially in terms of intersections or lane change behaviours at high speed) where multimodal predictions with higher prediction horizons will be required. Furthermore, the Reinforcement Learning-based Decision Making module can be enhanced by exploring advanced algorithms.
