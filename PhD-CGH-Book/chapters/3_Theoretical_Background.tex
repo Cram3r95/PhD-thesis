@@ -48,9 +48,9 @@
 \section{Introduction}
 \label{sec:3_introduction}
 
-As commented in previous sections, the \ac{MP} algorithms covered by this thesis range from tracking multiple objects and subsequent prediction with physics-based methods to the most recent \ac{SOTA} techniques to compute the deep traffic context and then decode multimodal predictions with associated confidences, assuming the physical information is given and surrounding participants have been multi-tracked beforehand. Throughout this Chapter, an in-depth theoretical study will be made of those algorithms, neural networks or heuristics that form the foundations of this work in order to address the proposed methods in future chapters.
+As commented in previous Chapters, the \ac{MP} algorithms covered by this thesis range from tracking multiple objects and subsequent prediction with physics-based methods to the most recent \ac{SOTA} techniques to compute the deep traffic context and then decode multi-modal predictions with associated confidences, assuming the physical information is given and surrounding participants have been multi-tracked beforehand. Throughout this Chapter, an in-depth theoretical study will be made of those algorithms, neural networks or heuristics that form the foundations of this work in order to address the proposed methods in future chapters.
 
-First of all, we will start with the mathematical formulation of the methods to perform physics-based Multi-Object Tracking, from the well-known Kalman Filter techniques \cite{kalman1960new} for the agents states estimation to the Hungarian algorithm \cite{kuhn1955hungarian} for the association of detections and trackers, which represents the preliminary stage before carrying out the subsequent prediction. On top of that, since several single-trajectory models (\ac{CTRV}, \ac{CTRA}) are used to compute the most plausible centerlines in the Argoverse 1 \cite{chang2019argoverse} and Argoverse 2 \cite{wilson2023argoverse}, we will review the state transition equations to properly understand the constraints for each model. Furthermore, the principal \ac{DL} techniques (e.g. 1D-CNN, LSTM, GCN, Attention mechanisms) and training losses used in this work to encode and decode the aimed multimodal predictions will be stated, first a general mathematical formulation and applications, and then, how the corresponding technique is used in the \ac{MP} field.
+First of all, we will start with the mathematical formulation of the methods to perform physics-based Multi-Object Tracking, such as the well-known Kalman Filter algorithm \cite{kalman1960new} for agent state estimation to the Hungarian algorithm \cite{kuhn1955hungarian} for the association of detections and trackers, which represents the preliminary stage before carrying out the subsequent physics-based uni-modal prediction. On top of that, since several single-trajectory models (\ac{CTRV}, \ac{CTRA}) are used to compute the most plausible centerlines in the Argoverse 1 \cite{chang2019argoverse} and Argoverse 2 \cite{wilson2023argoverse} datasets, we will review the state transition equations to properly understand the constraints for each model. Furthermore, the principal \ac{DL} techniques (\eg \ 1D-\ac{CNN}, \ac{LSTM}, \ac{GAN}, Attention mechanisms or \ac{GCN}) and training losses used in this work to encode and decode the aimed multi-modal predictions will be stated, first a general mathematical formulation and applications, and then, how the corresponding technique is used in the \ac{MP} field.
 
 \section{Physics-based algorithms}
 \label{sec:3_pb_formulation}
@@ -58,24 +58,25 @@ First of all, we will start with the mathematical formulation of the methods to 
 % https://arxiv.org/pdf/1710.04055.pdf
 % https://github.com/NickNair/Multiple-Object-Tracking-using-Kalman-Filter
 
-As stated in Chapter \ref{cha:related_works} Section \ref{sec:2_introduction}, initially researchers rely on physics-based methods which are basic and straightforward. These methods may not offer high accuracy, but many models use the underlying idea of physics-based models to improve their accuracy. Physics-based approaches yield better results when the movement of vehicles is described by kinematics or dynamics models accurately. Nevertheless, the physical model of traffic participants is constantly evolving, so most physics-based models are only applicable for short-term predictions of no more than one second. In this Section we will study the mathematical formulation of the physics-based prediction algorithms, as well as the data association problem regarding the Multi-Object Tracking stage, that are directly related to our algorithm proposed in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}.
+As stated in Chapter \ref{cha:related_works}, in terms of \ac{MP}, initially researchers rely on physics-based methods which are basic and straightforward. These methods may not offer high accuracy, but many models use the underlying idea of physics-based models to improve their accuracy. Physics-based approaches yield better results when the movement of vehicles is described by kinematics or dynamics models accurately. Nevertheless, the physical model of traffic participants is constantly evolving, so most physics-based models are only applicable for short-term predictions of no more than one second. In this Section we will study the mathematical formulation of the physics-based prediction algorithms, as well as the data association problem regarding the Multi-Object Tracking stage, that are directly related to our algorithm proposed in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}.
 
 \subsection{Kalman Filter under the hood}
 \label{subsec:3_kf_formulation}
 
 The Kalman Filter \cite{kalman1960new} is a recursive algorithm used for estimating the state of a dynamic system in the presence of noise. It is widely used in various fields such as engineering, control systems, and robotics. The algorithm works by combining a prediction of the system state based on a mathematical model with measurements (updates) from sensors to improve the accuracy of the state estimation, as shown in Figure \ref{fig:chapter_3_theoretical_background/KF_cycle}. The Kalman Filter is a powerful algorithm for state estimation, and it has many variations and extensions that can handle various types of systems and measurements. The filter can be applied to non-linear systems using the Extended Kalman Filter or the Unscented Kalman Filter, and it can handle multiple models using the multiple model Kalman Filter. The filter can also be used for smoothing, which involves estimating the state of the system based on past and future measurements.
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\linewidth]{chapter_3_theoretical_background/KF_cycle.pdf}
-	\caption[Overview of the Kalman Filter Predict-Update cycle]{Overview of the Kalman Filter Predict-Update cycle. The Kalman Filter keeps track of the estimated state of the system and the variance or uncertainty of the estimate. The estimate is updated using a state transition model and measurements}
-	Source: \textit{An introduction to the kalman filter} \cite{bishop2001introduction}
-	\label{fig:chapter_3_theoretical_background/KF_cycle}
-\end{figure}
-
 In its most simple version, the Kalman Filter assumes that the system can be described using a set of linear equations, where the state of the system can be represented by a vector $\mathbf{x}_k$, and the measurements can be represented by a vector $\mathbf{z}_k$. The Kalman Filter also assumes that the noise in the system follows a Gaussian distribution.
 
 The state estimation process is performed in two steps: the prediction step and the update step. In the prediction step, the current state of the system is predicted based on the previous state and a mathematical model of the system. In the update step, the predicted state is corrected based on a measurement from the sensors.
+
+\begin{figure}[!h]
+	\centering
+	\captionsetup{justification=justified}
+	\includegraphics[trim=0cm 2cm 0cm 2cm, width=0.8\linewidth]{chapter_3_theoretical_background/KF_cycle.pdf}
+	\caption[Overview of the Kalman Filter Predict-Update cycle]{Overview of the Kalman Filter Predict-Update cycle. The Kalman Filter keeps track of the estimated state of the system and the variance or uncertainty of the estimate. The estimate is updated using a state transition model and measurements.}
+	Source: \textit{An introduction to the kalman filter} \cite{bishop2001introduction}
+	\label{fig:chapter_3_theoretical_background/KF_cycle}
+\end{figure}
 
 The prediction step can be represented using the following equations:
 
@@ -103,7 +104,7 @@ where $\mathbf{K}_k$ is the Kalman Filter gain, $\mathbf{H}$ is the measurement 
 \subsection{Hungarian algorithm formulation}
 \label{subsec:3_HA_formulation}
 
-The Hungarian algorithm \cite{kuhn1955hungarian}, also known as the Munkres algorithm or the Kuhn-Munkres algorithm, is an efficient algorithm for solving the assignment problem in combinatorial optimization. An example to illustrate the Hungarian algorithm solution for an assignment problem involves finding the optimal assignment of $n$ workers to $n$ jobs, given the cost of assigning each worker to each job.
+The Hungarian algorithm \cite{kuhn1955hungarian}, also known as the Kuhn-Munkres algorithm, is an efficient algorithm for solving the assignment problem in combinatorial optimization. An example to illustrate the Hungarian algorithm solution for an assignment problem involves finding the optimal assignment of $n$ workers to $n$ jobs, given the cost of assigning each worker to each job.
 
 The Hungarian algorithm works by iteratively finding a set of independent zero-cost assignments, which correspond to a perfect matching in a bipartite graph. These assignments are then used to reduce the problem size and find a new set of independent zero-cost assignments, until all workers are assigned to jobs.
 
@@ -154,7 +155,7 @@ In conclusion, the Hungarian algorithm is a powerful optimization algorithm that
 \subsection{State Transition Equations of Single-Trajectory Models}
 \label{subsec:3_state_transitions_single_traj}
 
-As stated in Chapter \ref{cha:related_works} Section \ref{subsubsec:2_single_trajectory_mp}, Single-trajectory prediction methods are used in the field of motion estimation and control, to predict the future state of an object based on its current state and motion. In these methods, the agents are mostly assumed to comply with motion models that describe their dynamic behavior in such a way these are not able to consider the road-related factors and the uncertainty of the current state is unreliable for long-term prediction. Then, these models should only be used for estimating unimodal trajectories of the surrounding agents in the short-term (no more than 1-s).
+As illustrated in Chapter \ref{cha:related_works}, Single-Trajectory prediction methods are used in the field of motion estimation and control, to predict the future state of an object based on its current state and motion. In these methods, the agents are mostly assumed to comply with motion models that describe their dynamic behavior in such a way these are not able to consider the road-related factors and the uncertainty of the current state is unreliable for long-term prediction. Then, these models should only be used for estimating uni-modal trajectories of the surrounding agents in the short-term (no more than 1-s).
 
 \begin{figure}[h]
 	\centering
@@ -170,7 +171,7 @@ Several single-trajectory prediction models have been proposed in the literature
 
 \begin{itemize}
 	
-	\item Constant Velocity (CV) model assumes that the object moves at a constant velocity and its future position can be predicted by simply extrapolating its current velocity vector. This model is simple and computationally efficient, but it may not accurately capture the object's motion if it changes its velocity.
+	\item Constant Velocity (CV) model assumes that the object moves at a constant velocity and its future position can be predicted by simply extrapolating its current velocity vector. This model is simple and computationally efficient, but it may not accurately capture the object motion if it changes its velocity.
 	
 	\item Constant Acceleration (CA) model is an extension of the CV model, assuming that the object can also change its acceleration in a linear manner. This model can provide more accurate predictions of the object future position and velocity, but it may not be suitable for objects with more complex motion patterns.
 	
@@ -180,20 +181,22 @@ Several single-trajectory prediction models have been proposed in the literature
 	
 	\item Constant Speed and Acceleration Vector (CSAV) model assumes that the object moves along a straight line with a constant speed and acceleration vector. This model can be useful for predicting the motion of objects such as trains or boats.
 	
-	\item Constant Acceleration and Angle (CAA) model assumes that the object moves along a constant heading angle and can change its acceleration in a linear manner. This model can be useful for predicting the motion of objects such as bicycles or motorcycles.
+	If the steering angle would be used as a state variable instead of the
+	curvature, the model could also be named Constant Steering Angle and
+	Velocity (CSSA)
+	
+	\item Constant Curvature and Acceleration (CCA) model assumes that the object moves along a constant heading angle and can change its acceleration in a linear manner, also referred in the literature as Constant Steering Angle and Velocity (CSSA) if the steering angle is used as a state variable instead of the curvature. From an algorithmic point of view, however, both names refer to the same model, which can be useful for predicting the motion of objects such as bicycles or motorcycles.
 	
 \end{itemize}
 
-It can be observed how a sophisticated model can be transformed into a simpler one by setting one state veriable to zero. For example, CTRA is transformed to CTRV if the agent acceleration $a$ is set to zero. Similarly, CTRA is transformed to CA if the angular velocity $\omega$ is set to 0. In this Section we particularly focus on the prediction equations and differences of the most commonly used single-trajectory prediction methods in the field of \ac{AD} to predict the future motion of a moving object: CTRV and CTRA.
+It can be observed how a sophisticated model can be transformed into a simpler one by setting one state variable to zero. For example, \ac{CTRA} is transformed to \ac{CTRV} if the agent acceleration $a$ is set to zero. Similarly, \ac{CTRA} is transformed to CA if the angular velocity $\omega$ is set to 0. In this Section we particularly focus on the prediction equations and differences of the most commonly used single-trajectory prediction methods in the field of \ac{AD}: \ac{CTRV} and \ac{CTRA}.
 
 \subsubsection{Constant Turn Rate Velocity (CTRV)}
 \label{subsubsec:3_CTRV}
 
-The Constant Turn Rate and Velocity (CTRV) model is a mathematical model used in the field of autonomous navigation to predict the future motion of a moving object. The model assumes that the agent moves along a smooth, continuous path, and that its velocity and turn rate are constant.
+The Constant Turn Rate and Velocity (CTRV) model is a mathematical model used in the field of autonomous navigation to predict the future motion of a moving object. The model assumes that the agent moves along a smooth, continuous path, \ie \ the velocity and turn rate remain constant throughout the prediction interval.
 
-The model describes the motion of the object using a set of differential equations that relate the rate of change of the agent state to its current state and any external inputs. The state of the agent is described using five variables: the x and y coordinates of its position, its velocity magnitude, its heading angle (or direction of travel), and its turn rate.
-
-The CTRV model predicts the future position of the agent by using the current position, velocity, heading angle, and turn rate, and propagating them forward in time. The model assumes that the velocity and turn rate remain constant throughout the prediction interval.
+With this model we are able to describe and predict the motion of the object using a set of differential equations that relate the rate of change of the agent state to its current state and any external inputs. It uses as main variables the current position, velocity, heading angle, and turn rate, and propagating them forward in time. % The state of the agent is described using five variables: the x and y coordinates of its position, its velocity magnitude, its heading angle (or direction of travel), and its turn rate.
 
 The prediction equations for the CTRV model are described as follows:
 
@@ -214,9 +217,11 @@ The first two equations predict the agent position at the next time step, based 
 \subsubsection{Constant Turn Rate Acceleration (CTRA)}
 \label{subsubsec:3_CTRA}
 
-The Constant Turn Rate and Acceleration (CTRA) model is an extension of the Constant Turn Rate and Velocity (CTRV) model, allowing the agent to change its acceleration while maintaining a constant turn rate. This makes the CTRA model more accurate for predicting the motion of objects that can accelerate or decelerate, such as cars or aircraft.
+The Constant Turn Rate and Acceleration (CTRA) model is an extension of the Constant Turn Rate and Velocity (CTRV) model, allowing the agent to change its acceleration while maintaining a constant turn rate. % This makes the \ac{CTRA} model more accurate for predicting the motion of objects that can accelerate or decelerate, such as cars or aircraft.
 
-The state of the agent in the CTRA model is described using variables such as the x and y coordinates of its position, its velocity magnitude, its heading angle, its turn rate, and its acceleration magnitude. The motion of the agent is modeled using the following set of equations:
+% The state of the agent in the CTRA model is described using variables such as the x and y coordinates of its position, its velocity magnitude, its heading angle, its turn rate, and its acceleration magnitude. 
+
+The motion of the \ac{CTRA} agent is modeled using the following set of equations:
 
 \begin{equation}
 \begin{split}
@@ -232,21 +237,14 @@ where the variables are the same than the \ac{CTRV} but at this point including 
 
 The first two equations describe the agent position updates based on its current position, velocity, heading angle, turn rate, and the time step. The third equation describes the agent heading angle update based on its current heading angle and turn rate. The fourth equation describes the agent velocity update based on its current velocity and acceleration. The last equation assumes that the agent turn rate remains constant over time.
 
-\subsubsection{CTRV vs CTRA}
-\label{subsubsec:3_CTRV_vs_CTRA}
+As observed, the prediction equations for the \ac{CTRV} model are based on the kinematic equations for circular motion, where the object position, velocity, and heading angle change in a continuous and smooth manner. In contrast, the prediction equations for the \ac{CTRA} model include an additional term for the object acceleration, which allows for more accurate predictions of the object future motion when it can accelerate or decelerate.
 
-The CTRV model assumes that the object moves along a smooth, continuous path, and that its velocity and turn rate are constant. This means that the object moves in a circular trajectory with a fixed radius. The state of the object is described using variables such as the x and y coordinates of its position, its velocity magnitude, its heading angle, and its turn rate.
-
-On the other hand, the CTRA model assumes that the object can change its acceleration while maintaining a constant turn rate. This makes the CTRA model more accurate for predicting the motion of objects that can accelerate or decelerate, such as cars or aircraft. The state of the object in the CTRA model is described using similar variables to the CTRV model, but with an additional variable to represent the object's acceleration.
-
-The prediction equations for the CTRV model are based on the kinematic equations for circular motion, where the object's position, velocity, and heading angle change in a continuous and smooth manner. In contrast, the prediction equations for the CTRA model include an additional term for the object's acceleration, which allows for more accurate predictions of the object's future motion when it can accelerate or decelerate.
-
-In terms of implementation, the CTRA model requires more computational resources due to the additional term for acceleration, which increases the complexity of the equations. This can make the CTRV model more computationally efficient and faster to calculate in real-time applications. 
+In terms of implementation, the \ac{CTRA} model requires more computational resources due to the additional term for acceleration, which increases the complexity of the equations. This can make the \ac{CTRV} model more computationally efficient and faster to calculate in real-time applications. 
 
 \section{Deep Learning algorithms}
 \label{sec:3_dlb_formulation}
 
-In this section the mathematical formulation of the \ac{DL} layers employed in this thesis is covered. In particular, these are the 1D-\ac{CNN}, \ac{LSTM}, \ac{GAN}, Attention mechanism and \ac{GNN} layers. We briefly introduce each layer, as well as the corresponding mathematical formulation to enhance the comprehension of the learning-based methods proposed in this thesis.
+In this section the mathematical formulation of the \ac{DL} layers employed in this thesis is covered. In particular, these are the 1D-\ac{CNN}, \ac{LSTM}, \ac{GAN}, Attention mechanism and \ac{GNN} layers. We briefly introduce each layer, as well as the corresponding mathematical formulation to enhance the comprehension of the learning-based methods proposed in future Chapters.
 
 \subsection{Convolutional Neural Networks (CNNs)}
 \label{subsec:3_cnns}
@@ -262,11 +260,11 @@ In this section the mathematical formulation of the \ac{DL} layers employed in t
 
 \begin{itemize}
 	
-	\item 1D Convolutional Neural Networks (1D CNNs): 1D CNNs are used for processing sequential data such as time series data, speech signals, and text data. The input is a one-dimensional sequence of data, such as a time series of sensor readings. 1D CNNs typically have fewer parameters and are computationally efficient compared to 2D and 3D CNNs.
+	\item 1D Convolutional Neural Networks (1D CNNs): 1D CNNs are used for processing sequential data such as time series data, speech signals or text data. The input is a one-dimensional sequence of data, such as a time series of sensor readings. 1D CNNs typically have fewer parameters and are computationally efficient compared to 2D and 3D CNNs.
 	
 	\item 2D Convolutional Neural Networks (2D CNNs): 2D CNNs are used for processing 2D images. The input is a two-dimensional image represented as a matrix of pixels. The convolutional layers in a 2D CNN apply filters that slide over the image to extract local features. The output of each convolutional layer is a set of 2D feature maps. 2D CNNs are widely used for image classification, object detection, and image segmentation.
 	
-	\item 3D Convolutional Neural Networks (3D CNNs): 3D CNNs are used for processing 3D volumetric data such as CT scans, MRI images, and video data. The input is a three-dimensional volume represented as a sequence of 2D images. The convolutional layers in a 3D CNN apply filters that slide over the 3D volume to extract local features. The output of each convolutional layer is a set of 3D feature maps. 3D CNNs are used for tasks such as medical image analysis, video classification, and action recognition.
+	\item 3D Convolutional Neural Networks (3D CNNs): 3D CNNs are used for processing 3D volumetric data such as CT scans, MRI images, and video data. The input is a three-dimensional volume represented as a sequence of 2D images. The convolutional layers in a 3D CNN apply filters that slide over the 3D volume to extract local features. The output of each convolutional layer is a set of 3D feature maps. 3D CNNs are used for tasks such as medical image analysis, video classification, 3D object detection and action recognition.
 \end{itemize}
 
 As we will see in further sections, in this work we focus on 1D CNNs. The basic building blocks of a 1D CNN are convolutional layers, which learn local patterns in the input data by applying a set of filters to it, as illustrated in Figure \ref{fig:chapter_3_theoretical_background/CNN_1D}. Each filter slides over the input sequence and performs a dot product operation at each position to generate a feature map. These feature maps capture the presence of certain patterns at different positions in the input sequence. 
@@ -310,7 +308,9 @@ Finally, we can use one or more fully connected layers to perform the final clas
 z_o = f(\sum_{o=1}^O W_{l,o} y_l + b_o)
 \end{equation}
 
-where $z_{o}$ is the o-th element of the output vector with length O, $W$ is the weight matrix, $y$ is the flattened output of the pooling layer with length $L = K · M/2$, $b$ is the bias term, and $f$ is an activation function. 
+where $z_{o}$ is the o-th element of the output vector with length O, $W$ is the weight matrix, $y$ is the flattened output of the pooling layer with length $L$, $b$ is the bias term, and $f$ is an activation function. 
+
+We make use of the 1D-\ac{CNN} mechanism in Chapters \ref{cha:efficient_baseline_for_mp_in_ad} and \ref{cha:improving_multi_agent}, studying its effect in our algorithms, leveraging its wider receptive field compared with a \ac{MLP} to reduce the influence of noisy input data. 
 
 \subsection{Recurrent Neural Networks}
 \label{subsec:3_rnns}
@@ -326,7 +326,7 @@ The GRU is a variation of the basic RNN that uses gating mechanisms to control t
 \subsubsection{Long Short-Term Memory}
 \label{subsubsec:3_LSTMs}
 
-LSTM networks were introduced to address the vanishing gradient problem in standard RNNs. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network. Figure \ref{fig:chapter_3_theoretical_background/LSTM} provides a detailed overview of the LSTM cell structure, illustrating the workflow from the previous cell output and input at time $t-1$ in order to compute the current cell state and hidden state at time $t$.
+LSTM networks were introduced to address the vanishing gradient problem in standard \acp{RNN}. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network. Figure \ref{fig:chapter_3_theoretical_background/LSTM} provides a detailed overview of the LSTM cell structure, illustrating the workflow from the previous cell output and input at time $t-1$ in order to compute the current cell state and hidden state at time $t$.
 
 \begin{figure}[h]
 	\centering
@@ -340,23 +340,23 @@ The three gates are called the input gate, forget gate, and output gate, and the
 The equations for the input, forget, and output gates are as follows:
 
 \begin{itemize}
-	\item Input gate: $i_k = \sigma(WR_i \cdot [h_{k-1}, x_k] + b_i)$
-	\item Forget gate: $f_k = \sigma(WR_f * [h_{k-1}, x_k] + b_f)$
-	\item Output gate: $o_k = \sigma(WR_o * [h_{k-1}, x_k] + b_o)$
+	\item Input gate: $i_k = \sigma(W_i R_i \cdot [h_{k-1}, x_k] + b_i)$
+	\item Forget gate: $f_k = \sigma(W_f R_f * [h_{k-1}, x_k] + b_f)$
+	\item Output gate: $o_k = \sigma(W_o R_o * [h_{k-1}, x_k] + b_o)$
 \end{itemize}
 
-where $x_k$ is the input at the current timesetp $k$, $h_{k-1}$ is the hidden state from the previous timestep, $i_k$ is the input gate activation, $f_k$ is the forget gate activation, and $o_k$ is the output gate activation for the current timestep $k$ respectively. On the other hand, $WR_i$, $WR_f$, and $WR_o$ are weight matrices (where the component W denotes the weights associated with the input signals $x$ and R denotes the so-called recursive weights, associated with the hidden state of the cell from the previous timestep), and $b_i$, $b_f$, and $b_o$ are bias vectors.
+where $x_k$ is the input at the current timestep $k$, $h_{k-1}$ is the hidden state from the previous timestep, $i_k$ is the input gate activation, $f_k$ is the forget gate activation, and $o_k$ is the output gate activation for the current timestep $k$ respectively. On the other hand, $W_i R_i$, $W_f R_f$, and $W_o R_o$ are weight matrices (where the component W denotes the weights associated with the input signals $x$ and R denotes the so-called recursive weights, associated with the hidden state of the cell from the previous timestep), and $b_i$, $b_f$, and $b_o$ are bias vectors.
 
 Moreover, the memory cell is updated based on the input, forget, and output gates, as well as a new candidate value that is computed based on the current input and hidden state. The equations for the memory cell and candidate value are as follows:
 
 \begin{equation}
 \begin{split}
 		C_k &= f_k \cdot C_{k-1} + i_k \cdot \tilde{C}_k \\
-		\tilde{C}_k &= \tanh(WR_g \cdot [h_{k-1}, x_k] + b_c)
+		\tilde{C}_k &= \tanh(W_g R_g \cdot [h_{k-1}, x_k] + b_g)
 \end{split}
 \end{equation}
 
-where $\tilde{C}_k$ is the candidate value, $C_t$ is the new memory cell value, and $C_{k-1}$ is the previous memory cell value. $WR_c$ represents the input signal and recursive weights, as stated above, and $b_c$ is a bias vector.
+where $\tilde{C}_k$ is the candidate value, $C_t$ is the new memory cell value, and $C_{k-1}$ is the previous memory cell value. 
 
 Finally, the hidden state at time $t$ is computed based on the output gate and the new memory cell value, using the following equation:
 
@@ -366,7 +366,9 @@ Finally, the hidden state at time $t$ is computed based on the output gate and t
 
 This equation scales the memory cell value by the output gate activation, then applies a hyperbolic tangent function to obtain the new hidden state.
 
-In summary, LSTMs use a memory cell and three gating mechanisms to learn long-term dependencies in sequential data. The input, forget, and output gates control the flow of information through the network, while the memory cell stores information over time. The equations for LSTMs involve computing the input, forget, and output gate activations, the candidate value, the new memory cell value, and the new hidden state.
+In summary, \acp{LSTM} use a memory cell and three gating mechanisms to learn long-term dependencies in sequential data. The input, forget, and output gates control the flow of information through the network, while the memory cell stores information over time. The equations for \acp{LSTM} involve computing the input, forget, and output gate activations, the candidate value, the new memory cell value, and the new hidden state.
+
+We make use of the \ac{LSTM} network in Chapters \ref{cha:exploring_gan_for_vehicle_mp} and \ref{cha:efficient_baseline_for_mp_in_ad} due to its powerful ability to represent as a high-dimensional space the past/future trajectories of the agents, though, as it will be seen in Section \ref{subsec:3_attention} of this Chapter, for the final proposal of the thesis we employ transformer-based modules since they are more powerful than \ac{LSTM} and easier to train.
 
 \subsection{Generative Adversarial Networks}
 \label{subsec:3_gans}
@@ -384,7 +386,7 @@ Unlike generative models, which learn the joint probability distribution of the 
 	\label{fig:chapter_3_theoretical_background/GAN}
 \end{figure}
 
-In 2014, a breakthrough paper introduced Generative adversarial networks (GANs) \cite{goodfellow2020generative}, a clever new way to leverage the power of discriminative models to get good generative models. At their heart, GANs rely on the idea that a data generator is good if we cannot tell fake data apart from real data. In statistics, this is called a two-sample test - a test to answer the question whether datasets $X=\{x_1,\ldots, x_n\}$ and $X'=\{x'_1,\ldots, x'_n\}$ were drawn from the same distribution. This allows to improve the data generator until it generates something that resembles the real data. At the very least, it needs to fool the classifier even if our classifier is a state of the art deep neural network. GANs are a powerful technique for generating realistic samples that are similar to some training data. As observed in Figure \ref{fig:chapter_3_theoretical_background/GAN}, a GAN consists of two neural networks, a generator network and a discriminator network. The generator and discriminator networks are trained in a two-player game, where the generator tries to produce samples that fool the discriminator, and the discriminator tries to correctly classify between real and generated data. The objective function for a GAN is a min-max game between the generator and discriminator, and can be optimized using gradient descent or some other optimization algorithm. Some common applications where GANs are widely used are generating realistic images, videos, audio, data augmentation or style transfer.
+In 2014, a breakthrough paper introduced Generative adversarial networks (GANs) \cite{goodfellow2020generative}, a clever new way to leverage the power of discriminative models to get good generative models. At their heart, GANs rely on the idea that a data generator is good if we cannot tell fake data apart from real data. In statistics, this is called a two-sample test, a test to answer the question whether datasets $X=\{x_1,\ldots, x_n\}$ and $X'=\{x'_1,\ldots, x'_n\}$ were drawn from the same distribution. This allows to improve the data generator until it generates something that resembles the real data. At the very least, it needs to fool the classifier even if our classifier is a state of the art deep neural network. GANs are a powerful technique for generating realistic samples that are similar to some training data. As observed in Figure \ref{fig:chapter_3_theoretical_background/GAN}, a GAN consists of two neural networks, a generator network and a discriminator network. The generator and discriminator networks are trained in a two-player game, where the generator tries to produce samples that fool the discriminator, and the discriminator tries to correctly classify between real and generated data. The objective function for a GAN is a min-max game between the generator and discriminator, and can be optimized using gradient descent or some other optimization algorithm. Some common applications where GANs are widely used are generating realistic images, videos, audio, data augmentation or style transfer.
 
 The generator network takes as input a random noise vector, and generates a sample that is meant to mimic real data. The discriminator network takes as input a sample, and tries to distinguish between real data and generated data. The two networks are trained in a two-player game, where the generator tries to produce samples that fool the discriminator, and the discriminator tries to correctly classify between real and generated data.
 
@@ -413,7 +415,7 @@ There are some well-known types of GANs, such as:
 	\item CycleGANs: These are GANs that are designed for image-to-image translation tasks, where the goal is to transform an image from one domain to another. CycleGANs use two generators and two discriminators to learn the mapping between the two domains.
 \end{itemize}
 
-Nevertheless, in this work we focus on a particular type of GAN, known as conditional GAN or cGAN. %, where the generator is conditioned on some additional information, such as class labels or image annotations. The additional information is used to control the generated output, allowing for more specific generation of data. 
+Nevertheless, in this work we focus on a particular type of GAN, known as conditional \ac{cGAN}, where the generator is conditioned on some additional information, allowing for more specific generation of data. 
 
 \subsubsection{GAN vs cGAN}
 \label{subsubsec:3_cGAN}
@@ -425,54 +427,60 @@ In the original GAN, the generator network takes as input a random noise vector,
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.75\linewidth]{chapter_3_theoretical_background/GAN_vs_cGAN.pdf}
-	\caption[Comparison between the original GAN and conditional GAN]{Comparison between the original Generative Adversarial Network (GAN) and conditional GAN (cGAN) \\
-	Source: \textit{Logan: Generating logos with a generative adversarial neural network conditioned on color} \cite{mino2018logan}}
+	\caption{Comparison between the original GAN and conditional GAN (cGAN)}
+	Source: \textit{Logan: Generating logos with a generative adversarial neural network conditioned on color} \cite{mino2018logan}
 	\label{fig:chapter_3_theoretical_background/GAN_vs_cGAN}
 \end{figure}
 
-In contrast, a cGAN is a GAN that is conditioned on some additional information, such as class labels or image annotations. The generator network in a cGAN takes as input both a random noise vector and a condition vector, and generates a sample that is conditioned on the additional information. The discriminator network also takes as input both the sample and the condition vector, and tries to distinguish between real data and generated data based on the condition. Figure \ref{fig:chapter_3_theoretical_background/GAN_vs_cGAN} illustrates the differences between the original GAN and the corresponding conditioned architecture.
+In contrast, a cGAN is a GAN that is conditioned on some additional information, such as class labels or image annotations. The generator network in a cGAN takes as input both a random noise vector and a condition vector, and generates a sample that is conditioned on the additional information. The discriminator network also takes as input both the sample and the condition vector, and tries to distinguish between real data and generated data based on the condition. Figure \ref{fig:chapter_3_theoretical_background/GAN_vs_cGAN} illustrates the differences between both architectures.
 
 The cGAN can be used for a variety of applications, such as image-to-image translation, where the additional information is an input image that is translated to a different output image. For example, a cGAN can be trained to convert grayscale images to color images, or to transform images of one type of object to another type of object.
 
 The training process for a cGAN is similar to that of the original GAN, but the loss function for the generator and discriminator networks are modified to include the condition vector. Specifically, the loss function for the generator network includes a term that measures how well the generated samples match the condition vector, in addition to the term that measures how well the generated samples fool the discriminator. Similarly, the loss function for the discriminator network includes a term that measures how well the discriminator can identify the condition vector, in addition to the term that measures how well it can distinguish between real and generated data.
+
+We make use a \ac{cGAN}-based approach in Chapter \ref{cha:exploring_gan_for_vehicle_mp} to compute plausible uni-modal predictions, where the input to the generative model (as we will see, represented by a \ac{LSTM} network) is a noise vector $z$ sampled from a multi-variate normal distribution and the physical and social represent the conditions to the model.
 
 % The cGAN can be used for a variety of applications, such as image-to-image translation, where the additional information is an input image that is translated to a different output image. For example, a cGAN can be trained to convert grayscale images to color images, or to transform images of one type of object to another type of object.
 
 \subsection{Attention Mechanism}
 \label{subsec:3_attention}
 
-The attention mechanism is a computational method used in deep learning models to help the model focus on the most important parts of the input data. It is commonly used in natural language processing, speech recognition, and computer vision.
+The attention mechanism \cite{vaswani2017attention} is a computational method used in \ac{DL} models to help the model focus on the most important parts of the input data. It is commonly used in Natural Language Processing (NLP), speech recognition, and computer vision. In terms of \ac{MP}, the attention mechanism is usually employed to model interaction among entities (either social or physical) to compute the most important features once the corresponding encoders have previously computed a deep description of the scene, \ie \, attention is commonly employed to extract relevant information from high-dimensional vectors (\eg \ 64 or 128).
 
-The basic idea of attention is to compute a set of weights that indicate the relative importance of different parts of the input. These weights are then used to compute a weighted sum of the input, which is used as the output of the attention mechanism.
+The basic idea of attention is to compute a set of weights that indicate the relative importance of different parts of the input. These weights are then used to compute a weighted sum of the input, which is used as the output of the attention mechanism. The attention mechanism can be formulated mathematically using the following equations:
 
-The attention mechanism can be formulated mathematically using the following equations:
+\begin{itemize}
+	\item First, we compute a set of \textit{keys}, \textit{values}, and a \textit{query} vector, which are used to compute the attention weights:
+	
+	\begin{equation}
+		\begin{split}
+			K = {k_1, k_2, ..., k_n} \\
+			V = {v_1, v_2, ..., v_n} \\
+			Q = {q_1, q_2, ..., q_d}
+		\end{split}
+	\end{equation}
 
-First, we compute a set of "keys", "values", and a "query" vector, which are used to compute the attention weights:
-
-\begin{equation}
-\begin{split}
-	K = {k_1, k_2, ..., k_n} \\
-	V = {v_1, v_2, ..., v_n} \\
-	q = [q_1, q_2, ..., q_d]
-\end{split}
-\end{equation}
-
-where $n$ is the number of elements in the input, and $d$ is the dimension of the query vector. Next, we compute the attention weights using a function that compares the query vector to each of the keys:
-
-\begin{equation}
-	a_i = \text{softmax}(q^T k_i)
-\end{equation}
-
-where $a_i$ is the attention weight for the $i-th$ element of the input. Finally, we compute the output of the attention mechanism as a weighted sum of the values:
-
-\begin{equation}
-	o = \sum_{i=1}^{n} a_i v_i
-\end{equation}
+	where $n$ is the number of elements in the input, and $d$ is the dimension of the query vector.
+	
+	\item Next, we compute the attention weights using a function that compares the query vector to each of the keys:
+	
+	\begin{equation}
+		a_i = \text{softmax}(q^T k_i)
+	\end{equation}
+	
+	where $a_i$ is the attention weight for the $i-th$ element of the input. 
+	
+	\item Finally, we compute the output of the attention mechanism as a weighted sum of the values:
+	
+	\begin{equation}
+		o = \sum_{i=1}^{n} a_i v_i
+	\end{equation}
+\end{itemize}
 
 \subsubsection{Positional Encoding}
 \label{subsubsec:3_positional_encoding}
 
-In the attention mechanism, positional encoding is used to incorporate the order of the input sequence into the model. Positional encoding involves adding a fixed-length vector to the input embeddings that encodes the position of each element in the sequence.
+In the attention mechanism, positional encoding is used to incorporate the order of the input sequence into the model. Positional encoding involves adding a fixed-length vector to the input embeddings that encodes the position of each element in the sequence. It has shown to be an effective way of incorporating sequential information into transformer-based in applications such  machine translation, language modeling, sentiment analysis or the present case, \ac{MP} in the field of \ac{AD}, where the order the sequence plays a fundamental role.
 
 The mathematical formulation of positional encoding is as follows:
 
@@ -488,46 +496,44 @@ where $pos$ is the position of the element in the sequence, $i$ is the index of 
 
 The choice of the hyperparameters used in the positional encoding formulation, such as the use of the sine and cosine functions and the value of $10000$, is arbitrary but has been shown to work well in practice. The positional encoding vectors add a sinusoidal pattern to the input embeddings that allows the model to distinguish between elements at different positions in the sequence.
 
-Positional encoding has been shown to be an effective way of incorporating sequential information into transformer-based models, and it has been used successfully in a variety of natural language processing tasks, including machine translation, language modeling, and sentiment analysis.
-
 \subsubsection{Multi-Head Attention}
 \label{subsubsec:3_multi_head_attention}
 
-Multi-head attention is a type of attention mechanism used in deep learning models, particularly in transformer-based architectures, to allow the model to attend to multiple parts of the input simultaneously. It involves splitting the input into multiple heads and computing separate attention scores for each head, which are then combined to produce the final output.
+Multi-head attention is a type of attention mechanism used in \ac{DL} models, particularly in transformer-based architectures. This Multi-Head concept allows the model where it is integrated to attend to multiple parts of the input at once, which is really useful for capturing complex relationships between different parts of the input. It involves splitting the input into multiple heads and computing separate attention scores for each head, which are then combined to produce the final output. It can be formulated mathematically using the following equations:
 
-The multi-head attention mechanism can be formulated mathematically using the following equations:
+\begin{itemize}
+	\item First, we split the keys, values, and query vectors into multiple \textit{heads}, each of which has its own set of learned weight matrices:
+	
+	\begin{equation}
+		\begin{split}
+			K_i = {k_{i,1}, k_{i,2}, ..., k_{i,n}} \\
+			V_i = {v_{i,1}, v_{i,2}, ..., v_{i,n}} \\
+			Q_i = {q_{i,1}, q_{i,2}, ..., q_{i,d}}
+		\end{split}
+	\end{equation}
+	
+	where $i$ is the index of the head. 
+	
+	\item Next, we compute the attention weights and outputs for each head separately, using the same equations as in the basic attention mechanism:
+	
+	\begin{equation}
+		a_{i,j} = \text{softmax}(Q_i^T K_{i,j})
+	\end{equation}
+	
+	\begin{equation}
+		o_{i} = \sum_{j=1}^{n} a_{i,j} V_{i,j}
+	\end{equation}
 
-First, we split the keys, values, and query vectors into multiple "heads", each of which has its own set of learned weight matrices:
-
-\begin{equation}
-\begin{split}
-	K_i = {k_{i,1}, k_{i,2}, ..., k_{i,n}} \\
-	V_i = {v_{i,1}, v_{i,2}, ..., v_{i,n}} \\
-	Q_i = {q_{i,1}, q_{i,2}, ..., q_{i,n}}
-\end{split}
-\end{equation}
-
-where $n$ is the number of elements in the input, and $i$ is the index of the head.
-
-Next, we compute the attention weights and outputs for each head separately, using the same equations as in the basic attention mechanism:
-
-\begin{equation}
-	a_{i,j} = \text{softmax}(Q_i^T K_{i,j})
-\end{equation}
-
-\begin{equation}
-	o_{i} = \sum_{j=1}^{n} a_{i,j} V_{i,j}
-\end{equation}
-
-Finally, we concatenate the outputs from all the heads and multiply them by a learned weight matrix $W_{O}$ to produce the final output:
-
-\begin{equation}
-	\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h)W_{O}
-\end{equation}
-
-where $\text{head}_i$ is the output of the $i$th head, and $h$ is the number of attention heads.
-
-The multi-head attention mechanism allows the model to attend to multiple parts of the input at once, which can be useful for capturing complex relationships between different parts of the input. It is often used in transformer-based architectures for natural language processing and other tasks.
+	where in this case $i$ represents the head index and $j$ the corresponding element of the input, being $o_{i}$ the whole output of the $i-th$ head.
+	
+	\item Finally, we concatenate the outputs from all the heads and multiply them by a learned weight matrix $W_{O}$ to produce the final output:
+	
+	\begin{equation}
+		\text{MultiHead}(Q, K, V) = \text{Concat}(o_{1}, \dots, o_{H})W_{O}
+	\end{equation}
+	
+	where $H$ is the number of attention heads.
+\end{itemize}
 
 \subsubsection{Self-Attention vs Cross-Attention}
 \label{subsubsec:3_self_attention_vs_cross_attention}
@@ -544,7 +550,7 @@ The mathematical formulation of self-attention is as follows:
 	\text{Self-Attention}(X_{1}) = \text{softmax}\left(\frac{Q_{1}K_{1}^T}{\sqrt{d_k}}\right)V_{1}
 \end{equation}
 
-where $X_{1}$ is the input sequence, $Q$, $K$, and $V$ are the query, key, and value vectors, respectively, and $d_k$ is the dimension of the key vectors. Subindex \textit{1} that the query, key and value come from the same source of information. The softmax function is applied row-wise to the matrix $\frac{QK^T}{\sqrt{d_k}}$, resulting in an attention matrix that has the same dimensions as $X$. The attention matrix is then used to weight the value vectors $V$, which are combined to produce the final output.
+where $X_{1}$ is the input sequence, $Q$, $K$, and $V$ are the query, key, and value vectors, respectively, and $d_k$ is the dimension of the key vectors. Subindex \textit{1} indicates that the query, key and value come from the same source of information. The softmax function is applied row-wise to the matrix $\frac{QK^T}{\sqrt{d_k}}$, resulting in an attention matrix that has the same dimensions as $X$. The attention matrix is then used to weight the value vectors $V$, which are combined to produce the final output.
 
 The query, key, and value vectors are obtained through linear transformations of the input embeddings. The exact way in which these transformations are carried out can vary depending on the specific architecture, but in general they involve matrix multiplications with learnable weight matrices.
 
@@ -838,7 +844,7 @@ The NLL loss penalizes the model for assigning low probabilities to the true lab
 
 The NLL loss is used in classification problems because it provides a gradient that can be used to update the model parameters during training, in order to improve the accuracy of the predicted probabilities. It is commonly used in conjunction with softmax activation function, which ensures that the predicted probabilities sum to one across all classes.
 
-Nevertheless, after revisiting the literature when developing the multimodal prediction paradigm, we realized that most works employed the Winner-Takes-All (WTA) and max-margin (\aka \ Hinge) losses to maximize the similarity between the future trajectories and the ground-truth. A comparison between employing the NLL loss and WTA+Hinge will be further detailed in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}.
+Nevertheless, after revisiting the literature when developing the multi-modal prediction paradigm, we realized that most works employed the Winner-Takes-All (WTA) and max-margin (\aka \ Hinge) losses to maximize the similarity between the future trajectories and the ground-truth. A comparison between employing the NLL loss and WTA+Hinge will be further detailed in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}.
 
 \paragraph{Winner-Takes-All loss}
 \label{par:3_WTA_loss}
@@ -912,9 +918,10 @@ There are several ways to implement hard-mining in deep learning, including:
 	\item Hard positive mining involves selecting the training samples that are misclassified with the lowest confidence by the model and including them in the next batch of training data. By focusing on the difficult positive samples, the model can learn to better distinguish between the different classes and reduce the number of false positives.
 	
 	\item Curriculum learning involves gradually increasing the difficulty of the training data over time. The model is first trained on easy samples and then gradually exposed to more difficult samples. This can help the model learn more robust and generalizable features by gradually increasing the complexity of the training data.
-	
-	\item Overall, hard-mining is a useful technique in deep learning for improving the training of a model by focusing on the difficult samples. By incorporating hard-mining into the training process, the model can learn more discriminative features and improve its generalization performance on new, unseen data.
+
 \end{itemize}
+
+Overall, hard-mining is a useful technique in deep learning for improving the training of a model by focusing on the difficult samples. By incorporating hard-mining into the training process, the model can learn more discriminative features and improve its generalization performance on new, unseen data.
 
 \section{Summary}
 \label{sec:3_summary}
@@ -931,8 +938,8 @@ Next, the \ac{LSTM} model is introduced, which is a type of recurrent neural net
 
 The chapter then explores \acp{GAN} and their application in motion prediction. \acp{GAN} consist of a generator and discriminator network that compete against each other, resulting in the generation of realistic and coherent motion trajectories. The mathematical formulation of \acp{GAN} and their training process are examined in detail.
 
-Then, the Graph Convolutional Network (GCN) is discussed, which is a deep learning model capable of operating on graph-structured data. The chapter explains how GCNs can be used to represent and predict motion patterns in scenarios where objects interact with each other.
-
 Furthermore, the Attention mechanism is examined, which is a component commonly integrated into deep learning models to focus on relevant parts of the input data. The chapter explores the mathematical formulation of the Attention mechanism and its application in motion prediction models, highlighting its ability to assign different weights to different input features based on their relevance.
 
-Finally, an overview of the training process, including the optimization and backpropagation strategy, the losses covered in this thesis and regularization techniques, are explored. Overall, this chapter provides a comprehensive overview of the mathematical foundations of the mechanisms and techniques used along this work.
+Then, the Graph Convolutional Network (GCN) is discussed, which is a deep learning model capable of operating on graph-structured data. The chapter explains how GCNs can be used to represent and predict motion patterns in scenarios where objects interact with each other.
+
+Finally, an overview of the training process, including the optimization and backpropagation strategy, the losses covered in this thesis and regularization techniques, are explored. % Overall, this chapter provides a comprehensive overview of the mathematical foundations of the mechanisms and techniques used along this work.

@@ -31,13 +31,11 @@
 
 \begin{FraseCelebre}
 	\begin{Frase}
-		La fuerza de tus convicciones \\
-		determina tu éxito, \\
-		no el número de tus seguidores.
+		Solo sé que no sé nada.
 	\end{Frase}
 	\begin{Fuente}
-		Reamus Lupin \\
-		Harry Potter y Las Reliquias de la Muerte, Parte 2
+		Sócrates a Platón \\
+		Diálogos de Platón
 	\end{Fuente}
 \end{FraseCelebre}
 
@@ -53,7 +51,7 @@ topology of the lanes, and other elements of the vector map also contain rich in
 \section{Our proposal}
 \label{sec:7_our_proposal}
 
-To address the aforementioned \ac{SOTA} limitations, we propose a model \cite{gomez2023improving} to achieve accurate motion prediction, yet, using light-weight transformer-based models for social encoding, \acp{GNN} for context interaction, enhanced heuristic proposals and motion refinement, reducing notably the complexity of our model with respect to previous methods such as GANet \cite{wang2022ganet} to avoid these possible constraints. Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023.pdf} illustrates the overall pipeline. We make the following contributions:
+To address the aforementioned \ac{SOTA} limitations, we propose a model \cite{gomez2023improving} to achieve accurate motion prediction, yet, using light-weight transformer-based models for social encoding, \acp{GNN} for context interaction, enhanced heuristic proposals and motion refinement, reducing notably the complexity of our model with respect to previous methods such as GANet \cite{wang2022ganet} to avoid these possible constraints. Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023} illustrates the overall pipeline. We make the following contributions:
 
 \begin{enumerate}
 	\item We present a \ac{SOTA} method on the Argoverse 2 Motion Forecasting Benchmark, one of the most recent and challenging vehicle \ac{MP} datasets.
@@ -69,7 +67,7 @@ Throughout this Chapter we will explain the different modules of the proposed \a
 	\centering
 	\includegraphics[width=\textwidth]{chapter_7_Improving_Multi_Agent/CVPR_2023.pdf}
 	\caption{Overview of our Motion Prediction model including Fusion Cycle, Heuristic Proposals and Motion Refinement}
-	\label{fig:chapter_7_Improving_Multi_Agent/CVPR_2023.pdf}
+	\label{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}
 \end{figure}
 
 \subsection{Preprocessing of past trajectories and heuristic proposals}
@@ -94,9 +92,9 @@ Moreover, we propose the use of preliminary plausible area information in a simi
 \subsection{Social Encoder}
 \label{subsubsec:7_improving_efficiency_social_encoder}
 
-As terms of social encoding, in order to capture more complex features for subsequent features fusion and interaction, we initially adopted GANet \cite{wang2022ganet}, based on LaneGCN \cite{liang2020learning}, to encode motion history and scene context for its outstanding performance. In this backbone (given the aforementioned social input: translation and rotation invariant with respect to a target agent, and relative displacements), LaneGCN makes use of use a network with $3$ groups/scales of 1D convolutions 1D CNN to process the trajectory input for its effectiveness in extracting multi-scale features and efficiency in parallel computing. The output is a well-structured feature map, whose element at $t=0$ is used as the actor feature. The network has $3$ groups/scales of 1D convolutions. Then, a Feature Pyramid Network (FPN) \cite{lin2017feature} to fuse the multi-scale features, and apply another residual block to obtain the output tensor. Moreover, GANet applies an \ac{LSTM} network on FPN output features and use two identical parallel networks to enhance the motion history encoding.
+In terms of social encoding, in order to capture more complex features for subsequent features fusion and interaction, we initially adopted GANet \cite{wang2022ganet}, based on LaneGCN \cite{liang2020learning}, to encode motion history and scene context for its outstanding performance. In this backbone (given the aforementioned social input: translation and rotation invariant with respect to a target agent, and relative displacements), LaneGCN makes use of use a network with $3$ groups/scales of 1D convolutions 1D CNN to process the trajectory input for its effectiveness in extracting multi-scale features and efficiency in parallel computing. The output is a well-structured feature map, whose element at $t=0$ is used as the actor feature. The network has $3$ groups/scales of 1D convolutions. Then, a Feature Pyramid Network (FPN) \cite{lin2017feature} to fuse the multi-scale features, and apply another residual block to obtain the output tensor. Moreover, GANet applies an \ac{LSTM} network on FPN output features and use two identical parallel networks to enhance the motion history encoding.
 
-Regarding this, we aimed to improve social encoding taking into account that in spite the fact that \acp{LSTM} became popular because they could solve the problem of vanishing gradients, they suffer from \textit{short-term memory} due to the vanishing gradient problem, as well as require a lot of resources to get trained and become ready for real-world applications. In particular, they need high memory-bandwidth because of linear layers present in each cell which the system usually fails to provide for. To solve that, we replace the motion encoder proposed by \cite{wang2022ganet} for a transformer encoder, which is faster than \ac{RNN}-based models as all the input is ingested once, decreasing the computational complexity. On the other hand, even though the preliminary lane proposals represent physical information, they are quite related to the future intentions of the social information. Then, as depicted in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023.pdf}, we concatenate the agents past trajectories, additional social metadata and heuristic map proposals (including semantic and topological metadata), which is processed by a linear embedding. Then, positional encoding is added to the output embedding explicitly to retain the information regarding the order of past trajectories and future preliminar steps. Finally, these latent features feed the transformer encoder, leveraging the self-attention mechanism and positional encoding to learn complex and dynamic patterns from long-term time series data. 
+Regarding this, we aimed to improve social encoding taking into account that in spite the fact that \acp{LSTM} became popular because they could solve the problem of vanishing gradients, they suffer from \textit{short-term memory} due to the vanishing gradient problem, as well as require a lot of resources to get trained and become ready for real-world applications. In particular, they need high memory-bandwidth because of linear layers present in each cell which the system usually fails to provide for. To solve that, we replace the motion encoder proposed by \cite{wang2022ganet} for a transformer encoder, which is faster than \ac{RNN}-based models as all the input is ingested once, decreasing the computational complexity. On the other hand, even though the preliminary lane proposals represent physical information, they are quite related to the future intentions of the social information. Then, as depicted in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}, we concatenate the agents past trajectories, additional social metadata and heuristic map proposals (including semantic and topological metadata), which is processed by a linear embedding. Then, positional encoding is added to the output embedding explicitly to retain the information regarding the order of past trajectories and future preliminar steps. Finally, these latent features feed the transformer encoder, leveraging the self-attention mechanism and positional encoding to learn complex and dynamic patterns from long-term time series data. 
 
 \subsection{Map preprocessing and encoding}
 \label{subsec:7_improving_efficiency_map_preprocessing_and_encoding}
@@ -359,11 +357,11 @@ A second-stage motion refinement, as proposed by \cite{liu2023laformer}, is intr
 	\mathcal{L}_\text{off}= ||{Y} - \hat{Y} - \hat{R}||_2 = ||\Delta{Y} - \hat{R}||_2.
 \end{equation}
 
-% Furthermore, we use a cosine function, denoted by Equation \ref{eq:5_cosine_error}, to explicitly aid the model in learning the turning angle from the last observed position. It measures the difference between the ground truth angle $\theta_{t}= \text{arctan2}(Y_{t}-{X}_{0})$ and the predicted angle $\hat{\theta}_{t}= \text{arctan2}(\hat{Y}_{t}-{X}_{0})$:
+Furthermore, we use a cosine function, denoted by Equation \ref{eq:5_cosine_error}, to explicitly aid the model in learning the turning angle from the last observed position. It measures the difference between the ground truth angle $\theta_{t}= \text{arctan2}(Y_{t}-{X}_{0})$ and the predicted angle $\hat{\theta}_{t}= \text{arctan2}(\hat{Y}_{t}-{X}_{0})$:
 
 \begin{equation}
 	\mathcal{L}_{\text{angle}}=\frac{1}{t_{f}}\sum^{t_{f}}_{t=1}-cos(\hat{\theta}_{t}-\theta_{t})
-	\label{eq:poseerror}
+	\label{eq:5_cosine_error}
 \end{equation}
 
 Note that this method can be applied to the pre-trained model from previous stages, which is completely functional, as the main function is to improve the output trajectories.
@@ -422,9 +420,9 @@ Finally, our best model, which includes heuristic proposals that serve as a prel
 	\label{table:7_argoverse_2_validation}
 \end{table*}
 
-We provide advanced qualitative samples in Figure~\ref{fig:results}, where we show the HD Map of real traffic scenes, heuristic trajectory proposals in the form of centerlines, and the multimodal predictions from our model including their respective confidences (the higher, the most probable). 
+We provide advanced qualitative samples in Figure \ref{fig:chapter_7/argoverse_2_qualitative_results}, where we show the HD Map of real traffic scenes, heuristic trajectory proposals in the form of centerlines, and the multimodal predictions from our model including their respective confidences (the higher, the most probable). 
 
-As we discussed throughout this Chapter, we designed our model to ensure realistic predictions. We can appreciate that all the predictions are plausible and constrained to the scene geometry \eg \ lane distribution and centerlines. We believe our heuristic proposals help to regularize the model and produce realistic predictions that would ensure traffic safety. For simplicity, we only illustrate the heuristic proposals for the focal agent and ego-vehicle. We believe our software for qualitative analysis of MP models on the well-known Argoverse 2.0~\cite{wilson2023argoverse} is fundamental and a core contribution.
+As we discussed throughout this Chapter, we designed our model to ensure realistic predictions. We can appreciate that all the predictions are plausible and constrained to the scene geometry \eg \ lane distribution and centerlines. We believe our heuristic proposals help to regularize the model and produce realistic predictions that would ensure traffic safety. For simplicity, we only illustrate the heuristic proposals for the focal agent and ego-vehicle. We believe our software for qualitative analysis of MP models on the well-known Argoverse 2 \cite{wilson2023argoverse} is fundamental and a core contribution.
 
 \begin{table*}[h]
 	\small
@@ -483,9 +481,12 @@ As we discussed throughout this Chapter, we designed our model to ensure realist
 		\tabularnewline
 		HD Map input & Heuristic proposals & Multimodal (k=6) predictions \tabularnewline
 	\end{tabular}
+	\captionsetup{justification=justified}
 	\caption[Qualitative Results on challenging scenarios in Argoverse 2 using our best model]{Qualitative Results on challenging scenarios in Argoverse 2 using our best model. We represent: our vehicle (\textbf{\textcolor{blue}{ego}}), the \textbf{\textcolor{YellowOrange}{focal agent}}, the \textbf{\color{blue-violet}{relevant agents}} in the scene, and \textbf{\textcolor{gray}{other agents}}. We can also see the \textbf{\textcolor{red}{ground-truth}} trajectory of the target agent, our \textbf{\textcolor{ForestGreen}{multimodal predictions}} (with the corresponding \textbf{confidences}). We also highlight the most important topology of the road, such as {\color{blue-violet}{pedestrian crossing}} and boundaries mark type. We show, from left to right, a general view of the traffic scenario (including and map information), the heuristic proposals for each agent (we only include the \textbf{\textcolor{blue}{ego}} and \textbf{\textcolor{YellowOrange}{focal agent}} for simplicity) and the multimodal prediction (\textit{k} = 6) for the \textbf{\textcolor{YellowOrange}{focal agent}}, including the corresponding confidences (the higher, the most probable)}
-	\label{fig:7_argoverse_2_qualitative_results}
+	\label{fig:chapter_7/argoverse_2_qualitative_results}
 \end{figure}
 
 \section{Summary}
 \label{sec:7_summary}
+
+In this Chapter we solve the challenging problem of Multi-Agent Motion Prediction in real driving scenarios. We present an end-to-end pipeline that combines Deep Learning (DL) and heuristic scene understanding. Our model uses as input the map of the scene, the past trajectories of the agents, and additional information about the scene geometry and agents e.g., type of agent, lane distribution. We propose a model that integrates attention mechanisms with GNNs, heuristic goals, and a motion refinement module to further improve temporal consistency. We achieve SOTA results on the Argoverse 2 Motion Forecasting Benchmark reducing in millions of parameters previous methods such as GANet, and improving over LaneGCN. Our code is publicly available. As future works, we plan to include map-adaptive lane-loss to improve diverse multiple motion prediction and explore knowledge-distillation to improve the efficiency for real-world deployment.

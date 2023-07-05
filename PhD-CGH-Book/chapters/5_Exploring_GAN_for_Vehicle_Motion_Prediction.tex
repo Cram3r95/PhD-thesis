@@ -31,17 +31,20 @@
 
 \begin{FraseCelebre}
 	\begin{Frase}
-		Avanzad, sin temor a la oscuridad. \\
-		Luchad jinetes de Theoden. \\
-		Caerán las lanzas, se quebrarán los escudos. \\
-		Aún restará la espada. \\
-		Rojo será el día, hasta el nacer del sol. \\
-		Cabalgad, cabalgad, cabalgad hacia la desolación \\ 
-		y el fin del mundo. Muerte, muerte, muerte.
+		El mundo no es todo alegría y color, \\
+		es un lugar terrible y por muy duro que seas \\
+		es capaz de arrodillarte a golpes \\
+		y tenerte sometido a golpes permanentemente \\
+		si no se lo impides. \\
+		Ni tú ni yo ni nadie golpea mas fuerte que la vida. \\
+		Pero no importa lo fuerte que golpeas, \\
+		sino lo fuerte que pueden golpearte \\
+		hay que soportar sin dejar de avanzar. \\
+		¡Así es como se gana!
 	\end{Frase}
 	\begin{Fuente}
-		Discurso de Theoden, Rey de Rohan \\
-		El Señor de los Anillos: El Retorno del Rey
+		Discurso de Rocky a su hijo \\
+		Rocky Balboa
 	\end{Fuente}
 \end{FraseCelebre}
 
@@ -72,9 +75,9 @@ In this work, we aim to develop a model \cite{gomez2022exploring} that can succe
 When vehicles drive through a traffic scenario, they usually aim to reach partial goals, depending on their predefined navigation route and scene context (both physical and social), until they finally arrive at their final destination. Formally, given a certain goal, vehicles must face different traffic rules and other agents along their way to reach their final destination. Regarding this, our model computes both the social context and acceptable target points for the corresponding agent given its past trajectory and then generates plausible trajectories towards the estimated goals. As illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022}, our model consists of three main blocks:
 
 \begin{itemize}
-	\item \textit{Target Points Extractor}: Combines HD Map information and dynamic features of the target agent (speed and orientation) to generate acceptable target points in the driveable area.
-	\item \textit{Attention module}: Computes the agents dynamic features recursively by means a \ac{LSTM} unit and capture complex social interactions among agents by means of Multi-Head Self Attention.
-	\item \textit{GAN module}: Given the target points and highlighted social features, this module generates plausible and realistic trajectories using a LSTM based decoder, which represents the generator. Discriminator is applied to enhance the performance of the generator by forcing it to compute more realistic predictions.
+	\item \textbf{Target Points Extractor}: Combines HD Map information and dynamic features of the target agent (speed and orientation) to generate acceptable target points in the driveable area.
+	\item \textbf{Attention module}: Computes the agents dynamic features recursively by means a \ac{LSTM} unit and capture complex social interactions among agents by means of Multi-Head Self Attention.
+	\item \textbf{GAN module}: Given the target points and highlighted social features, this module generates plausible and realistic trajectories using a LSTM based decoder, which represents the generator. Discriminator is applied to enhance the performance of the generator by forcing it to compute more realistic predictions.
 \end{itemize} 
 
 \begin{figure}[h] 
@@ -142,7 +145,7 @@ where $T_h$ is the number of observed frames, $\psi_t$ is the estimated orientat
 
 This clustering method, originally from signal processing, that aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest mean (cluster centers or cluster centroid), serving as a prototype of the cluster. In this particular model, we focus on unimodal prediction, that is, the model must reason the most plausible future trajectory based on the agents past observations, attention-based social interaction and target points as physical context.
 
-This representation not only reunites information about the feasible area around the agent, but also represents potential \textbf{Target points} \cite{dendorfer2020goal} (\ie \ potential destinations or end-of-trajectory points for the agents). Moreover, this information is \textit{"cheap"} and \textit{interpretable}, therefore, we do not need further exhaustive annotations from the HD Map in comparison with other methods like HOME, which gets as input a 45-channel encoded map \cite{gilles2021home}.
+This representation not only reunites information about the feasible area around the agent, but also represents potential target points \cite{dendorfer2020goal} (\ie \ potential destinations or end-of-trajectory points for the agents). Moreover, this information is \textit{"cheap"} and \textit{interpretable}, therefore, we do not need further exhaustive annotations from the HD Map in comparison with other methods like HOME, which gets as input a 45-channel encoded map \cite{gilles2021home}.
 
 We concatenate this information, as 2D vector $\mathcal{V}$, together with the model social context features to generate more realistic trajectories (see Figure \ref{fig:chapter_5_GAN/ITSC_2022}).
 
@@ -157,9 +160,19 @@ In our case, we consider the agents that have information over the full history 
 	\Delta \boldsymbol{\nu}^{t}_i = \boldsymbol{\nu}^{t}_i - \boldsymbol{\nu}^{t-1}_i
 \end{equation}
 
-Where $\boldsymbol{\nu}^{t}_i$ represents the state vector (in this case, \textit{xy} position of the agent \textit{i} at timestamp \textit{t}. Once these displacements vectors are computed for each agent of the scenario, we embed them into a higher dimensional vector with a \ac{MLP}, which serves as input of the \ac{LSTM} unit, used as dynamic feature extractor to capture the speed and direction of the corresponding agent. Then, the hidden state of the LSTM ($h_{M\!E}$) is used by the MHSA module that learns complex social interactions while being invariant to their number and ordering, avoiding a fixed size ($N_{\text{max}}$ agents) list which would be sensitive to small variants in the agent positions.
+Where $\boldsymbol{\nu}^{t}_i$ represents the state vector (in this case, \textit{xy} position of the agent \textit{i} at timestamp \textit{t}. % Once these displacements vectors are computed for each agent of the scenario, we embed them into a higher dimensional vector with a \ac{MLP}, which serves as input of the \ac{LSTM} unit, used as dynamic feature extractor to capture the speed and direction of the corresponding agent. Then, the hidden state of the LSTM ($h_{M\!E}$) is used by the MHSA module that learns complex social interactions while being invariant to their number and ordering, avoiding a fixed size ($N_{\text{max}}$ agents) list which would be sensitive to small variants in the agent positions.
 
-In this context, each agent of the scene should pay attention to specific features from the most relevant agents around it. The Multi-Head Self-Attention module consists of several heads that given the encoded trajectories produces feature vectors that encode all pairwise relations among agents information, as stated by the MHSA mechanism in Section \ref{subsubsec:3_self_attention_vs_cross_attention}. %Implementation details are specified in Chapter \ref{sec:5_motion_prediction_datasets}.
+Unlike other methods, we do not limit nor fix the number of agents per sequence. Given the relative displacements of all different agents, we model the past motion history by means of a single \ac{LSTM} (Social Feature Extractor in Figure \ref{fig:chapter_5_GAN/ITSC_2022}) is used to compute the temporal information of each agent in the sequence:
+
+\begin{equation}
+	out, \mathbf{h_{out}}, \mathbf{c_{out}} = \mathrm{LSTM}(\Delta \boldsymbol{\nu}^{obs_{len}}, \mathbf{h_{in}}, \mathbf{c_{in}})
+\end{equation}
+
+This \ac{LSTM}-based encoder shares the weights for all vehicles in the batch. The input hidden and cell vectors ($\mathbf{h_{in}}, \mathbf{c_{in}}$) are initialized with a tensor of zeros. $\Delta \boldsymbol{\nu}^{obs_{len}}$ represents the relative displacements over the whole past observations $obs_{len}$.
+
+Then, after computing the social hidden state of each relevant agent in the traffic scenario, we aim to learn complex social interactions, where each agent of the scene should pay attention to specific features around it, while being invariant to their number and ordering, avoiding a fixed size ($N_{\text{max}}$ agents) list which would be sensitive to small variants in the agent positions.
+
+To this end, we make use of a \ac{MHSA} module consists of several heads that given the encoded trajectories produces feature vectors that encode all pairwise relations among agents information, where the input (key, query, value) is the hidden vector ($\mathbf{h_{out}}$) of the previous Social Feature Extractor. The \ac{MHSA} module consists of several heads that given the encoded trajectories produces feature vectors that encode all pairwise relations among agents information, as stated in Chapter \ref{cha:theoretical_background}. %Implementation details are specified in Chapter \ref{sec:5_motion_prediction_datasets}.
 
 \subsection{GAN module}
 \label{subsec:5_gan_module}
@@ -172,7 +185,7 @@ To capture the stochastic nature of motion prediction, state-of-the-art methods 
 	&&\hspace{15mm} + E_{z \sim p_z(z)}[\mbox{log} (1 - Dis(X, Gen(X,z)))],
 \end{eqnarray}
 
-In the present case, the generator, also identified as the routing module, is represented by a decoder LSTM  ($LSTM_{gen}$) and the discriminator by a classifier LSTM ($LSTM_{dis}$) so as to estimate the temporally dependent future states. Similar to the conditional GAN proposed by \cite{sadeghian2019sophie}, the input to our generator is a concatenation of a white noise vector $z$ sampled from a multivariate normal distribution, being the physical context (goal points in relative coordinates in the last observation frame, $C_{Ph(i)}^{t_{obs}}$) and social context (interactions among agents, $C_{So(i)}^{1:t_{obs}}$) its conditions. Then, the generated future trajectory for a particular agent is modelled as Equation \ref{eq:4_gen_dec}:
+In the present case, the generator, also identified as the routing module, is represented by a decoder LSTM  ($LSTM_{gen}$) and the discriminator by a classifier LSTM ($LSTM_{dis}$) so as to estimate the temporally dependent future states. Similar to the conditional GAN proposed by \cite{sadeghian2019sophie}, the input to our generator is a concatenation of a noise vector $z$ sampled from a multi-variate normal distribution, being the physical context (goal points in relative coordinates in the last observation frame, $C_{Ph(i)}^{t_{obs}}$) and social context (interactions among agents, $C_{So(i)}^{1:t_{obs}}$) its conditions. Then, the generated future trajectory for a particular agent is modelled as Equation \ref{eq:4_gen_dec}:
 
 \begin{eqnarray}
 	\label{eq:4_gen_dec}
@@ -249,9 +262,10 @@ In terms of validation, we conduct a statistical analysis for the ADE and FDE me
 In this section, we perform an ablation study and compare our method performance against \ac{SOTA} methods on the Argoverse 1 Motion Forecasting benchmark test set. Table \ref{table:5_model_results_test} illustrates the comparison with some Argoverse baseline methods. Our baseline (*) is represented by the system pipeline illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022}, that is, Attention-based \ac{GAN} with \ac{LSTM} as encoder-decoder, without target points extractor and class balance. We conduct an ablation study to observe the influence of incorporating target points and class balance to our baseline. As expected, by explicitly defining the locations an agent is likely to be at a fixed prediction horizon for a given input trajectory and scene geometry, we are able to improve our baseline. Additionally, since nonlinear trajectories are more challenging than standard straight trajectories, we also observe how enforcing the class balance (straight, curve) during training is able to improve performance.
 
 \begin{table}[!h]
+	\captionsetup{justification=justified}
 	\caption[Ablation study of our GAN-based unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set]{Ablation study of our GAN-based unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set. We can see the improvement using Target points (TP) and Class balance (CB). Our methods are indicated with $\dag$.}
 	\begin{center}
-		\begin{tabular}{| l | c | c |}
+		\begin{tabular}{ l | c | c }
 			\toprule
 			\textbf{Model} & \textbf{ADE (k=1) $\downarrow$} & \textbf{FDE (k=1) $\downarrow$} \\
 			& [m] & [m] \\

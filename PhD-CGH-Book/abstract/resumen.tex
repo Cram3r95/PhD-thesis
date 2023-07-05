@@ -34,7 +34,21 @@
 
 \addcontentsline{toc}{chapter}{Resumen}
 
-TBD
+La conducción autónoma es considerada como una de los más grandes retos tecnológicos de la presente. Cuando los coches autónomos conquisten nuestras carreteras, los accidentes se reducirán notablemente, hasta casi desaparecer, ya que la tecnología estará testada y no incumplirá las normas de conducción, como excesos de velocidad, adelantamientos peligrosos o distracciones del conductor, entre otros factores.
+
+Uno de los aspectos más críticos a la hora de desarrollar un vehículo autónomo es percibir y entender la escena que nos rodea de un modo tan preciso y eficiente como sea posible para posteriormente predecir el futuro de esta misma y ayudar a la toma de decisiones. De esta forma, las acciones tomadas por el vehículo o conductor, en caso de que la conducción no sea completamente autónoma, deben garantizar tanto la seguridad del vehículo en sí mismo y sus ocupantes como de los obstáculos circundantes, tales como viandantes, otros vehículos o infraestructura de la carretera.
+
+En ese sentido, esta tesis doctoral se centra en el estudio y desarrollo de distintas técnicas predictivas para el entendimiento de la escena en el contexto de conducción autónoma, con una incorporación progresiva de aprendizaje profundo en los distintos algoritmos propuesto para mejorar el razonamiento sobre qué está ocurriendo en el escenario de tráfico así como modelar las complejas interacciones entre los distintos participantes o agentes del escenario (tales como vehículos, ciclistas o peatones) y la información geométrica, semántica y topológica del mapa de alta definición presente en la escena. 
+
+En primer lugar, se propone un algoritmo basado en técnicas clásicas de estimación de movimiento y asociación, así como de un filtro inteligente basado en información contextual de mapa, cuyo objetivo es monitorizar los distintos agentes en el tiempo, que representará la entrada preliminar para realizar predicciones basadas en un modelo cinemático. En este modelo se estudia cómo usando información contextual de mapa se puede reducir notablemente el tiempo de inferencia prestando atención a los agentes realmente relevantes del escenario de tráfico.
+
+En segundo lugar, se introduce un modelo basado en redes neuronales recurrentes y mecanismo de atención para codificar las trayectorias pasadas de los agentes, y una representación simplificada del mapa en forma de posiciones finales potenciales en la carretera, para calcular las trayectorias futuras unimodales, todo envuelto en un marco de red generativa adversarial.
+
+En tercer lugar, se proponen distintos modelos base precisos y eficientes basados en el modelo de predicción anterior, introduciendo el uso de las redes gráficas para codificar de una forma potente las interacciones de los agentes y el preprocesamiento de trayectorias preliminares a partir de mapa con un método heurístico, para posteriormente predecir distintas trayectorias futuras en este caso multimodales, es decir, cubriendo distintos posibles futuros para el agente de interés.
+
+Considerando estos puntos anteriores, el modelo final de la tesis mejora sobre los anteriores introduciendo mejoras en el método heurístico incorporando información topológica y semántica de interés sobre los carriles, codificación de mapa basada en aprendizaje profundo, fusión de características físicas y sociales, estimación de posiciones finales en la carretera con aprendizaje profundo y agregación de su entorno circundante, así como de refinado de la predicción para mejorar la calidad de las predicciones multimodales finales de un modo elegante y eficiente. 
+
+Finalmente, este modelo final es validado en distintas aplicaciones de conducción autónoma, como la toma de decisiones o la integración holística en un simulador hiperrealista con otras capas del vehículo como paso preliminar a su implementación en un vehículo autónomo real.
 
 \textbf{Palabras clave:} \myThesisKeywords.
 

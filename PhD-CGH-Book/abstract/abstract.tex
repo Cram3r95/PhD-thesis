@@ -33,7 +33,21 @@
 
 \addcontentsline{toc}{chapter}{Abstract}
 
-TBD
+Autonomous driving is considered one of the greatest technological challenges of the present time. When autonomous cars take over our roads, accidents will be significantly reduced, to the point of almost disappearing, as the technology will be thoroughly tested and will not violate driving regulations, such as speeding, dangerous overtaking, or driver distractions, among other factors.
+
+One of the most critical aspects in developing an autonomous vehicle is perceiving and understanding the surrounding scene as precisely and efficiently as possible in order to predict its future and assist in decision-making. Thus, the actions taken by the vehicle or driver, in the case of partially autonomous driving, must ensure the safety of the vehicle itself, its occupants, and the surrounding obstacles, such as pedestrians, other vehicles, or road infrastructure.
+
+In this regard, this doctoral thesis focuses on the study and development of various predictive techniques for scene understanding in the context of autonomous driving, progressively incorporating deep learning into the proposed algorithms to improve reasoning about what is happening in the traffic scenario and model the complex interactions among different participants or agents in the scene (such as vehicles, cyclists, or pedestrians), as well as the geometric, semantic, and topological information from the high-definition map present in the scene.
+
+Firstly, an algorithm based on classical motion estimation and association techniques is proposed, along with an intelligent filter based on contextual map information. Its objective is to monitor the different agents over time, providing a preliminary input for making predictions based on a kinematic model. This model investigates how using contextual map information can significantly reduce inference time by focusing on the truly relevant agents in the traffic scenario.
+
+Secondly, a model based on recurrent neural networks and attention mechanism is introduced to encode the past trajectories of the agents, along with a simplified representation of the map in the form of potential final positions on the road. This model calculates uni-modal future trajectories, all within a generative adversarial network framework.
+
+Thirdly, different accurate and efficient baselines are proposed based on the aforementioned prediction model. These models introduce the use graph neural networks to powerfully encode agent interactions and preprocess preliminary trajectories from the map using a heuristic method. They then predict various multi-modal future trajectories, covering different possible futures for the target agent.
+
+Taking these previous points into consideration, the final model of the thesis improves upon the previous ones by incorporating enhancements in the heuristic method, including topological and semantic information of interest about lanes, deep learning-based map encoding, fusion of physical and social features, deep learning-based estimation of final positions on the road, aggregation of the surrounding environment, and refinement of predictions to enhance the quality of the final multi-modal predictions in an elegant and efficient manner.
+
+Finally, this final model is validated in various autonomous driving applications, such as decision-making or holistic integration in a hyper-realistic simulator with other vehicle layers, as a preliminary step towards its implementation in an actual autonomous vehicle.
 
 \textbf{Keywords:} \myThesisKeywordsEnglish.
 

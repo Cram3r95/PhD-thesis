@@ -31,20 +31,15 @@
 
 \begin{FraseCelebre}
 	\begin{Frase}
-		El mundo no es todo alegría y color, \\
-		es un lugar terrible y por muy duro que seas \\
-		es capaz de arrodillarte a golpes \\
-		y tenerte sometido a golpes permanentemente \\
-		si no se lo impides. \\
-		Ni tú ni yo ni nadie golpea mas fuerte que la vida. \\
-		Pero no importa lo fuerte que golpeas, \\
-		sino lo fuerte que pueden golpearte \\
-		hay que soportar sin dejar de avanzar. \\
-		¡Así es como se gana!
+		A más ver, mis valientes hobbits. \\
+		Mi labor ha concluido. Aquí, al fin, a la orilla del mar, \\
+		llega el adiós a nuestra Compañía. \\
+		No os diré no lloréis, \\
+		pues no todas las lágrimas son amargas.
 	\end{Frase}
 	\begin{Fuente}
-		Discurso de Rocky a su hijo \\
-		Rocky Balboa
+		Discurso de despedida de Gandalf \\
+		El Señor de los Anillos: El Retorno del Rey
 	\end{Fuente}
 \end{FraseCelebre}
 
@@ -55,10 +50,82 @@
 
 \ac{DL} has emerged as a powerful tool for scene understanding in autonomous driving, as it can automatically learn representations of complex and high-dimensional data. In particular, deep neural networks have shown remarkable performance in various tasks related to scene understanding, such as object detection, segmentation, classification or prediction. In that sense, the design and implementation of effective \ac{DL} models for scene understanding is a really active research area, and there is a need for more advanced predictive techniques to improve the performance of autonomous vehicles.
 
-The main scope of this thesis has been the development of novel and efficient interaction-aware \ac{DL} based \ac{MP} models, focusing on long-term (from 3 to 6 s) prediction horizon, including social and physical information. Even though the main agent to be predicted will be usually the ego-vehicle, the algorithms proposed in this chapter will be able to properly model the past trajectory and agents interactions based on the specific type of agent, instead of the first \ac{DL} models proposed in the literature which only focused on pedestrian trajectory prediction \cite{alahi2016social, gupta2018social, sadeghian2019sophie}. 
+In this thesis, a series of interaction-aware trajectory prediction methods, covering both the single-agent motion prediction and multi-agent motion prediction use cases from the uni-modal and multi-modal perspectives focusing on long-term (from 3 to 6 s) prediction horizon, including social and physical information, are developed for autonomous driving. 
 
-First of all, this chapter will study the incorporation of HD map information to enhance the robustness and reliability of a simple-yet-powerful tracking-by-detection pipeline, based on Kalman Filter and Hungarian algorithm, which subsequently feeds the updated tracker information to perform \ac{CTRV} prediction. Then, \ac{DL} will be progressively integrated to encode the past trajectories, social interactions and physical information respectively, including physics-based heuristics to include map information, specially the potential future goals or centerlines candidates. The goal is to develop advanced models that can accurately recognize and interpret the agents states, interactions and context to provide reliable predictions for safe and efficient driving. 
+In that sense, the thesis first introduces a simple-yet-powerful tracking-by-detection pipeline, based on traditional techniques such as Kalman Filter for state estimation, Hungarian algorithm for data association and map-based filtering, that computes the trackers over time in the traffic scenario to feed the subsequent predictions. We conclude here that filtering non-relevant objects by means of the monitored area (most relevant lanes around the \ac{ADS}) can reduce the inference time and computational complexity of the overall pipeline.
+
+Then, the thesis focuses on \ac{DL}-based \ac{MP} in Chapter \ref{cha:exploring_gan_for_vehicle_mp} and \ref{cha:efficient_baseline_for_mp_in_ad}, where we validate our algorithms in the Argoverse 1 Motion Forecasting dataset and Chapter \ref{cha:improving_multi_agent}, where we move to the Argoverse 2 Motion Forecasting, the most challenging and recent vehicle \ac{MP} dataset in the literature, progressively introducing \ac{SOTA} mechanisms to encode the complex traffic scenarios, agents interactions and the most representative features of the map information. 
+
+Chapter \ref{cha:exploring_gan_for_vehicle_mp} proposes a \ac{cGAN} prediction algorithm to compute uni-modal future trajectories which uses as generator a \ac{LSTM} based encoder-decoder with \ac{MHSA}, where the concatenation of the past motion, encoded by a \ac{LSTM}, and plausible target points, encoded by a \ac{MLP}, represents the condition to the network. Chapter \ref{cha:efficient_baseline_for_mp_in_ad} proposes several efficient baselines, introducing the use of \acp{GNN} to powerfully encode agent interactions and preprocess preliminary trajectories from the map using a heuristic method to obtain simple-yet-useful centerlines with only geometric information to avoid full HD map preprocessing, that serve as preliminary trajectories. We realize that using encoder transformers instead of recurrent networks or standard \ac{MLP} presents some benefits, since, as stated in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}, despite having more parameters, recurrent neural networks such as \ac{LSTM} or \ac{GRU} are non-parallelizable due to their sequential structure so the overall training and hence time is higher than transformers-based approaches.
+
+Taking these previous baselines into consideration, the final model of the thesis improves upon the previous ones by incorporating enhancements in the heuristic method, including topological and semantic information of interest about lanes (such as lane boundaries information, presence of intersection or lane mark type), \ac{DL}-based map encoding by means a \ac{GCN}, fusion-cycle of physical and social features, deep learning-based estimation of final positions on the road, aggregation of the surrounding environment, and refinement of predictions to enhance the quality of the final multi-modal predictions in an elegant and efficient manner.
+
+In all our models, specially in the last one, we can appreciate how they generalize well in unknown traffic scenarios, with up-to-pair regressions metrics (both in uni-modal and multi-modal prediction) while noticeably reducing the inference time and number of parameters compared to other \ac{SOTA} algorithms.
+
+Finally, this final model (only its social version, due to the difficulty of adapting the map preprocessing and format in different datasets or simulators) is validated in various \ac{AD} applications, such as decision-making or holistic integration in a hyper-realistic simulator with other vehicle layers, as a preliminary step towards its implementation in an actual autonomous vehicle. Particularly, in our different tests, run in the SMARTS and CARLA simulators, we successfully realize how the overall pipeline can leverage the predictions, specially in challenging situations, to avoid a collision or perform smoother trajectories in complex scenarios where only detecting and tracking the objects over time would not be enough to understand the surrounding scenario and compute the optimal decision.
 
 \section{Future Works}
 \label{sec:9_future_works}
 
+The field of vehicle motion prediction for autonomous driving is continuously evolving, and several promising future directions can be anticipated. These potential advancements aim to enhance the accuracy, reliability, and safety of motion prediction algorithms, ultimately leading to more efficient and robust autonomous driving systems. Although significant research has been conducted in trajectory prediction and path planning in recent years, there are still numerous aspects that require further investigation in the future:
+
+\begin{itemize}
+	\item \textbf{Enhanced Scene Representation and Encoding}: Various methods have been proposed to encode driving scenes using different representations, such as graphs or rasterized top-view maps. However, the absence of a unified representation hampers the generalization of prediction methods for large-scale deployment in real-world autonomous vehicles. Graph-based representations show promise in accommodating heterogeneous objects and their inter-dependencies through directed edges. To enhance graph-based scene representation and encoding, three important steps can be pursued and improved in future works: constructing the graph with proper connections, assigning node and edge features appropriately, and designing graph operators to handle scene graph heterogeneity, leveraging advancements in heterogeneous graph neural networks. 
+
+	\item \textbf{Probabilistic Modeling}: Incorporating probabilistic methods into vehicle motion prediction algorithms can help quantify uncertainty and improve the reliability of predictions. By estimating probability distributions over future trajectories, autonomous systems can make more informed decisions, taking into account the likelihood of different outcomes. Probabilistic modeling also enables better risk assessment and planning in uncertain and dynamic traffic scenarios.
+	
+	\item \textbf{Predictive Planning}: The integration of \ac{MP} into the planning module (stated as Conditional Behaviour Prediction in Chapter \ref{cha:related_works}) is crucial for improving decision-making and motion control in \ac{ADS}. Predictive planning is a worthwhile avenue to explore, addressing challenges such as handling prediction uncertainty, studying the relationship between prediction and planning, and designing scalable predictive planners for predictors with different known uncertainties. Additionally, investigating learning-based motion planners that can be combined with data-driven predictions holds great potential, although the current limitations in explainability and reliability require attention.
+	
+	\item \textbf{Interpretability and explainability} are critical aspects of vehicle motion prediction in autonomous driving that require further exploration in future works. While the accuracy and performance of prediction models have improved significantly, understanding and explaining the reasoning behind their predictions remain challenging. Several directions for future research in explainability and interpretability are: Model transparency and visualization (Developing methods to make prediction models more transparent and interpretable is crucial), Rule-based models (Investigating rule-based approaches can provide interpretable predictions in vehicle motion prediction), Feature importance analysis (Conducting feature importance analysis can help identify the most influential factors in vehicle motion prediction), Context-aware explanations (Future research should aim to develop context-aware explanation methods that not only provide predictions but also explain the reasoning behind them in the context of the surrounding environment), Uncertainty estimation and trust assessment (Future works should focus on developing techniques to estimate and communicate prediction uncertainties effectively) and Human-machine interaction (To enhance user trust and acceptance, future research should explore methods for effective human-machine interaction in vehicle motion prediction).
+	
+	\item \textbf{Transfer Learning}: Transferring knowledge from one driving scenario to another can significantly improve the efficiency of vehicle motion prediction. By training models on diverse datasets and environments, and then fine-tuning them for specific scenarios, researchers can reduce the reliance on large amounts of scenario-specific training data. Transfer learning allows predictions to generalize across different driving conditions, leading to more robust and adaptable autonomous systems.
+	
+	\item \textbf{Human-Centric Approaches}: Understanding human intentions and incorporating social norms in motion prediction is crucial for ensuring safe and harmonious interactions between autonomous vehicles and human drivers or pedestrians. Future works may involve the development of algorithms that can interpret and predict human behavior accurately. This can be achieved by leveraging techniques from computer vision, natural language processing, and social sciences to capture and model human intentions, gestures, and communication cues.
+	
+	\item \textbf{Knowledge-Distillation} in vehicle motion prediction is an emerging area that holds promise for reducing reliance on map information and enhancing the generalizability of prediction models. By leveraging the knowledge acquired from more complex models or human experts, knowledge distillation enables the transfer of valuable insights to smaller and more lightweight models. Here are several potential future directions for employing knowledge distillation in vehicle motion prediction to reduce dependency on map information: Model compression for map-free prediction (Knowledge-Distillation can be applied to compress large-scale map-based prediction models into smaller models that can make accurate predictions without explicit map information), Expert knowledge transfer (Knowledge-Distillation can facilitate the transfer of expert knowledge to prediction models), Reinforcement learning with model distillation (Reinforcement learning techniques combined with knowledge distillation can be employed to train models that can learn to predict vehicle motions without explicit map information), Data augmentation techniques (By synthesizing additional training samples using map-based models, the prediction models can learn from a more diverse range of scenarios, including situations without map information), Self-supervised learning for map-free prediction (Knowledge distillation can be combined with self-supervised learning techniques to train prediction models without relying on explicit map information).
+\end{itemize}
+
+In conclusion, extensive effort is needed in some interesting areas such as scene representation and encoding, probabilistic modeling, predictive planning, interpretability and explainability, transfer learning, human-centric approaches or even knowledge-distillation to further advance the performance (both in terms of regression and efficiency) of \ac{MP} algorithms in the field \ac{AD} as a preliminary stage before feeding the subsequent decision-making, local planning and motion control layers in an \ac{ADS}, contributing to the development of more efficient and reliable autonomous driving systems.
+
+\begin{comment}
+	Trajectory Decoding: Future work should focus on generalizing map-adaptive multimodal prediction methods with uncertainty estimations. This includes capturing both motion and mode uncertainties. Motion uncertainty entails modeling the distribution of agents' positions over a planar map, while mode uncertainty deals with the possibility of driving modalities. Generalization to multi-agent settings by modeling the joint distribution of multiple agents' behaviors should also be explored. Ensuring social consistency among trajectories within a joint modality and designing trajectory predictors from the ego vehicle's perspective can contribute to reducing computational efforts for real-time implementations.
+	
+	
+	
+	
+	
+	-----------------
+	
+	
+	
+	
+	Reinforcement Learning: Leveraging reinforcement learning techniques holds great promise for improving vehicle motion prediction. By training agents to interact with a simulated environment and learn from feedback, these algorithms can acquire complex decision-making skills and adapt to various driving conditions. Reinforcement learning approaches can help capture long-term dependencies and subtle patterns in vehicle behavior, leading to more accurate and context-aware predictions.
+	
+	Transfer Learning: Transferring knowledge from one driving scenario to another can significantly improve the efficiency of vehicle motion prediction. By training models on diverse datasets and environments, and then fine-tuning them for specific scenarios, researchers can reduce the reliance on large amounts of scenario-specific training data. Transfer learning allows predictions to generalize across different driving conditions, leading to more robust and adaptable autonomous systems.
+	
+	Human-Centric Approaches: Understanding human intentions and incorporating social norms in motion prediction is crucial for ensuring safe and harmonious interactions between autonomous vehicles and human drivers or pedestrians. Future works may involve the development of algorithms that can interpret and predict human behavior accurately. This can be achieved by leveraging techniques from computer vision, natural language processing, and social sciences to capture and model human intentions, gestures, and communication cues.
+	
+	As these future works progress, it will be essential to address the associated challenges, such as uncertainty quantification, handling complex traffic scenarios, ensuring real-time computation, and addressing ethical considerations. Additionally, the development of standardized evaluation metrics, benchmarks, and simulation frameworks will be crucial for comparing and validating different prediction algorithms effectively.
+	
+	In summary, the future of vehicle motion prediction for autonomous driving holds great potential. By exploring probabilistic modeling, reinforcement learning, multi-modal prediction, transfer learning, and human-centric approaches, researchers can further improve the accuracy, reliability, and safety of autonomous systems, paving the way for a future with efficient and trustworthy self-driving vehicles.
+	
+	-------------------------
+	
+	As autonomous driving technology continues to advance, trajectory prediction has garnered increasing attention due to its importance. Over the past two decades, trajectory prediction methods have evolved from traditional Kalman filter approaches to more complex learning-based methods capable of handling diverse scenes. Based on a comprehensive analysis of past methods, this paper outlines potential research directions, as illustrated in Figure 14, and discusses the following areas:
+	
+	Inclusion of more information: While interaction-aware factors and map information are popular development directions, additional information needs to be considered for accurate trajectory prediction. Current methods often overlook explicit traffic rules, which can significantly influence vehicle maneuvers and trajectories. Similarly, incorporating information such as traffic lights, road signs, and audio-visual cues like turn signals and vehicle horns can improve prediction reliability. Researchers are encouraged to leverage a broader range of information to enhance trajectory prediction.
+	
+	Introduction of more advanced algorithms: Similar to the remarkable advancements of the Transformer model in NLP, incorporating more advanced algorithms can enhance prediction accuracy with the same input data. Existing algorithms achieve high accuracy by incorporating HD maps, considering interaction-related factors, and generating multimodal trajectories based on human intentions. Future research should propose new algorithms with novel structures and training methods to further improve the predictive capability of trajectory prediction algorithms and meet the evolving demands of autonomous driving systems.
+	
+	Integration of other key AV technologies: Considering trajectory prediction results in decision-making, trajectory planning, and motion control can significantly enhance the effectiveness of the entire system. Current motion control systems often assume uniform linear motion for traffic participants, which does not accurately reflect real trajectories. Integrating trajectory prediction models enables local decision-making planning control systems to better adapt to environmental changes and enhance the safety of autonomous driving.
+	
+	Improvement of model robustness: Real-world AV applications involve various noises and uncertainties, including measurement noises in the perception system, tracking errors, location errors, and map errors. Robustness should be a priority to enhance the anti-perturbation ability of AVs in practical scenarios. Additionally, besides traditional location metrics (e.g., ADE, FDE), probabilistic metrics (NLL, mADE, mFDE) should be utilized to improve method credibility and applicability to real-world autonomous driving.
+	
+	Establishment of a benchmark: The development of a benchmark with a standardized unified metric and a dataset representing complex environments is crucial. This benchmark should allow for long-term and multi-modal prediction with obstacle avoidance scenarios, non-convex constraints, and varying prediction horizons. It should also enable the use of different history horizons to predict future trajectories. Additionally, a test set should be included to evaluate trained models and compare computation times consistently. Furthermore, benchmark datasets should include test sets with inaccurate ground truth values to simulate real-world scenarios, reflecting the challenges of perception and tracking in practical AV applications.
+	
+	By addressing these research directions, trajectory prediction for autonomous driving can be advanced, leading to more reliable and robust autonomous systems that meet safety requirements and adapt to complex real-world environments.
+	
+	--------------------
+	
+	Apply knowledge-distillation, conditional behaviour prediction, integrate with the whole pipeline to perform a holistic validation, apply contrastive learning?
+\end{comment}

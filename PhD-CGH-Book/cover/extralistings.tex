@@ -28,6 +28,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{comment}
 % Include the list of source code listings (if this is the case)
 \hypersetup{linkcolor=\myothertoclinkcolor}
 \ifthenelse{\equal{\myLanguage}{english}}
@@ -39,7 +40,8 @@
 	\listof{codefloat}{Índice de listados de código fuente}    
 	\addcontentsline{toc}{chapter}{Índice de listados de código fuente}
 }
-
+\end{comment}
+\begin{comment}
 \ifthenelse{\equal{\myLanguage}{english}}
 {
 \renewcommand*{\algorithmcfname}{Algorithm}
@@ -51,21 +53,19 @@
 % \makeatother
 
 }
+\end{comment}
 {
 %\SetAlgorithmName{Algoritmo}{algoritmo}{Índice de algoritmos}
 \renewcommand*{\algorithmcfname}{Algoritmo}
-
 \renewcommand{\listofalgorithms}{\begingroup
    \tocfile{Índice de algoritmos}{loa}
    \endgroup}
  % \makeatletter
  % \let\l@algorithm\l@figure
  % \makeatother
-
-
 }
 
-%\listofalgorithms
+\listofalgorithms
 
 \hypersetup{linkcolor=\mylinkcolor}
 
