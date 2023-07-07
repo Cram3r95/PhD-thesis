@@ -70,14 +70,16 @@ However, these attention mechanisms were not designed to model complex interacti
 \section{Attention-based GAN}
 \label{sec:5_attention_gan}
 
-In this work, we aim to develop a model \cite{gomez2022exploring} that can successfully predict plausible future trajectories in the context of vehicle prediction, taking into account not only the past trajectory of the corresponding agent but also the past state of the most relevant obstacles around it and HD map information to compute a set of acceptable target points representing the physical constraints for our problem.
+In this work, we aim to develop a model \cite{gomez2022exploring} that can successfully predict plausible future trajectories in the context of vehicle prediction, taking into account not only the past trajectory of the corresponding agent but also the HD map information to compute a set of acceptable target points representing the physical constraints for our problem.
 
 When vehicles drive through a traffic scenario, they usually aim to reach partial goals, depending on their predefined navigation route and scene context (both physical and social), until they finally arrive at their final destination. Formally, given a certain goal, vehicles must face different traffic rules and other agents along their way to reach their final destination. Regarding this, our model computes both the social context and acceptable target points for the corresponding agent given its past trajectory and then generates plausible trajectories towards the estimated goals. As illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022}, our model consists of three main blocks:
 
 \begin{itemize}
+	
 	\item \textbf{Target Points Extractor}: Combines HD Map information and dynamic features of the target agent (speed and orientation) to generate acceptable target points in the driveable area.
 	\item \textbf{Attention module}: Computes the agents dynamic features recursively by means a \ac{LSTM} unit and capture complex social interactions among agents by means of Multi-Head Self Attention.
-	\item \textbf{GAN module}: Given the target points and highlighted social features, this module generates plausible and realistic trajectories using a LSTM based decoder, which represents the generator. Discriminator is applied to enhance the performance of the generator by forcing it to compute more realistic predictions.
+	\item \textbf{\ac{GAN} module}: Given the target points and highlighted social features, this module generates plausible and realistic trajectories using a LSTM based decoder, which represents the generator. Discriminator is applied to enhance the performance of the generator by forcing it to compute more realistic predictions.
+	
 \end{itemize} 
 
 \begin{figure}[h] 
@@ -209,8 +211,8 @@ To train our \ac{GAN}-based model, we use the following losses:
 \begin{eqnarray}
 	\label{eq:obj}
 	W^* =\operatorname*{argmin}_W \quad\mathbb{E}_{i,\tau}[\lambda_{gan} \mathcal{L}_{GAN}\big(\hat{L}_{i}^{t_{obs}:t_{pred}}, L_{i}^{t_{obs}:t_{pred}} \big)+ \nonumber\\
-	\lambda_{ade} \mathcal{L}_{L2}(\hat{Y}_i^{t_{obs}:t_{pred}},Y_i^{t_{obs}:t_{pred}})+ \nonumber\\
-	\lambda_{fde} \mathcal{L}_{L2}(\hat{Y}_i^{t_{obs}+t_{pred}},Y_i^{t_{obs}+t_{pred}})],
+	\lambda_{ADE} \mathcal{L}_{ADE}(\hat{Y}_i^{t_{obs}:t_{pred}},Y_i^{t_{obs}:t_{pred}})+ \nonumber\\
+	\lambda_{FDE} \mathcal{L}_{FDE}(\hat{Y}_i^{t_{obs}+t_{pred}},Y_i^{t_{obs}+t_{pred}})],
 \end{eqnarray}
 %
 where $W$ is the collection of the weights of all networks used in our model and the different $\lambda$ represent the corresponding regularizers between these losses. As stated in Equation \ref{eq:4_min_max_game}, $\mathcal{L}_{GAN}$ represents the min-max game where the generator tries to minimize the function while the discriminator tries to maximize it. ADE loss function is commonly used to compute the average error between the predicted trajectories and the corresponding ground-truth. Moreover, we add FDE loss function to explicitly optimize the distribution towards the final real point.
@@ -252,7 +254,7 @@ In terms of validation, we conduct a statistical analysis for the ADE and FDE me
 		\includegraphics[width=0.4\linewidth]{chapter_5_GAN/ade_analysis.pdf} %\tabularnewline
 		\includegraphics[width=0.4\linewidth]{chapter_5_GAN/fde_analysis.pdf}\tabularnewline
 	\end{tabular}
-	\caption{Statistical results on the Argoverse 1 validation set. We show the boxplots for ADE and FDE metrics. We distinguish between straight and curved trajectories. We highlight the median (Q2) in each boxplot.}
+	\caption[Statistical distribution on the Argoverse 1 validation set of regression metrics in straight and curved trajectories]{Statistical distribution on the Argoverse 1 validation set of regression metrics in straight and curved trajectories. We show the boxplots for ADE and FDE metrics. We distinguish between straight and curved trajectories. We highlight the median (Q2) in each boxplot.}
 	\label{fig:chapter_5_GAN/boxplots}
 \end{figure}
 
@@ -263,7 +265,7 @@ In this section, we perform an ablation study and compare our method performance
 
 \begin{table}[!h]
 	\captionsetup{justification=justified}
-	\caption[Ablation study of our GAN-based unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set]{Ablation study of our GAN-based unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set. We can see the improvement using Target points (TP) and Class balance (CB). Our methods are indicated with $\dag$.}
+	\caption[Ablation study of our Attention-based GAN unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set]{Ablation study of our GAN-based unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set. We can see the improvement using Target points (TP) and Class balance (CB). Our methods are indicated with $\dag$.}
 	\begin{center}
 		\begin{tabular}{ l | c | c }
 			\toprule
@@ -311,11 +313,11 @@ In that sense, regarding the third row, left image shows how we compute an uni-m
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/49_unimodal.png}} &
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/128_unimodal.png}} \tabularnewline
 	\end{tabular}
-	\caption{Qualitative Results using our GAN-based best model (including target points extraction and class balance). The legend is as follows: our vehicle (\textcolor{blue}{ego}), the target \textcolor{red}{agent}, and \textcolor{ForestGreen}{other agents}. We can also see the \textcolor{orange}{real} trajectory, the \textcolor{purple}{prediction} and potential \textcolor{brown}{goal-points}. Markers are current positions.}
+	\caption[Qualitative Results using our Attention-based GAN best model (including target points extraction and class balance)]{Qualitative Results using our Attention-based GAN best model (including target points extraction and class balance). The legend is as follows: our vehicle (\textcolor{blue}{ego}), the target \textcolor{red}{agent}, and \textcolor{ForestGreen}{other agents}. We can also see the \textcolor{orange}{real} trajectory, the \textcolor{purple}{prediction} and potential \textcolor{brown}{goal-points}. Markers are current positions.}
 	\label{fig:chapter_5_GAN/Unimodal_results}
 \end{figure*}
 
 \section{Summary}
 \label{sec:5_summary}
 
-Forecasting the future trajectories of surrounding actors in the scene is mandatory to achieve a safe planning, and thus, a crucial part of the Autonomous Driving stack. In this Chapter we explore a \ac{GAN}-based \ac{LSTM} with Multi-Head Self Attention for unimodal vehicle \ac{MP} using the Argoverse 1 Motion Forecasting Benchmark. Our model considers both the deep physical and social context of the scene to predict the most plausible trajectory using a generative model, and achieves competitive results in comparison to other state-of-the-art methods regarding the case of unimodal prediction. Given the aforementioned results, we realize that this uni-modal method lacks of plausible multi-modality and capacity to model complex traffic scenarios, so the future steps are an enhanced social attention and interaction, high-level and well-structured physical context, specially focusing on the vector features of HD Map, in order to produce feasible and realistic multi-modal trajectories.
+Forecasting the future trajectories of surrounding actors in the scene is mandatory to achieve a safe planning, and thus, a crucial part of the Autonomous Driving stack. In this Chapter we explore a \ac{GAN}-based \ac{LSTM} with \ac{MHSA} for unimodal vehicle \ac{MP} using the Argoverse 1 Motion Forecasting Benchmark. Our model considers both the deep physical and social context of the scene to predict the most plausible trajectory using a generative model, and achieves competitive results in comparison to other state-of-the-art methods regarding the case of unimodal prediction. Given the aforementioned results, we realize that this uni-modal method lacks of plausible multi-modality and capacity to model complex traffic scenarios, so the future steps are an enhanced social attention and interaction, high-level and well-structured physical context, specially focusing on the vector features of HD Map, in order to produce feasible and realistic multi-modal trajectories.

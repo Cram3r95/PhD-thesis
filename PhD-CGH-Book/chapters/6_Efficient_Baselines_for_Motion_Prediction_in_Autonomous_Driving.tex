@@ -26,7 +26,7 @@
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-\chapter{Efficient Baselines for Multimodal Motion Prediction in Autonomous Driving}
+\chapter{Efficient Baselines for Multi-modal \\ Motion Prediction in Autonomous Driving}
 \label{cha:efficient_baseline_for_mp_in_ad}
 
 \begin{FraseCelebre}
@@ -46,7 +46,7 @@
 
 As observed in the previous Chapter, our \ac{GAN}-based model (more specifically the generator) was able to compute the deep context regarding the agents past observations, attention-based social interaction and target points as physical context, but the prediction was limited to the unimodal case. In other words, the \ac{GAN}-based model is able to reason more complex interactions and future behaviours than SmartMOT (physics-based prediction), but it lacks one of the main features of a deep learning-based model as a preliminary stage before the local planning or decision-making layers: Multimodality. On top of that, at this point of the thesis the literature was re-visited and despite \acp{GAN}-based approaches \cite{sadeghian2019sophie, dendorfer2020goal, gupta2018social, gomez2022exploring} provide certain control since they are focused on more simple methods framed in an adversarial training, most competitive approaches on \ac{MP} benchmarks in the field of \ac{AD}, such as Argoverse \cite{chang2019argoverse}, NuScenes \cite{caesar2020nuscenes} or Waymo \cite{ettinger2021large}, do not use adversarial training, where the training complexity is one the main reasons.
 
-\section{Efficient Social and Map Baselines}
+\section{Efficient Baselines}
 \label{sec:6_efficient_baselines}
 
 Considering the trade-off between curated input data and complexity, we aim to achieve competitive performance in the \ac{MP} using powerful DL techniques in terms of prediction metrics (\ac{minADE}, \ac{minFDE}), including attention mechanisms and \acp{GNN}, while reducing the number of parameters of operations with respect to other \ac{SOTA} methods. In particular, we propose two baselines, social and map baseline. 
@@ -319,8 +319,8 @@ We train our models to convergence using a single NVIDIA RTX 3090, and validate 
 \label{subsec:6_model_results}
 
 \begin{table}[thpb]
-	\captionsetup{justification=Justified}
-	\caption{\textbf{Ablation Study for map-free MP on the Argoverse~\cite{chang2019argoverse} validation set}. Our methods are indicated with $\dag$, our highlighted method indicates our map-free baseline (Best Social Model = BSM). Prediction metrics (minADE, minFDE) are reported in meters.}
+	\captionsetup{justification=justified}
+	\caption[Ablation Study for map-free MP on the Argoverse 1 validation set]{Ablation Study for map-free MP on the Argoverse 1 validation set. Our methods are indicated with $\dag$, our highlighted method indicates our map-free baseline (Best Social Model = BSM). Prediction metrics (minADE, minFDE) are reported in meters.}
 	\label{table:results_val_social}
 	% \setlength{\tabcolsep}{5pt}
 	\centering
@@ -344,7 +344,7 @@ We train our models to convergence using a single NVIDIA RTX 3090, and validate 
 		$\dag$ LSTM-64 (TDec) + GNN + MHSA \quad (Best Social Model)  &  105K  & 1.79 & 4.01 & 0.81 & 1.56 \\
 		\midrule
 		$\dag$ Best Social Model + HardM (10 \%) &  105K  & 1.76 & 3.97 & 0.80 & 1.53 \\
-		\rowcolor{gray}$\dag$ Best Social Model + HardM (10 \%) \emph{w/} Loss Hinge + WTA &  105K  & 1.62 & 3.57 & \textbf{0.76} & 1.43 \\
+		$\dag$ Best Social Model + HardM (10 \%) \emph{w/} Loss Hinge + WTA &  105K  & 1.62 & 3.57 & \textbf{0.76} & 1.43 \\
 		\bottomrule
 	\end{tabular}}
 \end{table}
@@ -361,7 +361,8 @@ To integrate the map features (Table \ref{table:results_val_map}) we start from 
 
 %\begin{table*}[thpb]
 \begin{table}[]
-	\caption{\textbf{Ablation Study for map-based motion forecasting on the Argoverse~\cite{chang2019argoverse} validation set}. Our methods are indicated with $\dag$. We highlight our map-based baseline method, as a reference for future comparisons.}
+	\captionsetup{justification=justified}
+	\caption[Ablation Study for map-based motion forecasting on the Argoverse 1 validation set]{Ablation Study for map-based motion forecasting on the Argoverse 1 validation set. Our methods are indicated with $\dag$. We highlight our map-based baseline method, as a reference for future comparisons.}
 	\label{table:results_val_map}
 	% \setlength{\tabcolsep}{5pt}
 	% \centering
@@ -385,7 +386,7 @@ To integrate the map features (Table \ref{table:results_val_map}) we start from 
 		$\dag$ BSM + centerlines=3 loop + Feasible area + Dist2Centerline (Best Global Model) &  459K  & 1.61 & 3.40 & 0.75 & 1.39 \\
 		\midrule
 		$\dag$ Best Global model + HardM (10 \%)  & 459K  & 1.55 & 3.31 & 0.75 & 1.36 \\
-		\rowcolor{gray}$\dag$ Best Global model + HardM (10 \%) \emph{w/} Loss Hinge + WTA &  459K  & 1.46 & 3.22 & 0.72 & 1.28 \\
+		$\dag$ Best Global model + HardM (10 \%) \emph{w/} Loss Hinge + WTA &  459K  & 1.46 & 3.22 & 0.72 & 1.28 \\
 		\bottomrule
 	\end{tabular}}
 \end{table}
@@ -404,8 +405,8 @@ The Argoverse Benchmark~\cite{chang2019argoverse} has over 290 submitted methods
 %Table~\ref{tab:sota} shows these statistics. Given the small $\sigma$ADE$_k$ and $\sigma$FDE$_k$ values (in meters), we can conclude that there is no significant performance difference for the top-25 models, however, we cannot get enough information from the benchmark to test this hypothesis properly.
 
 \begin{table}
-	\captionsetup{justification=Justified}
-	\caption{\textbf{Results on the Argoverse 1.0 Benchmark~\cite{chang2019argoverse}}. We borrow some numbers from~\cite{chang2019argoverse, gilles2021home, gilles2022gohome}. We specify the map info for each model: Raster, GNN or polyline, as stated in Table \ref{table:2_dl_related_work_mp}. We indicate the error \textcolor{blue}{difference} of our method \emph{w.r.t.} top-25 SOTA methods, in centimeters. Our predictions differ \emph{w.r.t.} top-25 SOTA only \textcolor{blue}{10cm} and \textcolor{blue}{15cm} for the unimodal and multimodal minADE metric respectively, yet our model is much more efficient.}
+	\captionsetup{justification=justified}
+	\caption[Results on the Argoverse 1 Motion Forecasting Leaderboard]{Results on the Argoverse 1 Motion Forecasting Leaderboard. We borrow some numbers from~\cite{chang2019argoverse, gilles2021home, gilles2022gohome}. We specify the map info for each model: Raster, GNN or polyline, as stated in Table \ref{table:2_dl_related_work_mp}. We indicate the error \textcolor{blue}{difference} of our method \emph{w.r.t.} top-25 SOTA methods, in centimeters. Our predictions differ \emph{w.r.t.} top-25 SOTA only \textcolor{blue}{10cm} and \textcolor{blue}{15cm} for the unimodal and multimodal minADE metric respectively, yet our model is much more efficient.}
 	%\begin{tabular}{lc>{\columncolor[gray]{0.9}}c>{\columncolor[gray]{0.9}}c c c}
 	\resizebox{\linewidth}{!}{
 	\begin{tabular}{l c c c c c}
@@ -441,7 +442,7 @@ The Argoverse Benchmark~\cite{chang2019argoverse} has over 290 submitted methods
 		% mean and variance
 		\midrule
 		Ours (Social baseline, including HardM and losses) & - & 2.57 & 4.36 & 1.26 & 2.67 \\
-		\rowcolor{gray} Ours (Map baseline, including HardM and losses) & Polyline & 
+		Ours (Map baseline, including HardM and losses) & Polyline & 
 		1.73~{\scriptsize{\textcolor{blue}{(10cm)}}} & 3.89~{\scriptsize{\textcolor{blue}{(30cm)}}} & 0.96~{\scriptsize{\textcolor{blue}{(15cm)}}} & 1.63~{\scriptsize{\textcolor{blue}{(41cm)}}} \\
 		\bottomrule
 	\end{tabular}}
@@ -492,7 +493,7 @@ We prove our best model (Augmented baseline) qualitatively in Figure \ref{fig:ch
 		
 		General view & Plausible HDMap & $k$=1 prediction & $k$=6 predictions \tabularnewline
 	\end{tabular}
-	\captionsetup{justification=Justified}
+	\captionsetup{justification=justified}
 	\caption[Qualitative Results on challenging scenarios in the Argoverse 1 validation set using our best model]{Qualitative Results on challenging scenarios in the Argoverse 1 validation set using our best model.	We represent: our vehicle (\textbf{\textcolor{blue}{ego}}), the \textbf{\textcolor{YellowOrange}{target agent}}, and \textbf{\textcolor{gray75}{other agents}}. We can also see the \textbf{\textcolor{red}{ground-truth}} trajectory of the target agent, our \textbf{\textcolor{ForestGreen}{multimodal predictions}} (with the corresponding confidences) and \textbf{plausible centerlines}. Circles represent last observations and diamonds last future positions. As we can see the plausible HDMap serves as a good guidance to our model, which can predict reasonable trajectories in presence of multiple agents and challenging scenarios. We show, from left to right, a general view of the traffic scenario (including social and map information), our calculated plausible HDMap, unimodal prediction (best mode in terms of confidence) and multimodal prediction (\textit{k} = 6), including confidences (the higher, the most probable)}
 	\label{fig:chapter_6/argoverse_1_qualitative_results}
 \end{figure}
@@ -504,7 +505,8 @@ In terms of \textbf{efficiency discussion}, to the best of our knowledge, very f
 
 \begin{table}[h]
 	\centering
-	\caption{Efficiency comparison among SOTA methods. We show the number of parameters for each model, FLOPs, minADE (k=6) in the Argoverse test set, and runtime. Works from \cite{gao2020vectornet} focus on unimodal predictions (k=1). \textit{N/A} stands for \textit{Not Available}. Time measured on a RTX 2080 Ti (using batch 32). Some numbers are borrowed from \cite{zhou2022hivt, bhattacharyya2023ssl}.
+	\captionsetup{justification=justified}
+	\caption[Efficiency comparison of our baselines against SOTA methods]{Efficiency comparison of our baselines against SOTA methods. We show the number of parameters for each model, FLOPs, minADE (k=6) in the Argoverse test set, and runtime. Works from \cite{gao2020vectornet} focus on unimodal predictions (k=1). \textit{N/A} stands for \textit{Not Available}. Time measured on a RTX 2080 Ti (using batch 32). Some numbers are borrowed from \cite{zhou2022hivt, bhattacharyya2023ssl}.
 	}
 	\resizebox{\linewidth}{!}{
 		\begin{tabular}{lcccc}

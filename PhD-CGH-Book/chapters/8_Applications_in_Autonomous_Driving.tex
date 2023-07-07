@@ -68,7 +68,7 @@ In this application we propose an approach to enhance the efficiency and general
 	%\includegraphics[width=0.45\textwidth]{images/teaser.png}
 	\includegraphics[width=0.45\textwidth]{chapter_8_Applications/dm_t-intersection_scenario.pdf}
 	\captionsetup{justification=justified}
-	\caption{Simulation environment. A visualization of the ego-vehicle driving in the T-intersection scenario. The past positions of the adversaries (\textbf{\color{YellowOrange}{yellow}}) and the predicted trajectories (\textbf{\textcolor{blue}{blue}}) are represented in the scenario.}
+	\caption[T-intersection scenario in the SMARTS simulator]{T-intersection scenario in the SMARTS simulator. The past positions of the adversaries (\textbf{\color{YellowOrange}{yellow}}) and the predicted trajectories (\textbf{\textcolor{blue}{blue}}) are represented in the scenario.}
 	\label{fig:chapter_8_Applications/dm_t-intersection_scenario}
 \end{figure}
 
@@ -78,7 +78,7 @@ This application is focused on a critical issue for RL-based AVs, which is the s
 	\centering        
 	\includegraphics[width=0.95\textwidth]{chapter_8_Applications/dm_prediction_framework.pdf}
 	\captionsetup{justification=justified}
-	\caption{An overview of the Augmented Reinforcement Learning with Efficient Social-based Motion Prediction for Autonomous Decision-Making. The observations (both position and ID, so, trackers) of the vehicles in the scenario are obtained from the simulator. The MP module estimates the future positions of these vehicles, taking into account the most plausible score of a multimodal prediction. The decision-making module selects high-level actions based on this information. These actions are executed by the simulator, which provides a new state to the framework. }
+	\caption[An overview of the Augmented Reinforcement Learning with Efficient Social-based Motion Prediction for Autonomous Decision-Making]{An overview of the Augmented Reinforcement Learning with Efficient Social-based Motion Prediction for Autonomous Decision-Making. The observations (both position and ID, so, trackers) of the vehicles in the scenario are obtained from the simulator. The MP module estimates the future positions of these vehicles, taking into account the most plausible score of a multimodal prediction. The decision-making module selects high-level actions based on this information. These actions are executed by the simulator, which provides a new state to the framework. }
 	\label{fig:chapter_8_Applications/dm_prediction_framework}
 \end{figure}
 
@@ -108,7 +108,7 @@ We propose two different learning processes: supervised learning for the motion 
 	% \includegraphics[width=\linewidth]{chapter_8_Applications/social_prediction_baseline.pdf}
 	\includegraphics[width=\linewidth]{chapter_8_Applications/cvpr_2023_only_social.pdf}
 	\captionsetup{justification=justified}
-	\caption{Overview of our Efficient Social-based Motion Prediction. The main inputs are the relative displacements and centers (last observations) of the agents in the ego-vehicle frame. The relative displacements, agents centers and additional metadata are encoded through a transformer encoder and interactions are computed by means of a Crystal-\ac{GCN}. Finally, \textit{K} final future trajectories (modes) and their confidence scores are computed and refined through a multimodal decoder and motion refinement module respectively.}
+	\caption[Overview of our Efficient Social-based Motion Prediction]{Overview of our Efficient Social-based Motion Prediction. The main inputs are the relative displacements and centers (last observations) of the agents in the ego-vehicle frame. The relative displacements, agents centers and additional metadata are encoded through a transformer encoder and interactions are computed by means of a Crystal-\ac{GCN}. Finally, \textit{K} final future trajectories (modes) and their confidence scores are computed and refined through a multimodal decoder and motion refinement module respectively.}
 	
 	% On the other hand, the agents centers are encoded through a linear layer to initialize the hidden and cell vector of the LSTM layer, which processes the previously latent motion history
 	\label{fig:chapter_8_Applications/cvpr_2023_only_social}
@@ -180,7 +180,7 @@ where $K^{i}_t = (x^i_{t_0}, y^i_{t_0}, x^i_{t_1}, y^i_{t_1}, x^i_{t_2}, y^i_{t_
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.40\textwidth]{chapter_8_Applications/dm_state.pdf}
-	\caption{The ego-vehicle (\color{brickred}{red}) and the adversaries (\color{cadetblue}{blue}) predicted positions in the next three seconds are represented.}	
+	\caption[Predicted positions of the ego-vehicle and the adversaries in the next 3s]{Predicted positions of the \textbf{\textcolor{red}{ego-vehicle}} and the \textbf{\textcolor{blue}{adversaries}} in the next 3s.}	
 	\label{fig:chapter_8_Applications/dm_state}
 \end{figure}
 
@@ -214,7 +214,8 @@ Our approach for the RL implementation (Figure \ref{fig:chapter_8_Applications/d
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.45\textwidth]{chapter_8_Applications/dm_RL_network.pdf}
-	\caption{The neural network architecture consists of two fully connected layers followed by the concatenation of both adversaries and ego vehicle features. The resulting concatenated features are then passed through an actor-critic structure, which comprises two layers, each containing 128 neurons.}	
+	\captionsetup{justification=justified}
+	\caption[Overview of our Reinforcement Learning-based Decision-Making architecture]{Overview of our Reinforcement Learning-based Decision-Making architecture. The neural network architecture consists of two fully connected layers followed by the concatenation of both adversaries and ego vehicle features. The resulting concatenated features are then passed through an actor-critic structure, which comprises two layers, each containing 128 neurons.}	
 	\label{fig:chapter_8_Applications/dm_RL_network}
 \end{figure}
 
@@ -231,7 +232,8 @@ To validate the performance of our approach, an intersection scenario is impleme
 \begin{figure}[h]
 	\centering        
 	\includegraphics[width=0.95\textwidth]{chapter_8_Applications/dm_prediction_results.pdf}
-	\caption{Simulation overview of our system behaviour. The red car follows the green path, and each image represents a different frame of the simulation. We also show the predicted positions below each image and the actions taken by the decision-making module.}
+	\captionsetup{justification=justified}
+	\caption[Simulation overview of our system behaviour]{Simulation overview of our system behaviour. The red car follows the green path, and each image represents a different frame of the simulation. We also show the predicted positions below each image and the actions taken by the decision-making module.}
 	\label{fig:chapter_8_Applications/dm_prediction_results}
 \end{figure}
 
@@ -245,7 +247,7 @@ We define different scenario configurations to test the performance of the propo
 In decision-making, the success rate serves as a direct measure of the effectiveness of the RL agent in accomplishing the designated task. Besides, the average time of the episode is a common metric used in the literature. These metrics are defined as:
 
 \begin{itemize}
-	\item $success~[\%] = n_{success}/n_{success}$
+	\item $success~[\%] = n_{success}/n_{episodes}$
 	\item $t_{e} [s] = \sum{t_{n}}/n_{episodes}$
 \end{itemize}
 
@@ -260,7 +262,8 @@ This first study compares the proposed approach with other existing methods for 
 
 \begin{table}[h!]
 	\centering
-	\caption{A comparison of the proposed framework against the existing baselines in the T-intersection scenario. The success rate S[\%] and the average episode time $t_{e}$ are presented.}
+	\captionsetup{justification=justified}
+	\caption[Comparison of the proposed framework against the existing baselines in the T-intersection scenario]{Comparison of the proposed framework against the existing baselines in the T-intersection scenario. The success rate S[\%] and the average episode time $t_{e}$ are presented.}
 	\label{table:comp}
 	\setlength{\extrarowheight}{2pt}
 	\begin{tabular}{cccccc} 
@@ -281,7 +284,7 @@ The results presented in Table \ref{table:chapter_8_Applications/dm_ablation_stu
 \begin{table}[h]
 	\centering
 	\captionsetup{justification=justified}
-	\caption{An ablation study comparing three state representations with the different scenario configurations: Current positions, Past positions, and Future positions. The success rate S[\%], the episode time $t_{e}$ in these successful episodes, and the average velocity of collision $v_{c}$ are presented.}
+	\caption[Ablation study comparing three state representations with different scenario configurations]{Ablation study comparing three state representations with different scenario configurations: Current positions, Past positions, and Future positions. The success rate S[\%], the episode time $t_{e}$ in these successful episodes, and the average velocity of collision $v_{c}$ are presented.}
 	\label{table:chapter_8_Applications/dm_ablation_study_smarts}
 	\setlength{\extrarowheight}{2pt}
 	\begin{tabular}{cccccc} 
@@ -312,24 +315,24 @@ Finally, an overview of the behaviour of our system is shown in Figure \ref{fig:
 \section{Domain Adaptation in CARLA simulator}
 \label{sec:8_domain_adaptation_carla}
 
-In this Section we study the domain adaptation of our efficient social-based prediction model (Figure \ref{fig:chapter_8_Applications/cvpr_2023_only_social}) in the CARLA simulator. As stated in previous sections, CARLA provides a realistic sensor simulation environment, including cameras, LIDAR, and radar sensors. On top of that, it accurately models vehicle dynamics, including realistic acceleration, braking, and steering behaviors in complex traffic scenarios with various types of vehicles, pedestrians, and cyclists, enabling motion prediction algorithms to be tested and evaluated in realistic traffic situations, such as sudden imminent collisions with another vehicle, unexpected \ac{VRU}, intersections or lane change maneuver in a high-way, where the ego-vehicle must pay attention to the surrounding scene and predict its future to take the optimal action. 
+In this Section we study the domain adaptation of our efficient social-based prediction model (Figure \ref{fig:chapter_8_Applications/cvpr_2023_only_social}) in the CARLA simulator. As stated in previous sections, CARLA provides a realistic sensor simulation environment, including cameras, \ac{LiDAR}, and other on-board sensors. On top of that, it accurately models vehicle dynamics, including realistic acceleration, braking, and steering behaviors in complex traffic scenarios with various types of vehicles, pedestrians, and cyclists, enabling motion prediction algorithms to be tested and evaluated in realistic traffic situations, such as sudden imminent collisions with another vehicle, unexpected \ac{VRU}, intersections or lane change maneuver in a high-way, where the ego-vehicle must pay attention to the surrounding scene and predict its future to take the optimal action. 
 
-To this end, we take the \ac{ADS} provided by the RobeSafe research group (including the control and global planning modules) to move the vehicle around the city given a pre-defined route. In this case, the global routes are pre-defined by the CARLA Autonomous Driving Leaderboard, one of the main competitions around the world to evaluate \ac{ADS} proposals, either end-to-end or modular-based. Since our \ac{MP} pipeline require a set of \textit{$obs_{len}$} observations per agent, \ie the agent has been previously detected and tracked in such a way a buffer is filled with its past observations, a robust and reliable detection and tracking stage should be implemented to perform 360 \degree sensor fusion and monitor the most relevant obstacles around the ego-vehicle. Nevertheless, implementing the whole perception pipeline is out of the scope of the thesis, which is mainly focused on the prediction stage.
+To this end, we take the \ac{ADS} provided by the RobeSafe research group (including the control and global planning modules) to move the vehicle around the city given a pre-defined route. In this case, the global routes are pre-defined by the CARLA Autonomous Driving Leaderboard, one of the main competitions around the world to evaluate \ac{ADS} proposals, either end-to-end or modular-based. Since our \ac{MP} pipeline require a set of \textit{$obs_{len}$} observations per agent, \ie \ the agent has been previously detected and tracked in such a way a buffer is filled with its past observations, a robust and reliable detection and tracking stage should be implemented to perform 360 \degree sensor fusion and monitor the most relevant obstacles around the ego-vehicle. Nevertheless, implementing the whole perception pipeline is out of the scope of the thesis, which is mainly focused on the prediction stage.
 
-In that sense, as observed in Figure to validate our prediction pipeline in CARLA in real-time simulation (not in isolated traffic scenarios, as expected from a dataset), we make use of the Autonomous Driving Perception Development Kit (also referred as AD-PerDevKit), partially published in the following conference paper \cite{de2022ad}: "Ad perdevkit: an autonomous driving perception development kit using carla simulator and ros", 2022 International Conference on Intelligent Transportation Systems (ITSC), p. 4095-4100.  
+In that sense, as observed in Figure to validate our prediction pipeline in CARLA in real-time simulation (not in isolated traffic scenarios, as expected from a dataset), we make use of the Autonomous Driving Perception Development Kit (also referred as AD-PerDevKit), partially published in the following conference paper \cite{de2022ad}: "Ad perdevkit: an autonomous driving perception development kit using carla simulator and ros", 2022 IEEE 25th International Conference on Intelligent Transportation Systems (ITSC), p. 4095-4100.  
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\textwidth, trim={0 2cm 0 3cm},clip]{chapter_8_Applications/ad_perdevkit.pdf}
+	\includegraphics[width=\textwidth, trim={0 4cm 0 1cm},clip]{chapter_8_Applications/ad_perdevkit.pdf}
 	\captionsetup{justification=justified}
-	\caption{Overview of the integration of our prediction pipeline in the CARLA simulator. The PythonAPI module is used to obtain all actors in the world. Our AD-PerDevKit performs a ray-tracing-based filtering to keep only those obstacles which are hit by at least one LiDAR ray. Past observations are considered over time for these relevant obstacles which are used to feed the social-based prediction pipeline.}
+	\caption[Overview of the integration of our prediction pipeline in the CARLA simulator using the AD-PerDevKit tool]{Overview of the integration of our prediction pipeline in the CARLA simulator using the AD-PerDevKit tool. The PythonAPI module is used to obtain all actors in the world. Our AD-PerDevKit performs a ray-tracing-based filtering to keep only those obstacles which are hit by at least one LiDAR ray. Past observations are considered over time for these relevant obstacles which are used to feed the social-based prediction pipeline.}
 	\label{fig:chapter_8_Applications/ad_perdevkit}
 \end{figure}
 
 \subsection{Autonomous Driving Perception Development Kit (AD-PerDevKit)}
 \label{subsec:8_ad_perdevkit}
 
-As stated above, most \ac{SOTA} \ac{MP} pipelines in the field of \ac{AD} require 360 \degree \ac{DAMOT} to get the past observations of the agents and then predict their future actions. Since this thesis is not focused neither in object detection nor tracking, which would involve significant complexity and effort, surpassing the intended focus of this research, utilizing ray-tracing-based ground-truth as a realistic representation of the environment is a justifiable decision.
+As stated above, most \ac{SOTA} \ac{MP} pipelines in the field of \ac{AD} require 360\degree~\ac{DAMOT} to get the past observations of the agents and then predict their future actions. Since this thesis is not focused neither in object detection nor tracking, which would involve significant complexity and effort, surpassing the intended focus of this research, utilizing ray-tracing-based ground-truth as a realistic representation of the environment is a justifiable decision.
 
 Autonomous driving systems rely on accurate and reliable input data to make informed decisions. Ray-tracing techniques, which simulate the behavior of light in a virtual environment, provide a highly realistic representation of the surroundings. By employing ray-tracing-based ground-truth, precise information about the positions, shapes, and properties of obstacles in the environment can be generated as preliminary information before conducting the prediction stage. This approach ensures that the \ac{ADS} receives high-fidelity data that closely resembles real-world conditions. 
 
@@ -422,7 +425,7 @@ Moreover, it is important to note that this tool is designed to work either for 
 \subsection{Experimental results}
 \label{subsec:8_experimental_results}
 
-Once we have calculated the 360 \degree visible objects in a frame $t$, as additional post-processing steps the \ac{AD-PerDevKit} tool fills a buffer with the past positions of the corresponding object (simulating a real-world buffered Multi-Object Tracker). Nevertheless, since the proposed prediction model has been trained in Argoverse 2 using an observation length of \textit{$obs_{len}$} = 50 (\ie 5s of motion history regarding a frequency of 10 Hz). Then, calculating the predictions with only 2 or 3 observations would not make sense, since even though there are several agents in Argoverse 1 and Argoverse 2 with only a few observations (for example, an object is relevant in the scene since it is relevant to the \ac{ADS} in $t=0$, with only has 4 observations because suddenly appeared in the traffic scenario). To this end, we filter those obstacles with a number of observations less than a certain threshold, set to 20 in this case. Figure \ref{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ} depicts an example of the \ac{AD-PerDevKit} output while driving our \ac{ADS} in the \ac{CARLA} simulator (particularly Town03). Filtered objects and observations are plotted in the well-established RVIZ simulator. 
+Once we have calculated the 360 \degree visible objects in a frame $t$, as additional post-processing steps the \ac{AD-PerDevKit} tool fills a buffer with the past positions of the corresponding object (simulating a real-world buffered Multi-Object Tracker). Nevertheless, since the proposed prediction model has been trained in Argoverse 2 using an observation length of \textit{$obs_{len}$} = 50 (\ie \ 5s of motion history regarding a frequency of 10 Hz). Then, calculating the predictions with only 2 or 3 observations would not make sense, since even though there are several agents in Argoverse 1 and Argoverse 2 with only a few observations (for example, an object is relevant in the scene since it is relevant to the \ac{ADS} in $t=0$, with only has 4 observations because suddenly appeared in the traffic scenario). To this end, we filter those obstacles with a number of observations less than a certain threshold, set to 20 in this case. Figure \ref{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ} depicts an example of the \ac{AD-PerDevKit} output while driving our \ac{ADS} in the \ac{CARLA} simulator (particularly Town03). Filtered objects and observations are plotted in the well-established RVIZ simulator. 
 
 \begin{figure}[!h]
 	\centering
