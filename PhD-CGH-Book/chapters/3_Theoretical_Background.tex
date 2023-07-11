@@ -380,7 +380,7 @@ Unlike generative models, which learn the joint probability distribution of the 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[trim=0cm 0cm 0cm 3cm, width=\linewidth]{chapter_3_theoretical_background/GAN_diagram.pdf}
+	\includegraphics[trim=0cm 8cm 0cm 0cm, width=\linewidth]{chapter_3_theoretical_background/GAN_diagram.pdf}
 	\caption{Overview of a Generative Adversarial Network (GAN) structure}
 	\label{fig:chapter_3_theoretical_background/GAN}
 \end{figure}
@@ -751,7 +751,7 @@ One common technique to adjust the learning rate during training is called learn
 
 Overall, the learning rate plays a crucial role in the optimization process of machine learning algorithms, including optimizer updates like the \ac{ADAM} optimizer. Selecting an appropriate learning rate is important for achieving fast and stable convergence to the optimal solution.
 
-In this thesis, we will use the \ac{ADAM} optimizer and learning rate scheduler in Chapters \ref{cha:exploring_gan_for_vehicle_mp}, \ref{cha:efficient_baseline_for_mp_in_ad} and \ref{cha:improving_multi_agent}. Particularly, in terms of the learning rate scheduler, we will make use of the well-established \textit{ReduceLROnPlateau}, which reduces the learning rate when a certain metric of interest (in our case, \ac{minADE}) has stopped improving for a pre-defined "patience" (\ie \ number of epochs over the dataset).
+In this thesis, we will use the \ac{ADAM} optimizer and learning rate scheduler in Chapters \ref{cha:exploring_gan_for_vehicle_mp}, \ref{cha:efficient_baseline_for_mp_in_ad} and \ref{cha:improving_multi_agent}. Particularly, in terms of the learning rate scheduler, we will make use of the well-established \textit{ReduceLROnPlateau}, which reduces the learning rate when a certain metric of interest (in our case, \ac{minADE}) has stopped improving for a pre-defined \textit{patience} (\ie \ number of epochs over the dataset).
 
 \subsubsection{Losses}
 \label{subsubsec:3_losses}
@@ -798,7 +798,7 @@ The SmoothL1 loss function can be defined as follows:
 
 where $y$ is the true value, $\hat{y}$ is the predicted value, $|y - \hat{y}|$ corresponds to the $L_1$ loss (absolute error or distance) and $\frac{1}{2}(y - \hat{y})^2$ corresponds to the $L_2$ loss (Euclidean error or distance).
 
-The SmoothL1 loss function behaves like the L1 loss for small errors and like the $\mathcal{L}_2$ loss for large errors. Specifically, for errors smaller than 1, it uses the squared difference between the predicted and true values ($\mathcal{L}_2$), which has a smooth gradient. For larger errors, it uses the absolute difference ($\mathcal{L}_1$), which is less sensitive to outliers than the squared difference.
+The SmoothL1 loss function behaves like the L1 loss for small errors and like the $\mathcal{L}_2$ (\aka \ Euclidean distance) loss for large errors. Specifically, for errors smaller than 1, it uses the squared difference between the predicted and true values ($\mathcal{L}_2$), which has a smooth gradient. For larger errors, it uses the absolute difference ($\mathcal{L}_1$), which is less sensitive to outliers than the squared difference.
 
 The SmoothL1 loss is used in regression problems when the data contains outliers or when the model needs to be less sensitive to large errors. It is commonly used in object detection and localization tasks, where the predicted bounding boxes can be highly sensitive to small changes in the input data.
 

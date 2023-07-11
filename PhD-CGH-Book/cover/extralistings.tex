@@ -41,20 +41,19 @@
 		\addcontentsline{toc}{chapter}{Índice de listados de código fuente}
 	}
 \end{comment}
-\begin{comment}
-	\ifthenelse{\equal{\myLanguage}{english}}
-	{
-		\renewcommand*{\algorithmcfname}{Algorithm}
-		\renewcommand{\listofalgorithms}{\begingroup
-			\tocfile{List of Algorithms}{loa}
-			\endgroup}
-		% \makeatletter
-		% \let\l@algorithm\l@figure
-		% \makeatother
-		
-	}
-\end{comment}
+
 \hypersetup{linkcolor=\myothertoclinkcolor}
+\ifthenelse{\equal{\myLanguage}{english}}
+{
+	\renewcommand*{\algorithmcfname}{Algorithm}
+	\renewcommand{\listofalgorithms}{\begingroup
+		\tocfile{List of Algorithms}{loa}
+		\endgroup}
+	% \makeatletter
+	% \let\l@algorithm\l@figure
+	% \makeatother
+	
+}
 {
 	%\SetAlgorithmName{Algoritmo}{algoritmo}{Índice de algoritmos}
 	\renewcommand*{\algorithmcfname}{Algoritmo}

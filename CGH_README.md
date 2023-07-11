@@ -14,7 +14,7 @@ Qué tengo:
 Qué me falta:
 
 1. Memorial final (en inglés)
-2. Expertos internacionales: TBD
+2. Expertos internacionales: Kailun y Stephany
 3. Tribunal: TBD
 4. Fecha final de la defensa
 5. Certificado original de Estancia (KIT)

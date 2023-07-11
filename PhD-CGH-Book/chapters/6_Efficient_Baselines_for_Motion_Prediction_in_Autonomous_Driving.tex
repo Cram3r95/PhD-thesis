@@ -46,12 +46,24 @@
 
 As observed in the previous Chapter, our \ac{GAN}-based model (more specifically the generator) was able to compute the deep context regarding the agents past observations, attention-based social interaction and target points as physical context, but the prediction was limited to the unimodal case. In other words, the \ac{GAN}-based model is able to reason more complex interactions and future behaviours than SmartMOT (physics-based prediction), but it lacks one of the main features of a deep learning-based model as a preliminary stage before the local planning or decision-making layers: Multimodality. On top of that, at this point of the thesis the literature was re-visited and despite \acp{GAN}-based approaches \cite{sadeghian2019sophie, dendorfer2020goal, gupta2018social, gomez2022exploring} provide certain control since they are focused on more simple methods framed in an adversarial training, most competitive approaches on \ac{MP} benchmarks in the field of \ac{AD}, such as Argoverse \cite{chang2019argoverse}, NuScenes \cite{caesar2020nuscenes} or Waymo \cite{ettinger2021large}, do not use adversarial training, where the training complexity is one the main reasons.
 
+TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+
+In this paper, following the same principles as recent SOTA methods, we aim to achieve competitive results that ensure reliable predictions, as observed in Fig.~\ref{fig:results_teaser}, yet, using \textbf{light-weight} attention-based models that take as input the past trajectories of each agent, and integrate prior-knowledge about the map easily. The main contributions of our work are as following: 
+
+\begin{itemize}
+	\item (1) Identify a key problem in the size of motion prediction models, with implications in real-time inference and edge-device deployment.
+	\item (2) Propose several efficient baselines for vehicle motion prediction that do not explicitly rely on an exhaustive analysis of the context HD map (either vectorized or rasterized), but on prior map information obtained in a simple preprocessing step, that serves as a guide in the prediction.
+	\item (3) Use fewer parameters and operations (FLOPs) than other SOTA models to achieve competitive performance on Argoverse 1.0~\cite{chang2019argoverse} with lower computational cost.
+\end{itemize} 
+
 \section{Efficient Baselines}
 \label{sec:6_efficient_baselines}
 
 Considering the trade-off between curated input data and complexity, we aim to achieve competitive performance in the \ac{MP} using powerful DL techniques in terms of prediction metrics (\ac{minADE}, \ac{minFDE}), including attention mechanisms and \acp{GNN}, while reducing the number of parameters of operations with respect to other \ac{SOTA} methods. In particular, we propose two baselines, social and map baseline. 
 
 The only inputs for the social baseline are the agent past trajectories and their corresponding interactions. On the other hand, for the map baseline, we propose an extension with respect to our previous target points proposals where, based on a simple-yet-powerful map pre-processing algorithm where the corresponding agent trajectory is initially filtered, the feasible area with which the agent can interact is computed. In spite the fact that topological, semantic and geometric information are involved while computing this area due to road connectivity, we only retrieve the geometric information of the feasible area proposals in an efficient and elegant way. Therefore, our models do not require full-annotated (including, topological, geometric and semantic) HD Map information as input or even rasterized \ac{BEV} representations of the scene to compute the physical context. Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023} illustrates an overview of our final approach. We distinguish three main blocks: 1) \textbf{Encoding module}, which uses plausible HD Map information (specific centerlines and driveable area around) and agents past trajectories to compute the motion and physical latent features, 2) \textbf{Social Attention module}, which calculates the interaction among the different agents and returns the most relevant social features, 3) \textbf{Decoding module}, responsible for calculating the multimodal prediction by means of an auto-regressive strategy concatenating low-level map features and social features as a baseline, as well as iterating over the different latent centerlines for specific physical information per mode.
+
+
 
 \begin{figure}[!h]
 	\centering
@@ -120,7 +132,7 @@ Finally, the updated node feature matrix $\mathbf{SATT}$ is computed as the comb
 	\end{pmatrix}.
 \end{equation}
 
-Where each row of the final social attention matrix $\mathbf{SATT}$ (output of the social attention module, after the GNN and MHSA mechanisms) represents the interaction-aware feature of the agent \textit{i} with surroundings agents, considering the temporal information under the hood, being $\mathbf{W}_\mathrm{o}$ / $\mathbf{b}_\mathrm{o}$ the corresponding weight and bias of the layer that merges the different attention heads. As this model has been developed upon the Argoverse 1 Motion Forecasting benchmark, we \textbf{only consider} the row of the final matrix that takes into account the interactions of the target agent with surrounding obstacles.
+Where each row of the final social attention matrix $\mathbf{SATT}$ (output of the social attention module, after the GNN and MHSA mechanisms) represents the interaction-aware feature of the agent \textit{i} with surroundings agents, considering the temporal information under the hood, being $\mathbf{W}_\mathrm{o}$ / $\mathbf{b}_\mathrm{o}$ the corresponding weight and bias of the layer that merges the different attention heads. As this model has been developed upon the Argoverse 1 Motion Forecasting benchmark, we only consider the row of the final matrix that takes into account the interactions of the target agent with surrounding obstacles.
 
 \subsection{Map Baseline} 
 \label{subsec:6_efficient_baselines_map_baseline}
@@ -157,7 +169,7 @@ As observed, when trying to utilize HD map information, specially in terms of la
 		d(t) = x_0 + vt + \frac{1}{2}at^2
 	\end{equation}
 	
-	where $t$ corresponds to the prediction horizon $t_pred$, $x_0$ is equal to $0$ since we want to determine the travelled distance from the current position and $v$ and $a$ are the velocity and acceleration in the last observation frame previously calculated. Note that we assume that this is a \ac{CTRA} model, instead of only \ac{CA} in a specific direction, since the orientation is implicit in the lane boundaries. That's why it does not make sense to involve the orientation at frame $t=0$ in the travelled distance calculation.
+	where $t$ corresponds to the prediction horizon $pred_{len}$, $x_0$ is equal to $0$ since we want to determine the travelled distance from the current position and $v$ and $a$ are the velocity and acceleration in the last observation frame previously calculated. Note that we assume that this is a \ac{CTRA} model, instead of only \ac{CA} in a specific direction, since the orientation is implicit in the lane boundaries. That's why it does not make sense to involve the orientation at frame $t=0$ in the travelled distance calculation.
 	
 	\item Get all lane candidates within a bubble, given the agent last observation and Manhattan distance.
 	
@@ -171,7 +183,7 @@ As observed, when trying to utilize HD map information, specially in terms of la
 		p \quad \textbf{:} \quad d(obs_{len}) \leq \sum_{p=start_{point}}^{centerline_{length}} \mathcal{L}_2(w(p+1),w(p))
 	\end{equation}
 	
-	\item Finally, in order to have the same points (particularly, the number of points matches the prediction horizon $t_pred$, also referred as $pred_len$) per centerline, we interpolate them using a $1^{st}$ spline order, considering as start point the last agent observation and as end or goal point the aforementioned travelled distance along the corresponding centerline.
+	\item Finally, in order to have the same points (particularly, the number of points matches the prediction horizon $pred_{len}$) per centerline, we interpolate them using a $1^{st}$ spline order, considering as start point the last agent observation and as end or goal point the aforementioned travelled distance along the corresponding centerline.
 	
 	\item Note that if the number of proposed centerlines is lower than a pre-defined number $M$, a virtual centerline is created and padded with zeros.
 \end{enumerate}
@@ -305,15 +317,13 @@ Therefore, our loss function is:
 \subsection{Implementation details}
 \label{subsec:6_implementation_details}
 
-To validate these efficient baselines (social, map and augmented baseline), we use the Argoverse 1 Motion Forecasting, as discussed in Section \ref{subsec:5_dataset}. In terms of evaluation metrics, we evaluate the performance of our models using the standard metrics \ac{ADE} and \ac{FDE}. Unlike the GAN-based model, the output of the models in this Chapter is multimodal, then we generate $k$ outputs (also known as modes) per prediction step and report the metrics for the best out of $k$ outputs, regarding the agent $i$.
+To validate these efficient baselines (social, map and augmented baseline), we use the Argoverse 1 Motion Forecasting, as discussed in Section \ref{subsec:5_dataset}. In terms of evaluation metrics, we evaluate the performance of our models using the standard metrics \ac{ADE} and \ac{FDE}. Unlike the \ac{GAN}-based model, the output of the models in this Chapter is multimodal, then we generate $k$ outputs (also known as modes) per prediction step and report the metrics for the best out of $k$ outputs, regarding the agent $i$.
 
 We report results for $k=1$ (unimodal case, only the mode with the best confidence is considered) and $k=6$ as this is the standard in the Argoverse Motion Forecasting dataset in order to compare with other models.
 
 We train our models to convergence using a single NVIDIA RTX 3090, and validate our results on the official Argoverse 1 validation set~\cite{chang2019argoverse}. We use Adam optimizer with learning rate $0.001$ and default parameters, batch size $1024$ and linear LR Scheduler with factor $0.5$ decay on plateaus. We rotate the whole scene regarding the orientation in the last observation frame of the target agent to align this agent with the positive y-axis. The hidden dimension for the Motion History encoder is 64, where both the hidden state $\mathbf{h_{in}}$ and cell state $\mathbf{c_{in}}$ are initialized with zeros (dim = $128$), whilst the MLP encoder for both the specific centerline and plausible area is 128. Regarding the Social Interaction module, the latent vector of the Crystal-GCN layers is 128 and the number of heads in the MHSA module is $L_h = 4$. In terms of the Autoregressive predictor, the spatial embedding and \textit{dist2centerline} modules encode the past data and distance to the specific centerline using a \textit{window size} of 20. We set the number of plausible centerlines (\textit{M}) as 3, which cover most cases (if less than 3 plausible centerlines are available, we add padded centerlines as vector of zeros). The time tensor is a single number that represents the current timestep, in such a way the LSTM input is \textit{(2 $\times$ window size) + 1 = 41}. The regression head is represented by \textit{k=6} FC layers that map the output latent vector returned by the LSTM to the final output relative displacements (dim = 2, xy). Multimodal predictions are processed by an MLP residual of sizes 60, 60 and 6 with interspersed ReLU activations in order to obtain the corresponding confidences.
 
-\paragraph{Augmentations} 
-
-(i) Dropout and swapping random points from the past trajectory, (ii) point location perturbations under a $\mathcal{N}(0, 0.2)$ [m] noise distribution~\cite{ye2021tpcn}. We also apply the well-known hard-mining technique to improve the model's generalization under difficult scenarios. To perform this technique, once we have the social and map baselines, we perform inference on the training set to find the most difficult scenes in terms of minADE. Then, we mine those scenes such that the baselines models perform poorly, and increase their proportion in the batch during training.
+In terms of data augmentation, we make use of (i) Dropout and swapping random points from the past trajectory, (ii) point location perturbations under a $\mathcal{N}(0, 0.2)$ [m] noise distribution~\cite{ye2021tpcn}. We also apply the well-established hard-mining technique to improve the model generalization under difficult scenarios. To perform this technique, once we have the social and map baselines, we perform inference on the training set to find the most difficult scenes in terms of \ac{minADE}. Then, we mine those scenes such that the baselines models perform poorly, and increase their proportion in the batch during training.
 
 \subsection{Model results}
 \label{subsec:6_model_results}
@@ -537,8 +547,7 @@ In terms of \textbf{efficiency discussion}, to the best of our knowledge, very f
 	\label{table:6_argoverse_1_efficiency_comparison}
 \end{table}
 
-Similar to image classification, where model efficiency depends on its accuracy and parameters/FLOPs, we use the same criteria to compare models. We show the \textbf{efficiency comparison} with other relevant methods in Table \ref{table:6_argoverse_1_efficiency_comparison}. We calculate FLOPs and parameters using a third-party library \footnote{https://github.com/facebookresearch/fvcore}. Some minor operations were not supported, yet, their contributions to the number of FLOPs were residual and ignored. 
-The results for the other methods are consulted from \cite{gilles2021home} \cite{gilles2022gohome} \cite{gao2020vectornet} \cite{he2022multi}. We calculate FLOPs using the relation: $\text{GMACs} \approx 0.5 * \text{GFLOPs}$ using \url{https://github.com/facebookresearch/fvcore}.
+Similar to image classification, where model efficiency depends on its accuracy and parameters/\acp{FLOP}, we use the same criteria to compare models. We show the \textbf{efficiency comparison} with other relevant methods in Table \ref{table:6_argoverse_1_efficiency_comparison}. Some minor operations were not supported, yet, their contributions to the number of \acp{FLOP} were residual and ignored. The results for the other methods are consulted from \cite{gilles2021home} \cite{gilles2022gohome} \cite{gao2020vectornet} \cite{he2022multi}. We calculate \acp{FLOP} (assuming the relation: $\text{GMACs} \approx 0.5 * \text{GFLOPs}$) and parameters using a third-party library \footnote{https://github.com/facebookresearch/fvcore}.
 
 In order to calculate the FLOPs, we follow the common practice \cite{gao2020vectornet} \cite{gu2021densetnt} \cite{gilles2022gohome} of fixing the number of lanes \ie \ the number of centerlines is limited to 3. %, since we focus on the plausible area around the target agent.
 % 40 and 10 the number of lanes (if the method is based on polyline or GNN, not raster) and agents per traffic scenario, respectively.

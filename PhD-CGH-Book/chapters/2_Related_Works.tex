@@ -83,9 +83,9 @@ The output of most existing methods is a weighted set of trajectories $A_F = \{a
 
 where $T(m, a_P, a^O_P)$ is the space of candidate goals depending on the driving context and $\tau$ a specific goal.
 
-However, the map space $m$ is large, and the goal space $T(m, a_P, a^O_P)$ requires careful design. In that sense, some methods expect to accurately predict the actor motion by extracting good features. For example, LaneGCN \cite{liang2020learning} tries to approximate $p(a_F|m, a_P, a^O_P)$ by modeling $p(a_F|M_{a_0}, a_P, a^O_P)$, where $M_{a_0}$ is a "local" map features that is related to the actor's state $a_0$ at final observed step $t=0$.
+However, the map space $m$ is large, and the goal space $T(m, a_P, a^O_P)$ requires careful design. In that sense, some methods expect to accurately predict the actor motion by extracting good features. For example, LaneGCN \cite{liang2020learning} tries to approximate $p(a_F|m, a_P, a^O_P)$ by modeling $p(a_F|M_{a_0}, a_P, a^O_P)$, where $M_{a_0}$ is a \textit{local} map feature that is related to the actor state $a_0$ at final observed step $t=0$.
 
-To extract $M_{a_0}$, they use $a_0$ as an anchor to retrieve its surrounding map elements and aggregate their features. We found that not only the "local" map information is important, but also the goal area maps information is of great importance for accurate trajectory prediction. So, the probability can be reconstructed as:
+To extract $M_{a_0}$, they use $a_0$ as an anchor to retrieve its surrounding map elements and aggregate their features. We found that not only the \textit{local} map information is important, but also the goal area maps information is of great importance for accurate trajectory prediction. So, the probability can be reconstructed as:
 
 \begin{equation}
 	\sum _{\tau}{p(\tau|M_{a_0}, a_P, a^O_P) p(M_{\tau}|m, \tau)p(a_F|M_{\tau},M_{a_0}, a_P, a^O_P)}
@@ -114,7 +114,7 @@ In order to model the future states of surrounding agents, \ac{MP} models must p
 	
 	\item \textbf{Interaction-related factors} include the inter-dependencies and social regulations between agents maneuvers. It is important to consider that traffic agents can be either non-relevant pedestrians on the sidewalk as well as an extremely relevant truck in front of the ego-vehicle.
 	
-	\item \textbf{Road-related factors} include the corresponding traffic rules (lane type, traffic signals, stops, etc.) as well as the modeling of the map (usually HD-map), including its topological, semantic and geometrical information.
+	\item \textbf{Road-related factors} include the corresponding traffic rules (lane type, traffic signals, stops, etc.) as well as the modeling of the map (usually \ac{HDmap}), including its topological, semantic and geometrical information.
 	
 \end{itemize}
 
@@ -400,7 +400,7 @@ The main \ac{DL}-based approaches are: \acp{CNN}, \acp{RNN}, \acp{GAN}, Attentio
 	\end{adjustbox}
 \end{table}
 
-In order to classify \ac{DL} based \ac{MP} methods, we can identify different factors (physics, interaction and road) and determine which type of neural network is employed to extract features of the corresponding input. In the literature we mainly distinguish the following inputs and outputs: Motion history (physics-based factors), Social information (interaction-based factors), Map information (road-relared factors), how the model returns the output trajectory and its corresponding distribution. Table \ref{table:2_dl_related_work_mp} summarizes main \ac{SOTA} methods.
+In order to classify \ac{DL} based \ac{MP} methods, we can identify different factors (physics, interaction and road) and determine which type of neural network is employed to extract features of the corresponding input. In the literature we mainly distinguish the following inputs and outputs: Motion history (physics-based factors), Social information (interaction-based factors), Map information (road-related factors), how the model returns the output trajectory and its corresponding distribution. Table \ref{table:2_dl_related_work_mp} summarizes main \ac{SOTA} methods, inspired in the classification proposed by \cite{varadarajan2022multipath++}. 
 
 \begin{itemize}
 	
@@ -467,7 +467,7 @@ Regarding this, we conclude the best vehicle \ac{MP} datasets in the literature 
 \subsection{Argoverse 1 Motion Forecasting}
 \label{subsec:2_argoverse_1}
 
-The Argoverse 1 Motion Forecasting dataset is a widely used dataset in the field of \ac{AD} for studying and developing algorithms related to \ac{MP}. It includes HD maps and a detailed map API to get the corresponding rasterized or vector information of the map. This dataset is a curated collection of 324,557 scenarios (particularly, 205942 training samples, 39472 validation samples and 78143 test samples). Data was sampled at 10 Hz, where each sample contains the \ac{BEV} position (x,y) of all agents in the scene in the past 2s (20 observed points), the local map, and the labels are the 3s (30 predicted points) future positions of one target agent in the scene. For training and validation, full 5-second trajectories are provided, while for testing, only the first 2 seconds trajectories are given. 
+The Argoverse 1 Motion Forecasting dataset is a widely used dataset in the field of \ac{AD} for studying and developing algorithms related to \ac{MP}. It includes \acp{HDmap} and a detailed map API to get the corresponding rasterized or vector information of the map. This dataset is a curated collection of 324,557 scenarios (particularly, 205942 training samples, 39472 validation samples and 78143 test samples). Data was sampled at 10 Hz, where each sample contains the \ac{BEV} position (x,y) of all agents in the scene in the past 2s (20 observed points), the local map, and the labels are the 3s (30 predicted points) future positions of one target agent in the scene. For training and validation, full 5-second trajectories are provided, while for testing, only the first 2 seconds trajectories are given. 
 
 \begin{table}[!tpbh]
 	\centering
@@ -495,7 +495,7 @@ We have used this dataset to train and validate our algorithms in Chapters \ref{
 \subsection{Argoverse 2 Motion Forecasting}
 \label{subsec:2_argoverse_2}
 
-We have used the Argoverse 2 \cite{wilson2023argoverse} Motion Forecasting dataset to implement and validate our final \ac{MP} included in Chapter \ref{cha:improving_multi_agent}. In the same way than Argoverse 1, Argoverse 2 is a high-quality \ac{MP} dataset where the real driving scenario are paired with the corresponding local HD map. Nevertheless, while Argoverse 1 provides a substantial amount of labeled data, it may still have limitations in capturing the full diversity of real-world driving scenarios. Built upon the success of Argoverse 1, the Argoverse 2 Motion Forecasting dataset provides an updated set of prediction scenarios collected from a self-driving fleet, improving its previous version by spanning +2000 km over six different cities and the traffic scenarios approximately twice longer and more diverse.
+We have used the Argoverse 2 \cite{wilson2023argoverse} Motion Forecasting dataset to implement and validate our final \ac{MP} included in Chapter \ref{cha:improving_multi_agent}. In the same way than Argoverse 1, Argoverse 2 is a high-quality \ac{MP} dataset where the real driving scenario are paired with the corresponding local \ac{HDmap}. Nevertheless, while Argoverse 1 provides a substantial amount of labeled data, it may still have limitations in capturing the full diversity of real-world driving scenarios. Built upon the success of Argoverse 1, the Argoverse 2 Motion Forecasting dataset provides an updated set of prediction scenarios collected from a self-driving fleet, improving its previous version by spanning +2000 km over six different cities and the traffic scenarios approximately twice longer and more diverse.
 
 \begin{comment}
 \begin{figure}[h]
