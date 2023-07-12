@@ -63,22 +63,33 @@ Furthermore, in a similar way to humans that pay more attention to close obstacl
 
 However, these attention mechanisms were not designed to model complex interactions, taking into account that more complex interactions than simple distances and angles should be produced in the context of vehicle forecasting to account for specific behaviours such as following or yielding no more than angles and distances due to the inherent problem of pedestrian prediction. In that sense, GRIP \cite{li2019grip} proposes a graph representation of vehicle neighbours, but takes into account just those local interactions with vehicles that are closer to the target agent than a threshold distance \textit{d}. 
 
-Moreover, \cite{vemula2018social} use a dot product attention module, inspired from the well-established attention mechanism proposed by \cite{vaswani2017attention} for sentence translation. This mechanism allows joint forecast of every vehicle in the observed scenes without spatial limitations. It accounts for long range interactions within a varying number of vehicles and does not require the ordering of the vehicles tracks it takes as input. \cite{vemula2018social} combines this dot product with a spatio-temporal graph representation to take into account temporal and spatial dependencies of the agents, such as their absolute/relative positions and time step movements. \cite{mercat2020multi} present a multi-head extension of this dot attention mechanism, where each agent is embedded by means \acp{LSTM} before computing the dot product attention in order to produce social interactions. We will base our attention mechanism based on the principles proposed by \cite{mercat2020multi}.
+Moreover, \cite{vemula2018social} use a dot product attention module, inspired from the well-established attention mechanism proposed by \cite{vaswani2017attention} for sentence translation. This mechanism allows joint forecast of every vehicle in the observed scenes without spatial limitations. It accounts for long range interactions within a varying number of vehicles and does not require the ordering of the vehicles tracks it takes as input. \cite{vemula2018social} combines this dot product with a spatio-temporal graph representation to take into account temporal and spatial dependencies of the agents, such as their absolute/relative positions and time step movements. In our case, similarly to \cite{mercat2020multi}, we make use of a multi-head extension of this dot attention mechanism, where each agent is embedded by means \acp{LSTM} before computing the dot product attention in order to produce social interactions, allowing a varying number of vehicles and not required a particular order of the agents in the traffic scenario.
 
-In this Chapter we explore the influence of attention mechanisms in generative models, in particular based on \ac{GAN} \cite{goodfellow2020generative}, to carry out the task of uni-modal \ac{MP}. Our model considers both physical context, computing acceptable target points from the driveable area around the target agent, and social context, encoded by a \ac{LSTM}-based Social Feature Extractor and a \acf{MHSA} module. Regarding this the input of our generator, which combines the scene understanding around the agent vehicle (target agent to predict its trajectory) and the corresponding noise vector associated to generative models to compute the trajectories using a \ac{LSTM} decoder, as illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022}. In this context, the discriminator is applied in order to force the generator model to produce more realistic samples (\ie \ trajectories), hence, to improve the performance. 
+In this Chapter we explore the influence of attention mechanisms in generative models, in particular based on \ac{GAN} \cite{goodfellow2020generative}, to carry out the task of uni-modal \ac{MP}. Our model considers both physical context, computing acceptable target points from the driveable area around the target agent, and social context, encoded by a \ac{LSTM}-based Social Feature Extractor and a \acf{MHSA} module. Regarding this the input of our generator is the concatenation of the scene understanding around the target agent vehicle and the corresponding multi-variate noise vector associated to generative models, in order to compute the trajectories using a \ac{LSTM} decoder. In this context, the discriminator is applied in order to force the generator model to produce more realistic samples (\ie \ trajectories), hence, to improve the performance. The work in this Chapter was partially published in the following conference paper \cite{gomez2022exploring}: "Exploring Attention GAN for Vehicle Motion Prediction", 2022 IEEE 25th International Conference on Intelligent Transportation Systems (ITSC), p. 4011-4016. 
+
+Figure \ref{fig:chapter_5_GAN/ITSC_2022} illustrates the overall pipeline. We make the following contributions:
+
+\begin{enumerate}
+	\item We study the influence of the adversarial training in uni-modal vehicle \ac{MP} compared to other proposals. 
+	\item A kinematic-based interpretable way to obtain preliminary target points from the driveable area is proposed.
+	\item We study the influence of the class balance in the dataset during training, particularly focusing on straight and curved target agent trajectories.
+	\item Finally, we provide an \href{https://github.com/Cram3r95/mapfe4mp}{open-source} \footnote{https://github.com/Cram3r95/mapfe4mp} framework for \ac{MP}.
+\end{enumerate}
 
 \section{Attention-based GAN}
 \label{sec:5_attention_gan}
 
-In this work, we aim to develop a model \cite{gomez2022exploring} that can successfully predict plausible future trajectories in the context of vehicle prediction, taking into account not only the past trajectory of the corresponding agent but also the HD map information to compute a set of acceptable target points representing the physical constraints for our problem.
+In this work, we aim to develop a model \cite{gomez2022exploring} that can successfully predict plausible future trajectories in the context of vehicle \ac{MP}, taking into account not only the past trajectory of the corresponding target agent but also the \ac{HDmap} information to compute a set of acceptable target points representing the physical constraints for our problem.
 
-When vehicles drive through a traffic scenario, they usually aim to reach partial goals, depending on their predefined navigation route and scene context (both physical and social), until they finally arrive at their final destination. Formally, given a certain goal, vehicles must face different traffic rules and other agents along their way to reach their final destination. Regarding this, our model computes both the social context and acceptable target points for the corresponding agent given its past trajectory and then generates plausible trajectories towards the estimated goals. As illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022}, our model consists of three main blocks:
+When vehicles drive through a traffic scenario, they usually aim to reach partial goals, depending on their predefined navigation route and scene context (both physical and social), until they finally arrive at their final destination. Formally, given a certain goal, vehicles must face different traffic rules and other agents along their way to reach their final destination. Regarding this, our model computes both the social context and acceptable target points for the corresponding agent given its past trajectory and then generates plausible trajectories towards the estimated goals. Our model consists of three main blocks:
 
 \begin{itemize}
 	
-	\item \textbf{Target Points Extractor}: Combines HD Map information and dynamic features of the target agent (speed and orientation) to generate acceptable target points in the driveable area.
-	\item \textbf{Attention module}: Computes the agents dynamic features recursively by means a \ac{LSTM} unit and capture complex social interactions among agents by means of Multi-Head Self Attention.
-	\item \textbf{\ac{GAN} module}: Given the target points and highlighted social features, this module generates plausible and realistic trajectories using a LSTM based decoder, which represents the generator. Discriminator is applied to enhance the performance of the generator by forcing it to compute more realistic predictions.
+	\item \textbf{Target Points Encoder}: Compute the latent space of some random points extracted from the driveable area. These random points are calculated in advance by combining \ac{HDmap} information and dynamic features of the target agent (speed and orientation) to generate these acceptable goal points (in frame \textit{$pred_{len}$}) in the driveable area.
+	
+	\item \textbf{Social Attention Module}: Computes the agents dynamic features recursively by means a \ac{LSTM} unit and capture complex social interactions among agents by means of the \ac{MHSA} mechanism.
+	
+	\item \textbf{\ac{GAN} module}: Given the target points and highlighted social features, this module generates plausible and realistic trajectories using a \ac{LSTM}-based decoder, which represents the generator. Discriminator is applied to enhance the performance of the generator by forcing it to compute more realistic predictions.
 	
 \end{itemize} 
 
@@ -86,18 +97,18 @@ When vehicles drive through a traffic scenario, they usually aim to reach partia
 	\centering
 	\includegraphics[width=\textwidth]{chapter_5_GAN/ITSC_2022.pdf}
 	%\captionsetup{justification=justified}
-	\caption{Overview of our Attention-based Generative model}
+	\caption{Overview of our Attention-based \ac{GAN} model}
 	\label{fig:chapter_5_GAN/ITSC_2022}
 \end{figure}
 
 Figure \ref{fig:chapter_5_GAN/ITSC_2022} illustrates an overview of our model. Next, we describe the different blocks of our model.
 
-\subsection{Target points extraction}
+\subsection{Target Points Extraction}
 \label{subsec:5_target_points_extraction}
 
-Multiple approaches have tried to predict realistic trajectories by means of learning physically feasible areas as heatmaps or probability distributions of the agent future location \cite{dendorfer2020goal, sadeghian2019sophie, gilles2021home}. These approaches require either a top-view RGB BEV image of the scene, or a HD Map with exhaustive topological, geometric and semantic information (commonly codified as channels). This information is usually encoded using a CNN and fed into the model together with the social agent information \cite{dendorfer2020goal, sadeghian2019sophie, gao2020vectornet}.
+Multiple approaches have tried to predict realistic trajectories by means of learning physically feasible areas as heatmaps or probability distributions of the agent future location \cite{dendorfer2020goal, sadeghian2019sophie, gilles2021home}. These approaches require either a top-view RGB \ac{BEV} image of the scene, or a \ac{HDmap} with exhaustive topological, geometric and semantic information (commonly codified as channels). This information is usually encoded using a \ac{CNN} and fed into the model together with the social agent information \cite{dendorfer2020goal, sadeghian2019sophie, gao2020vectornet}.
 
-In our model, we propose to estimate the range of motion (360º) using a minimal HD Map representation that includes only the feasible area, where we can discretize the feasible area $\mathcal{F}$ (represented by a discrete grid of the \textit{width} x \textit{height} BEV map image where the pixels are driveable) as a subset of $r$ randomly sampled points $\{p_0 , p_1 ... p_r\}$ from such area in the map (easy to extract from a 1-channel binarized HD image) considering the orientation and velocity in the last observation frame for the agent. This step can be considered as pre-processing of the HD Map, therefore the model never sees the HD map image nor the whole graph of nodes. 
+In our model, we propose to estimate the range of motion (360\degree) using a minimal \ac{HDmap} representation that only includes the feasible area $\mathcal{F}$ (\ie \ a 1-channel \ac{BEV} map image with the driveable area of the traffic scenario in white), which can be discretized as a subset of $R$ randomly sampled points $\{p_0 , p_1 ... p_R\}$ from such area in the map (easy to extract from a binarized image) considering the orientation and velocity in the last observation frame for target the agent. This step can be considered as pre-processing of the \ac{HDmap}, therefore the model never sees the HD map image nor the whole graph of nodes. 
 
 \begin{figure}[!ht]
 	\centering
@@ -121,87 +132,217 @@ In our model, we propose to estimate the range of motion (360º) using a minimal
 		\caption{}
 	\end{subfigure}
 	\captionsetup{justification=justified}
-	\caption[Target Points Estimation from the Feasible area process]{Target Points Estimation from the Feasible area process: (a): Agent Past Trajectory (\textcolor{blue}{past observations} and \textcolor{aqua}{ground-truth}), (b) Feasible area discretization (random points in the driveable area), (c) Non-holonomic-based dynamic filter (both angle and velocity), (d) Multimodal clustering to get the final proposals}
+	\caption[Target Points Estimation from the Feasible area process]{Target Points Estimation from the Feasible area process: (a): Agent Past Trajectory (\textbf{\textcolor{blue}{past observations}} and \textbf{\textcolor{aqua}{ground-truth}}), (b) Feasible area discretization (\textbf{\textcolor{purple}{random points}} in the driveable area), (c) Non-holonomic-based dynamic filter (both angle and velocity), (d) K-means clustering to get the final proposals}
 	\label{fig:chapter_5_GAN/target_points_extraction}
 \end{figure}
 
-Figure \ref{fig:chapter_5_GAN/target_points_extraction} summarizes step-by-step the whole process. First, we calculate the driveable area (white area in Figure \ref{fig:chapter_5_GAN/target_points_extraction}) around the vehicle considering a hand-defined \textit{d} threshold.
+Figure \ref{fig:chapter_5_GAN/target_points_extraction} summarizes step-by-step the whole process.
 
-Then, we consider the dynamic features of the agent of interest in the last observation frame $t_{obs}$ to compute acceptable target points in local coordinates. As we will detail in future sections, the Argoverse 1 Motion Forecasting dataset focuses on estimating the future prediction of a particular target agent. On top of that, the aforementioned dynamic features (orientation and velocity) are not provided, in such a way they must be calculated. Since the trajectory data are noisy with tracking errors, as expected from a real-world dataset, simply interpolating the coordinates between consecutive time steps, assuming constant frequency, results in noisy estimation. Then, in order to estimate the orientation and velocity of the target agent in the last observation frame $t_{obs}$, we compute a vector for each feature given:
+\begin{itemize}
+	
+	\item First, we calculate the driveable area (white area in Figure \ref{fig:chapter_5_GAN/target_points_extraction}) around the vehicle considering a hand-defined \textit{d} threshold.
+	
+	\item Then, we consider the dynamic features of the agent of interest in the last observation frame $obs_{len}$ to compute acceptable target points in local coordinates. As we will detail in future sections, the Argoverse 1 Motion Forecasting dataset focuses on estimating the future prediction of a particular target agent. On top of that, the aforementioned dynamic features (orientation and velocity) are not provided, in such a way they must be calculated. Since the trajectory data are noisy with tracking errors, as expected from a real-world dataset, simply interpolating the coordinates between consecutive time steps, assuming constant frequency, results in noisy estimation. Then, in order to estimate the orientation and velocity of the target agent in the last observation frame $obs_{len}$, we compute a vector for each feature given:
+	
+	\begin{equation}
+		\begin{split}
+			\theta_{i}=\arctan{(\frac{y_{i}-y_{i-1}}{x_{i}-x_{i-1}})} \\
+			v_{i}=\frac{X_{i}-X_{i-1}}{t_{i}-t_{i-1}} 
+		\end{split}
+	\end{equation}
+	
+	where $X_{i}$ represents the 2D position of the agent at each observed frame $i$ as state above.
+	
+	\item Once both vectors are computed, we obtain a smooth estimation as proposed by \cite{tang2021exploring} of the heading angle (orientation) and velocity by assigning less importance (higher forgetting factor) to the first observations, in such a way the immediate ones are the key states to determine the current spatio-temporal variables of the agent, as depicted in Equation \ref{eq:5_dynamic_feats_last_observation_frame} (which applies to both the velocity and orientation vector):
+	
+	\begin{equation}
+		\hat{\psi}_{obs_{len}} = \frac{(\hat{\psi}_{\theta}, \hat{\psi}_v)_{obs_{len}} = \sum_{t=0}^{obs_{len}}\lambda^{obs_{len} - t}\psi_t}{obs_{len}}
+		\label{eq:5_dynamic_feats_last_observation_frame}
+	\end{equation}
+	
+	where $obs_{len}$ is the number of observed frames, $\psi_t$ is the estimated orientation/velocity at the $t_{i}$ frame and $\lambda\in(0, 1)$ is the forgetting factor. After estimating the velocity and orientation in the last observation frame, we calculate the range of motion around the target agent as a circle with radius: $H * \psi_{v}$ where $\psi_{v}$ is the estimated velocity using Equation \ref{eq:5_dynamic_feats_last_observation_frame} and $H=3$ is the time horizon of 3s. After that, we randomly sample $R$ points $r \in \mathcal{F}$ in this range considering a constant velocity model during the prediction horizon and the estimated orientation, assuming non-holonomic constraints \cite{triggs1993motion}, which are inherent of standard road vehicles, that is, the car has three degrees of freedom, its position in two axes and its orientation, and must follow a smooth trajectory in a short-mid term prediction.
+	
+	\item Finally, we estimate $k$ target points (one per mode required in the future prediction) using the well-known K-means \cite{ahmed2020k} clustering algorithm. This clustering method aims to partition $N$ observations into $K$ clusters in which each observation belongs to the cluster with the nearest mean (cluster centers or cluster centroid), serving as a prototype of the cluster. In this particular model, we focus on uni-modal prediction, that is, the model must reason the most plausible future trajectory based on the agents past observations, attention-based social interaction and target points as physical context.
+	
+\end{itemize}
+  
+As observed, this representation not only reunites information about the feasible area around the agent, but also represents potential target points \cite{dendorfer2020goal} (\ie \ potential destinations or end-of-trajectory points for the agents). Moreover, this information is \textit{"cheap"} and \textit{interpretable}, therefore, we do not need further exhaustive annotations from the \ac{HDmap} in comparison with other methods like HOME \cite{gilles2021home}, which gets as input a 45-channel encoded map \cite{gilles2021home}.
 
-\begin{equation}
-	\begin{split}
-		\theta_{i}=\arctan{(\frac{y_{i}-y_{i-1}}{x_{i}-x_{i-1}})} \\
-		v_{i}=\frac{X_{i}-X_{i-1}}{t_{i}-t_{i-1}} 
-	\end{split}
-\end{equation}
- 
-where $X_{i}$ represents the 2D position of the agent at each observed frame $i$ as state above. Once both vectors are computed, we obtain a smooth estimation as proposed by \cite{tang2021exploring} of the heading angle (orientation) and velocity by assigning less importance (higher forgetting factor) to the first observations, in such a way immediate observations are the key states to determine the current spatio-temporal variables of the agent, as depicted in Equation \ref{eq:5_dynamic_feats_last_observation_frame}, which applies to both the orientation and velocity vector: 
+After these target points are obtained, we compute the deep features by means of a standard \ac{MLP}, which will be concatenated to the social context and Gaussian vector to generate more realistic trajectories, as observed in Figure \ref{fig:chapter_5_GAN/ITSC_2022}.
 
-\begin{equation}
-	\hat{\psi}_{T_h} = \sum_{t=0}^{T_h}\lambda^{T_h - t}\psi_t
-	\label{eq:5_dynamic_feats_last_observation_frame}
-\end{equation}
-
-where $T_h$ is the number of observed frames, $\psi_t$ is the estimated orientation/velocity at the $t_{i}$ frame, $\lambda\in(0, 1)$ is the forgetting factor, and $\hat{\psi}_{t_obs}$ is the smoothed orientation/velocity estimation at the last observed frame. After estimating these variables, we calculate the range of motion around the target agent as a circle with radius: $H * \psi_{v}$ where $\psi_{v}$ is the estimated velocity using Equation \ref{eq:5_dynamic_feats_last_observation_frame} and $H=3$ is the time-horizon of 3s. After that, we randomly sample $r$ points $p \in \mathcal{F}$ in this range considering a constant velocity model during the prediction horizon and the estimated orientation, assuming non-holonomic constraints \cite{triggs1993motion}, which are inherent of standard road vehicles, that is, the car has three degrees of freedom, its position in two axes and its orientation, and must follow a smooth trajectory in a short-mid term prediction. Finally, we estimate $k$ target points (one per mode required in the future prediction) by means of the k-means \cite{ahmed2020k} clustering algorithm. 
-
-This clustering method, originally from signal processing, that aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest mean (cluster centers or cluster centroid), serving as a prototype of the cluster. In this particular model, we focus on unimodal prediction, that is, the model must reason the most plausible future trajectory based on the agents past observations, attention-based social interaction and target points as physical context.
-
-This representation not only reunites information about the feasible area around the agent, but also represents potential target points \cite{dendorfer2020goal} (\ie \ potential destinations or end-of-trajectory points for the agents). Moreover, this information is \textit{"cheap"} and \textit{interpretable}, therefore, we do not need further exhaustive annotations from the HD Map in comparison with other methods like HOME, which gets as input a 45-channel encoded map \cite{gilles2021home}.
-
-We concatenate this information, as 2D vector $\mathcal{V}$, together with the model social context features to generate more realistic trajectories (see Figure \ref{fig:chapter_5_GAN/ITSC_2022}).
-
-\subsection{Attention module}
+\subsection{Social Attention Module}
 \label{subsec:5_attention_module}
 
-Multiple methods \cite{liang2020learning, schmidt2022crat} consider only the vehicles that are observable at \textit{t=0}, handling those agents that are not observed over the full sequence spectrum (observation length = \textit{$obs_{len}$} + prediction length = \textit{$pred_{len}$}) by concatenating a binary flag $b_i^t$ that indicates if the agent is padded or not. 
+Multiple methods \cite{liang2020learning, schmidt2022crat} consider only the agents that are observable at \textit{t=0}, handling those that are not observed over the full sequence spectrum (observation length = \textit{$obs_{len}$} + prediction length = \textit{$pred_{len}$}) by concatenating a binary flag $b_i^t$ that indicates if the agent is padded or not. 
 
-In our case, we consider the agents that have information over the full history horizon $T_h$ = \textit{$obs_{len}$} + \textit{$pred_{len}$} (\eg \ 5s timeframe for Argoverse) as relevant agents, reducing the number of agents to be considered in complex traffic scenarios. Nevertheless, instead of using the past $obs_len$ observations in map (global) coordinates for each agent marked as relevant, we transform to local (relative) coordinates by substracting the last observation of the target agent (considered as the origin of the scene) to the past trajectory of an agent to make the model translation-invariant given the local coordinates the scene. Then of using absolute 2D-BEV (\textit{xy} plane), the input for the agent \textit{i} is a series of relative displacements:
-
-\begin{equation}
-	\Delta \boldsymbol{\nu}^{t}_i = \boldsymbol{\nu}^{t}_i - \boldsymbol{\nu}^{t-1}_i
-\end{equation}
-
-Where $\boldsymbol{\nu}^{t}_i$ represents the state vector (in this case, \textit{xy} position of the agent \textit{i} at timestamp \textit{t}. % Once these displacements vectors are computed for each agent of the scenario, we embed them into a higher dimensional vector with a \ac{MLP}, which serves as input of the \ac{LSTM} unit, used as dynamic feature extractor to capture the speed and direction of the corresponding agent. Then, the hidden state of the LSTM ($h_{M\!E}$) is used by the MHSA module that learns complex social interactions while being invariant to their number and ordering, avoiding a fixed size ($N_{\text{max}}$ agents) list which would be sensitive to small variants in the agent positions.
-
-Unlike other methods, we do not limit nor fix the number of agents per sequence. Given the relative displacements of all different agents, we model the past motion history by means of a single \ac{LSTM} (Social Feature Extractor in Figure \ref{fig:chapter_5_GAN/ITSC_2022}) is used to compute the temporal information of each agent in the sequence:
+In our case, we consider the $N_{agents}$ that have information over the full history horizon (\eg \ $5s = 2s (observation time) + 3s (predictions time)$ for Argoverse 1) as relevant agents, reducing the number to be considered in complex traffic scenarios. Nevertheless, instead of using the past $obs_{len}$ observations in map (global) coordinates for each agent marked as relevant, we transform to local (relative) coordinates by substracting the last observation of the target agent (considered as the origin of the scene) to the past trajectory of an agent to make the model translation-invariant given the local coordinates the scene. Then of using absolute 2D-\ac{BEV} (\textit{xy} plane), the input for the agent \textit{n} is a series of relative displacements:
 
 \begin{equation}
-	out, \mathbf{h_{out}}, \mathbf{c_{out}} = \mathrm{LSTM}(\Delta \boldsymbol{\nu}^{obs_{len}}, \mathbf{h_{in}}, \mathbf{c_{in}})
+	\Delta \nu^{t}_n = \nu^{t}_n - \nu^{t-1}_n
 \end{equation}
 
-This \ac{LSTM}-based encoder shares the weights for all vehicles in the batch. The input hidden and cell vectors ($\mathbf{h_{in}}, \mathbf{c_{in}}$) are initialized with a tensor of zeros. $\Delta \boldsymbol{\nu}^{obs_{len}}$ represents the relative displacements over the whole past observations $obs_{len}$.
+Where $\nu^{t}_n$ represents the state vector (in this case, \textit{xy} position of the agent \textit{i} at timestamp \textit{t}. % Once these displacements vectors are computed for each agent of the scenario, we embed them into a higher dimensional vector with a \ac{MLP}, which serves as input of the \ac{LSTM} unit, used as dynamic feature extractor to capture the speed and direction of the corresponding agent. Then, the hidden state of the LSTM ($h_{M\!E}$) is used by the MHSA module that learns complex social interactions while being invariant to their number and ordering, avoiding a fixed size ($N_{\text{max}}$ agents) list which would be sensitive to small variants in the agent positions.
 
-Then, after computing the social hidden state of each relevant agent in the traffic scenario, we aim to learn complex social interactions, where each agent of the scene should pay attention to specific features around it, while being invariant to their number and ordering, avoiding a fixed size ($N_{\text{max}}$ agents) list which would be sensitive to small variants in the agent positions.
+Unlike other methods, we do not limit nor fix the number of agents per sequence. Given the relative displacements of all different agents, we model their past motion history by means of a single \ac{LSTM} (Trajectory Encoder in Figure \ref{fig:chapter_5_GAN/ITSC_2022}), which is used to compute the temporal information of each agent in the sequence:
 
-To this end, we make use of a \ac{MHSA} module consists of several heads that given the encoded trajectories produces feature vectors that encode all pairwise relations among agents information, where the input (key, query, value) is the hidden vector ($\mathbf{h_{out}}$) of the previous Social Feature Extractor. The \ac{MHSA} module consists of several heads that given the encoded trajectories produces feature vectors that encode all pairwise relations among agents information, as stated in Chapter \ref{cha:theoretical_background}. %Implementation details are specified in Chapter \ref{sec:5_motion_prediction_datasets}.
+\begin{equation}
+	out, h_{out}, c_{out} = LSTM(\Delta \nu^{obs_{len}}, h_{in}, c_{in})
+\end{equation}
+
+This \ac{LSTM}-based encoder shares the weights for all vehicles in the batch. The input hidden and cell vectors ($h_{in}, c_{in}$) are initialized with a tensor of zeros. $\Delta \nu^{obs_{len}}$ represents the relative displacements vector over the past observations. Then, we consider the hidden vector $h_{out}$ as the latent past information of the relevant $n-th$ in the traffic scenario.
+
+After computing the social information for each agent, we aim to learn complex social interactions, where each agent of the scene should pay attention to specific features around it, while being invariant to their number and ordering. Since we want to avoid a fixed size ($N_{\text{max}}$ agents) list of agents, which would be sensitive to small variants in the agent positions, we make use of the well-established \acf{MHSA} mechanism \cite{vaswani2017attention} (particularly, the scaled dot-product variant, as proposed by \cite{mercat2020multi}) which is applied to the matrix made up by the concatenation of the hidden state vector of all relevant agents in the traffic scenario.
+
+The \ac{MHSA} mechanism allows vehicle interactions while keeping independence from their number
+and ordering. The computations made by each attention head is represented in Figure \ref{fig:5_mhsa_vehicles}.
+
+\begin{figure}[ht]
+	\centering
+	\vspace{5pt}
+	\begin{tikzpicture}[scale=0.8, every node/.style={scale=0.8}]
+		\node(X1){vehicle$_1$};
+		\node[below of=X1, node distance=2cm](X2){$\vdots$};
+		\node[below of=X2, node distance=2cm](X3){vehicle$_{N_{\text{agents}}}$};
+		
+		\coordinate[right of= X1, node distance=1cm](X1b){};
+		
+		\draw (X1) -- (X1b);
+		
+		\node[draw, right of=X1b, node distance=1cm](LQ1){$L_{q}$};
+		\node[draw, above of=LQ1, node distance=1cm](LV1){$L_{v}$};
+		\node[draw, below of=LQ1, node distance=1cm](LK1){$L_{k}$};
+		
+		\draw (X1b) -- (LV1);
+		\draw (X1b) -- (LQ1);
+		\draw (X1b) -- (LK1);
+		
+		\node[right of=LV1, node distance=1cm](V1){$\mathbf{v}_1$};
+		\node[right of=LQ1, node distance=1cm](Q1){$\mathbf{q}_1$};
+		\node[right of=LK1, node distance=1cm](K1){$\mathbf{k}_1$};
+		
+		\draw (LV1) -- (V1);
+		\draw (LQ1) -- (Q1);
+		\draw (LK1) -- (K1);
+		
+		
+		\coordinate[right of= X3, node distance=1cm](X3b){};
+		
+		\draw (X3) -- (X3b);
+		
+		\node[draw, right of=X3b, node distance=1cm](LQ3){$L_{q}$};
+		\node[draw, above of=LQ3, node distance=1cm](LV3){$L_{v}$};
+		\node[draw, below of=LQ3, node distance=1cm](LK3){$L_{ k}$};
+		
+		\draw (X3b) -- (LV3);
+		\draw (X3b) -- (LQ3);
+		\draw (X3b) -- (LK3);
+		
+		\node[right of=LV3, node distance=1cm](V3){$\mathbf{v}_{N_{\text{agents}}}$};
+		\node[right of=LQ3, node distance=1cm](Q3){$\mathbf{q}_{N_{\text{agents}}}$};
+		\node[right of=LK3, node distance=1cm](K3){$\mathbf{k}_{N_{\text{agents}}}$};
+		
+		\draw (LV3) -- (V3);
+		\draw (LQ3) -- (Q3);
+		\draw (LK3) -- (K3);
+		
+		\coordinate[right of=V1, node distance=0.3cm](TOP){};
+		\coordinate[right of=K3, node distance=0.3cm](BOT){};
+		\draw[decorate,decoration={brace}] (TOP) -- node[left=5pt]{} (BOT);
+		
+		\node[right of=X2, text width=3cm, node distance=4.5cm](EQ){\footnotesize \[ V = \left( \begin{matrix}
+				\mathbf{v}_1 \\
+				\vdots \\
+				\mathbf{v}_{N_{\text{agents}}}
+			\end{matrix}\right) \]
+			\\
+			\footnotesize \[ Q = \left( \begin{matrix}
+				\mathbf{q}_1 \\
+				\vdots \\
+				\mathbf{q}_{N_{\text{agents}}}
+			\end{matrix} \right)\]
+			\\
+			\footnotesize \[K = \left( \begin{matrix}
+				\mathbf{k}_1 \\
+				\vdots \\
+				\mathbf{k}_{N_{\text{agents}}}
+			\end{matrix} \right)\]
+		};
+		
+		\node[right of=EQ, node distance=1.5cm, rotate=90](EQ2){
+			\footnotesize $\text{output}=\underset{\text{dim=last}}{\operatorname{Softmax}}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$};
+		
+		\coordinate[right of =EQ2, node distance=1cm](CO2){};
+		\coordinate[above of=CO2, node distance=2cm](CO1){};
+		\coordinate[below of=CO2, node distance=2cm](CO3){};
+		
+		\node[right of=CO2, node distance=1cm](O2){$\vdots$};
+		\node[right of=CO1, node distance=1cm](O1){output$_1$};
+		\node[right of=CO3, node distance=1cm](O3){output$_{N_{\text{agents}}}$};
+		
+		\draw (CO1) -- (O1);
+		\draw (CO3) -- (O3);
+		
+		\draw[decorate,decoration={brace, mirror}, xshift=-2cm] (CO1) -- node[left=15pt]{} (CO3);
+		
+	\end{tikzpicture}
+	\caption{Single attention head computations.
+		Blocks $L_{q}$, $L_{v}$, $L_{k}$ are matrix multiplications of the input vectors.}
+	\label{fig:5_mhsa_vehicles}
+	\vspace{-10pt}
+\end{figure}
+
+Each agent should pay attention to specific features from a selection of the other agents. This is made with four steps: pulling together specific features, identifying these feature collections, enquiring among identifiers, and gathering the results.
+
+In the \ac{MHSA} mechanism, each head produces a different selection of features using a linear projection of the input tensor resulting in the value tensor $V$. In order to identify these features, a key tensor $K$ is associated to each value. Then, each agent must select which other agents to pay attention to. For that purpose, a query $Q$ is produced to find a selection of keys. As aforementioned, we make use of the scaled-dot product version of the \ac{MHSA} mechanism, where the match score between a key and a query is their dot product, it is scaled with the square root of the key dimension $\sqrt{d_k}$ and normalized with a softmax operation. This produces an attention matrix that contains coefficients close to $1$ for matching queries and keys and close to $0$ otherwise.
+
+Regarding this, the attention matrix is square of size $N_{agents}$, where each coefficient $(i, j)$ is the attention coefficient of vehicle $i$ on vehicle $j$. Hence, this matrix is used to gather the values from $V$. Thus, the self-attention computation for each head can be expressed as following:
+
+\begin{equation}
+	\text{output}=\underbrace{\underset{\text{dim}=\text{last}}{\operatorname{softmax}}\left(\frac{QK^T}{\sqrt{d_k}}\right)}_{\text{attention matrix}}V
+	\label{eq:5_self_attention_single_head}
+\end{equation}
+
+Finally, the social attention matrix $SATT$ is computed as the combination of $L_h$ different attention heads in a single matrix:
+
+\begin{equation}
+	\mathbf{SATT} = (head_1 || \dots || head_{L_h}) W_\mathrm{o} + 
+	\begin{pmatrix}
+		b_\mathrm{o}\\
+		\vdots \\
+		b_\mathrm{o}
+	\end{pmatrix}.
+\end{equation}
+
+Where each row of the matrix $SATT$ (output of the Social Attention Module, after the \ac{LSTM} and \ac{MHSA} mechanisms) represents the interaction-aware feature of the \textit{n-th} agent with its surroundings agents, considering the temporal information under the hood, being $W_\mathrm{o}$ / $b_\mathrm{o}$ the corresponding weight and bias of the layer that merges the different attention heads.
+
+As this model has been developed upon the Argoverse 1 Motion Forecasting benchmark, we only consider the row of the final matrix that takes into account the interactions of the target agent with its surrounding obstacles.
 
 \subsection{GAN module}
 \label{subsec:5_gan_module}
 
-To capture the stochastic nature of motion prediction, state-of-the-art methods leverage the power of generative models, such as Variational Autoencoders (VAEs) and Generative Adversarial Networks (GANs). In our work we use an adversarial framework in order to train our trajectory generator, responsible for generating physically and realistic feasible trajectories. In a GAN, the Generator (which after being trained will be the inference network) and Discriminator networks compete in a two-player min-max game \cite{goodfellow2020generative}, as observed in Equation \ref{eq:4_min_max_game}. While the generator aims at producing feasible trajectories, the discriminator learns to differentiate between fake and real samples, in other words, ground-truth (which are feasible by definition) and inferred trajectories, in such a way the tasks of the discriminator is to enhance the performance of the generator by forcing it to compute more realistic predictions, more and more similar to the ground-truth trajectory. As a result, the generator should be able to produce outputs which the discriminator cannot discriminate clearly, indicating that the output is realistic. 
+To capture the stochastic nature of motion prediction, state-of-the-art methods leverage the power of generative models, such as Variational Autoencoders (VAEs) and \acf{GAN}. In our work we use an adversarial framework in order to train our trajectory generator, responsible for generating physically and realistic feasible trajectories. In a \ac{GAN}, the Generator (which after being trained will be the inference network) and Discriminator networks compete in a two-player min-max game \cite{goodfellow2020generative}, as observed in Equation \ref{eq:5_min_max_game}. While the generator aims at producing feasible trajectories, the discriminator learns to differentiate between fake and real samples, in other words, ground-truth (which are feasible by definition) and inferred trajectories, in such a way the tasks of the discriminator is to enhance the performance of the generator by forcing it to compute more realistic predictions, more and more similar to the ground-truth trajectory. As a result, the generator should be able to produce outputs which the discriminator cannot discriminate clearly, indicating that the output is realistic. 
 
 \begin{eqnarray}
-	\label{eq:4_min_max_game}
+	\label{eq:5_min_max_game}
 	&&\hspace{-10mm} \min_{Gen} \max_{Dis} V(Dis, Gen)=E_{X \sim p_{data}(X)}[\mbox{log} Dis(X,Y)] \nonumber \\
 	&&\hspace{15mm} + E_{z \sim p_z(z)}[\mbox{log} (1 - Dis(X, Gen(X,z)))],
 \end{eqnarray}
 
-In the present case, the generator, also identified as the routing module, is represented by a decoder LSTM  ($LSTM_{gen}$) and the discriminator by a classifier LSTM ($LSTM_{dis}$) so as to estimate the temporally dependent future states. Similar to the conditional GAN proposed by \cite{sadeghian2019sophie}, the input to our generator is a concatenation of a noise vector $z$ sampled from a multi-variate normal distribution, being the physical context (goal points in relative coordinates in the last observation frame, $C_{Ph(i)}^{t_{obs}}$) and social context (interactions among agents, $C_{So(i)}^{1:t_{obs}}$) its conditions. Then, the generated future trajectory for a particular agent is modelled as Equation \ref{eq:4_gen_dec}:
+In the present case, the generator is represented by a \ac{LSTM}-based decoder ($LSTM_{gen}$) and the discriminator by a \ac{LSTM}-based encoder + \ac{MLP} classifier  ($LSTM_{dis}$) so as to estimate the temporally dependent future states. Similar to the \ac{cGAN} proposed by \cite{sadeghian2019sophie}, the input to our generator is a concatenation of a noise vector $z$ sampled from a multi-variate normal distribution, being the physical context (goal points in relative coordinates in the last observation frame, $C_{Ph(i)}^{t_{obs}}$) and social context (interactions among agents, $C_{So(i)}^{1:t_{obs}}$) its conditions. Then, the generated future trajectory ($pred_{len}$ steps) for a particular agent is modelled as Equation \ref{eq:5_gen_dec}:
 
 \begin{eqnarray}
-	\label{eq:4_gen_dec}
+	\label{eq:5_gen_dec}
 	& \hat{Y}_i^{t_{obs}:t_{pred}} = LSTM_{gen}\big(C_{Ph(i)}^{t_{obs}}; C_{So(i)}^{1:t_{obs}}; z\big)
 \end{eqnarray}
 
-On the other hand, the input of the discriminator is a randomly chosen trajectory sample from the either predicted future trajectory or ground-truth for the corresponding agent up to $t = t_{obs} + t_{pred}$ frame, i.e.  $T_i^{t_{obs}:t_{pred}}\sim p(\hat{Y}_i^{t_{obs}:t_{pred}},Y_i^{t_{obs}:t_{pred}})$.
+On the other hand, the input trajectory $T_i^{t_{obs}:t_{pred}}$ to the discriminator is a randomly chosen future trajectory sample either from the predicted trajectory computed by the generator or the ground-truth for the corresponding agent up to $t = t_{obs} + t_{pred}$ frame, \ie \ $T_i^{t_{obs}:t_{pred}}\sim p(\hat{Y}_i^{t_{obs}:t_{pred}},Y_i^{t_{obs}:t_{pred}})$, as illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022} with the \textit{MUX} block.
 
 \begin{eqnarray}
-	\label{eq:4_dis}
+	\label{eq:5_dis}
 	\hat{L}_{i}^{t_{obs}:t_{pred}} = LSTM_{dis}(T_i^{t_{obs}:t_{pred}})
 \end{eqnarray}
 
-Then, the discriminator returns a label $\hat{L}_{i}^{t_{obs}:t_{pred}}$ for the chosen trajectory indicating whether the trajectory is ground-truth (real) $Y_i^{t_{obs}:t_{pred}}$ or predicted (fake) $\hat{Y}_i^{t_{obs}:t_{pred}}$, being the labels 0 and 1 for fake and real trajectories respectively. Equation \ref{eq:4_dis} summarizes the discriminator working principles. 
+After encoding this trajectory, a \ac{MLP} module and softmax operation returns a label $\hat{L}_{i}^{t_{obs}:t_{pred}}$ for the chosen trajectory indicating whether the trajectory is ground-truth (real) $Y_i^{t_{obs}:t_{pred}}$ or predicted (fake) $\hat{Y}_i^{t_{obs}:t_{pred}}$, being the labels $0$ and $1$ for fake and real trajectories respectively. Equation \ref{eq:5_dis} summarizes the discriminator working principles. 
 
 \subsection{Losses}
 \label{subsec:5_losses}
@@ -215,7 +356,7 @@ To train our \ac{GAN}-based model, we use the following losses:
 	\lambda_{FDE} \mathcal{L}_{FDE}(\hat{Y}_i^{t_{obs}+t_{pred}},Y_i^{t_{obs}+t_{pred}})],
 \end{eqnarray}
 %
-where $W$ is the collection of the weights of all networks used in our model and the different $\lambda$ represent the corresponding regularizers between these losses. As stated in Equation \ref{eq:4_min_max_game}, $\mathcal{L}_{GAN}$ represents the min-max game where the generator tries to minimize the function while the discriminator tries to maximize it. ADE loss function is commonly used to compute the average error between the predicted trajectories and the corresponding ground-truth. Moreover, we add FDE loss function to explicitly optimize the distribution towards the final real point.
+where $W$ is the collection of weights of all networks used in our model and the different $\lambda$ represent the corresponding regularizers between these losses. As stated in Equation \ref{eq:4_min_max_game}, $\mathcal{L}_{GAN}$ represents the min-max game where the generator tries to minimize the function while the discriminator tries to maximize it. $\mathcal{L}_{ADE}$ loss function is commonly used to compute the average error between the predicted trajectories and the corresponding ground-truth. Moreover, we add $\mathcal{L}_{ADE}$ loss function to explicitly optimize the distribution towards the final real point computing its $\mathcal{L}_2$ error.
 
 \section{Experimental Results}
 \label{sec:5_experimental_results}
@@ -225,26 +366,30 @@ where $W$ is the collection of the weights of all networks used in our model and
 
 We evaluate this model on the well-established and public available Argoverse 1 Motion Forecasting dataset \cite{chang2019argoverse}, including the training, validation and testing subsets from its official website \cite{argobench}. 
 
-As stated in Section \ref{subsec:2_argoverse_1}, it consists of 205942 training samples, 39472 validation samples and 78143 test samples. Each sample has a length of 5 seconds, with an observation window of 2 seconds and a prediction window of 3 seconds, including the corresponding labels of the agents ($AGENT$, as the target agent, $AV$, the vehicle that captures the scene and $OTHER$, representing the remaining relevant obstacles) and a global map from the cities of Pittsburgh and Miami. The sampling frequency is $10\mathrm{Hz}$. The main goal here is to predict the 3s future position of the target agent in the scene, which is supposed to be the vehicle that faces the most challenging traffic scenarios.
+As stated in Chapter \ref{cha:related_works}, it consists of 205942 training samples, 39472 validation samples and 78143 test samples. Each sample has a length of 5 seconds, with an observation window of 2 seconds and a prediction window of 3 seconds, including the corresponding labels of the agents ($AGENT$, as the target agent, $AV$, the vehicle that captures the scene and $OTHER$, representing the remaining relevant obstacles) and a global map from the cities of Pittsburgh and Miami. The sampling frequency is $10\mathrm{Hz}$. The main goal here is to predict the 3s future position of the target agent in the scene, which is supposed to be the vehicle that faces the most challenging traffic scenarios.
 
 \subsection{Metrics}
 \label{subsec:5_metrics}
 
-Previous works \cite{chai2019multipath, mercat2020multi, sadeghian2019sophie} report the minimum Average Displacement Error ($\text{minADE}_K$), which averages the $L2$ distances between the ground truth and predicted output across all timesteps and minimum Final Displacement error ($\text{FDE}_K$), which computes the $L_{2}$ distance between the final points of the ground-truth and the predicted final position, taking the best $K$ trajectory sample of each agent compared to the ground truth. In this model, since we do not focus on multimodal prediction but on the predicting the most plausible unimodal trajectory, we use $K$ = 1 (unimodal case).
+Previous works \cite{chai2019multipath, mercat2020multi, sadeghian2019sophie} report the \ac{minADE} ($\text{minADE}_K$), which averages the $\mathcal{L}_2$ distances between the ground-truth and predicted trajectory across all timesteps and \ac{minFDE} ($\text{FDE}_K$), which computes the $\mathcal{L}_2$ distance between the final points of the ground-truth and the predicted final position, taking the best $K$ trajectory sample of each agent compared to the ground-truth. In this model, since we do not focus on multi-modal prediction but on the predicting the most plausible uni-modal trajectory, we use $K$ = 1 (uni-modal case).
 
 \subsection{Implementation details}
 \label{subsec:5_implementation_details}
 
-All local test were conducted in a PC desktop (AMD Ryzen 9 5900X, 32GB RAM with CUDA-based NVIDIA GeForce RTX 3090 24GB VRAM, Ubuntu 18.04).
+All local test were conducted in a PC desktop (AMD Ryzen 9 5900X, 32GB RAM with \ac{CUDA}-based NVIDIA GeForce RTX 3090 24GB VRAM, Ubuntu 18.04).
 
-We design our dataloader to sample in each batch a 30/70 proportion of straight and curved trajectories (regarding the target agent whole trajectory). We classify a trajectory as straight or curve estimating a first degree trajectory by means the RANSAC algorithm with the highest number of inliers (tolerance $t$ set to 2m, max trials=30, min samples=60 \% total observations). Then, if the actual trajectory presents 20 \% or more consecutive points further than $t$ with respect to the closest point of the fitted trajectory, the whole sequence is labelled as curve. We do this to focus in the training process in non-linear prediction, which represents one the key challenges in vehicle motion prediction. 
+Regarding the ablation study, we train the different models for 150 epochs using the \ac{ADAM} optimizer with learning rate $0.001$ and default parameters, linear learning rate scheduler with factor $0.5$ decay on plateaus (every 5k iterations) and batch size $64$. The loss function is weighted by setting $\lambda_{gan}$=1.4, $\lambda_{ade}$=1 and $\lambda_{fde}$=1.5, giving more importance to the adversarial loss and the final displacement error. 
 
-Regarding the ablation study, we train the different models for 150 epochs using the ADAM optimizer with learning rate $0.001$ and default parameters, linear LR Scheduler with factor $0.5$ decay on plateaus (5k iterations) and batch size $64$. The loss function is weighted by setting $\lambda_{gan}$=1.4, $\lambda_{ade}$=1 and $\lambda_{fde}$=1.5, giving more importance to the adversarial loss and the final displacement error. Similar to \cite{sadeghian2019sophie}, the LSTM encoder (attention block) encodes trajectories using a single layer MLP with an embedding dimension of 16. We set all LSTM units to have $32$ hidden dimensions. The number of target points is set also to 32 in order to compute the physical context. Moreover, in order to calculate these target points we consider the same prediction horizon $t_{pred}=3s$ to estimate the distance travelled assuming a constant velocity model. To make our model more robust to scene orientation, we augment the training data adding some white noise ($\mu=0, \sigma=0.25$, [m]) to the observation data, rotating the scene and also dropping and replacing (with their last frame) some observations of the past trajectory in order to make the trained model general enough so as to perform well on the unseen traffic scenarios in the split test which different scene geometries such as left/right turning or emergency braking.% and so forth and so on.
+Similar to \cite{sadeghian2019sophie}, the \ac{LSTM} encoder (attention block) encodes trajectories using a single layer \ac{MLP} with an embedding dimension of 16. We set all \ac{LSTM} units to have $32$ hidden dimensions. The 
 
-\subsection{Statistical study of the baseline in validation}
+The number of target points is set also to 32 in order to compute the physical context. Moreover, in order to calculate these target points we consider the same prediction horizon $t_{pred}=3s$ to estimate the distance travelled assuming a constant velocity model. To make our model more robust to scene orientation, we augment the training data adding some white noise ($\mu=0, \sigma=0.25$, [m]) to the observation data, rotating the scene and also dropping and replacing (with their last frame) some observations of the past trajectory in order to make the trained model general enough so as to perform well on the unseen traffic scenarios in the split test which different scene geometries such as left/right turning or emergency braking.% and so forth and so on.
+
+\subsection{Statistical study of the \ac{GAN} baseline in validation}
 \label{subsec:5_target_agent_distribution}
 
-In terms of validation, we conduct a statistical analysis for the ADE and FDE metrics, distinguishing the performance between straight and curved trajectories for our baseline model, \ie \ without considering target goals as map information and class balance in the batch. To this end, we make use of the Argoverse 1 validation set that consists of 31000 samples where 23012 and 7988 are straight and curved trajectories respectively given the RANSAC-based classification aforementioned. We show in Figure \ref{fig:chapter_5_GAN/boxplots} the boxplots for the ADE and FDE metrics. As stated before, our method, as most methods, struggles with curved trajectories, the overall ADE and FDE is "always" better for the straight trajectory cases. The median provides a robust estimator of our trajectories error. Note that we detected multiple outliers in our analysis, these are due to the unimodal nature of the model, unable to consider multiple possible hypotheses (multi-modal). 
+In terms of validation, we conduct a preliminary statistical analysis for \ac{ADE} and \ac{FDE} metrics, distinguishing the performance between straight and curved trajectories for our baseline model, \ie \ without considering target goals as physical information. To this end, we make use of the Argoverse 1 validation set that consists of 31000 samples where 23012 and 7988 are straight and curved trajectories respectively given the RANSAC-based classification aforementioned.
+
+We classify a trajectory as straight or curve estimating a $1^{st}$ degree polynomial trajectory by means the RANSAC (RANdom SAmple Consensus) algorithm with the highest number of inliers (tolerance $t$ set to 2m, max trials=30, min samples=60 \% total observations). Then, if the current target whole trajectory presents 20 \% or more consecutive points further than $t$ with respect to the closest point of the fitted trajectory, the whole traffic scenario is labelled as curve. 
 
 \begin{figure}[!ht]
 	\centering
@@ -254,18 +399,22 @@ In terms of validation, we conduct a statistical analysis for the ADE and FDE me
 		\includegraphics[width=0.4\linewidth]{chapter_5_GAN/ade_analysis.pdf} %\tabularnewline
 		\includegraphics[width=0.4\linewidth]{chapter_5_GAN/fde_analysis.pdf}\tabularnewline
 	\end{tabular}
-	\caption[Statistical distribution on the Argoverse 1 validation set of regression metrics in straight and curved trajectories]{Statistical distribution on the Argoverse 1 validation set of regression metrics in straight and curved trajectories. We show the boxplots for ADE and FDE metrics. We distinguish between straight and curved trajectories. We highlight the median (Q2) in each boxplot.}
+	\caption[Statistical distribution on the Argoverse 1 validation set of regression metrics in straight and curved trajectories]{Statistical distribution on the Argoverse 1 validation set of regression metrics in straight and curved trajectories. We show the boxplots for \ac{ADE} and \ac{FDE} metrics. We distinguish between straight and curved trajectories. We highlight the median (Q2) in each boxplot.}
 	\label{fig:chapter_5_GAN/boxplots}
 \end{figure}
+
+Figure \ref{fig:chapter_5_GAN/boxplots} illustrates the boxplots for \ac{ADE} and \ac{FDE} metrics. As stated before, our method, as most methods, struggles with curved trajectories, the overall \ac{ADE} and \ac{FDE} is "always" better for the straight trajectory cases. The median provides a robust estimator of our trajectories error. Note that we detected multiple outliers in our analysis, these are due to the uni-modal nature of the model, unable to consider multiple possible hypotheses (multi-modal). 
+
+Regarding this, we design our dataloader to sample in each iteration of the training process a specific proportion (\ie \ class balance) of straight and curved trajectories (regarding the whole trajectory of the target agent). We do this to focus in the training process in non-linear prediction, which represents one the key challenges in vehicle \ac{MP}. 
 
 \subsection{Comparative with the state-of-the-art}
 \label{subsec:5_model_results}
 
-In this section, we perform an ablation study and compare our method performance against \ac{SOTA} methods on the Argoverse 1 Motion Forecasting benchmark test set. Table \ref{table:5_model_results_test} illustrates the comparison with some Argoverse baseline methods. Our baseline (*) is represented by the system pipeline illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022}, that is, Attention-based \ac{GAN} with \ac{LSTM} as encoder-decoder, without target points extractor and class balance. We conduct an ablation study to observe the influence of incorporating target points and class balance to our baseline. As expected, by explicitly defining the locations an agent is likely to be at a fixed prediction horizon for a given input trajectory and scene geometry, we are able to improve our baseline. Additionally, since nonlinear trajectories are more challenging than standard straight trajectories, we also observe how enforcing the class balance (straight, curve) during training is able to improve performance.
+In this section, we perform an ablation study and compare our method performance against \ac{SOTA} methods on the Argoverse 1 Motion Forecasting benchmark test set. Table \ref{table:5_model_results_test} illustrates the comparison with some Argoverse baseline methods. Our \ac{GAN} baseline is represented by the system pipeline illustrated in Figure \ref{fig:chapter_5_GAN/ITSC_2022}, that is, Attention-based \ac{GAN} with \ac{LSTM} as encoder-decoder, without target points extractor and class balance. 
 
 \begin{table}[!h]
 	\captionsetup{justification=justified}
-	\caption[Ablation study of our Attention-based GAN unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set]{Ablation study of our GAN-based unimodal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting validation set. We can see the improvement using Target points (TP) and Class balance (CB). Our methods are indicated with $\dag$.}
+	\caption[Ablation study of our Attention-based \ac{GAN} uni-modal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting test set]{Ablation study of our \ac{GAN}-based uni-modal pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting test set. We can see the improvement using Target points (TP) and Class balance (CB). Our methods are indicated with $\dag$.}
 	\begin{center}
 		\begin{tabular}{ l | c | c }
 			\toprule
@@ -275,35 +424,41 @@ In this section, we perform an ablation study and compare our method performance
 			Constant Velocity \cite{chang2019argoverse} & 3.53 & 7.89 \\ 
 			Argoverse Baseline (NN) \cite{chang2019argoverse} & 3.45  & 7.88 \\ 
 			Argoverse Baseline (LSTM) \cite{chang2019argoverse} & 2.96  & 6.81 \\ 
-			SGAN \cite{gupta2018social} & 3.61  & 5.39 \\ 
+			% SGAN \cite{gupta2018social} & 3.61  & 5.39 \\ 
 			TPNet \cite{fang2020tpnet} & 2.33  & 5.29 \\ 
 			TPNet-map \cite{fang2020tpnet} & 2.33  & 4.71 \\ 
 			Jean (1st) \cite{chang2019argoverse, mercat2020multi} & 1.74  & 4.24 \\ 
 			\midrule 
-			$\dag$ Baseline (*) & 1.98  & 4.47 \\ 
-			$\dag$ + TP & 1.78  & 4.13 \\
-			$\dag$ + CB & 1.82  & 4.09 \\
-			$\dag$ + TP + CB & 1.67  & 3.82 \\
-			\hline
+			$\dag$ \ac{GAN} Baseline (*) & 1.98  & 4.47 \\ 
+			$\dag$ \ac{GAN} Baseline + TP & 1.78  & 4.13 \\
+			$\dag$ \ac{GAN} Baseline + CB & 1.82  & 4.09 \\
+			$\dag$ \ac{GAN} Baseline + TP + CB & \textbf{1.67}  & \textbf{3.82} \\
+			\bottomrule
 		\end{tabular}
 		\label{table:5_model_results_test}
 	\end{center}
 \end{table}
 
+It may be appreciated how our \ac{GAN} baseline (only-social) obtains better results than the baselines \cite{chang2019argoverse} proposed by Argoverse 1. The reason is simple: Even in traffic scenarios where the target agent conducts a straight trajectory, it may perform sudden braking or acceleration, since, given the complexity of the dataset. Then, simple learning-based or physics-based prediction methods are not enough to encode the complexity of the dataset. TPNet \cite{fang2020tpnet} improves upon previous baselines (particularly when including map information). Jean (1st) \cite{mercat2020multi} is the winner of the CVPR 2019 Argoverse Challenge, which produces joint forecasts for all vehicles on a road scene as sequences of multi-modal probability density functions of their positions, including the centerlines of the surrounding lanes. We conduct an ablation study to observe the influence of incorporating target points and class balance to our baseline. As expected, by explicitly defining in an interpretable way the locations an agent is likely to be at a fixed prediction horizon for a given input trajectory and scene geometry, we are able to improve our baseline. Additionally, since non-linear trajectories are more challenging than standard straight trajectories, we also observe how enforcing the class balance (straight, curve) during training is able to improve performance, obtaining results that up-to-pair with other \ac{SOTA} methods.
+
 \subsection{Qualitative results}
 \label{subsec:5_qualitative_results}
 
-Figure \ref{fig:chapter_5_GAN/Unimodal_results} illustrates some qualitative results, all of them considering uni-modal prediction towards the pre-computed target points, meeting the physical and social constraints in the scenes. It can be clearly appreciated that a naive \ac{CTRV} model could not generalize in these situations, where the vehicle can describe a curved future trajectory given a predominant straight input trajectory and vice-versa. First and second rows show feasible predicted trajectories, whilst the third one shows interesting challenging scenarios in which our current approach is not able to properly reason due to the lack of reasoning and multi-modality (producing a set of K-trajectories towards the set of target points) is revealed, being situations in which predicting accurately the end-point is difficult, and this the \ac{FDE} is extremely high. 
+Figure \ref{fig:chapter_5_GAN/Unimodal_results} illustrates some qualitative results, all of them considering uni-modal prediction towards the pre-computed target points, meeting the physical and social constraints in the scenes. It can be clearly appreciated that a naive \ac{CTRV} model could not generalize in these situations, where the vehicle can describe a curved future trajectory given a predominant straight input trajectory and vice-versa. First, second and third rows show feasible predicted trajectories in challenging scenarios, including straight and curved trajectories. 
 
-In that sense, regarding the third row, left image shows how we compute an uni-modal prediction in the wrong direction of a split, even though target points are extracted very close to the ground-truth end point. Center image shows an extreme difficult situation, where the input trajectory is almost in the same place (probably the target agent was stopped in front a traffic light) whilst the ground-truth future trajectory is clearly an acceleration since the last observation frame. Finally, right image shows a deceleration because of the ahead obstacle whilst our model is not able to properly reason the presence of this obstacle in order to meet common sense safety constraints.
+On the other hand, the fourth row shows interesting challenging scenarios in which our current approach is not able to properly reason due to the lack of reasoning and multi-modality (producing a set of $K$-trajectories towards the set of target points) is revealed, being situations in which predicting accurately the end-point is difficult, and the \ac{FDE} is extremely high. Particularly, left image shows how we compute an uni-modal prediction in the wrong direction of a split, even though target points are extracted very close to the ground-truth end point. Center image shows an extreme difficult situation, where the input trajectory is almost in the same place (probably the target agent was stopped in front a traffic light) whilst the ground-truth future trajectory is clearly an acceleration since the last observation frame. Finally, right image shows a deceleration because of the ahead obstacle whilst our model is not able to properly reason the presence of this obstacle in order to meet common sense safety constraints.
 
 \begin{figure*}[!ht]
 	\centering
 	\setlength{\tabcolsep}{2.0pt}
-	\begin{tabular}{cccc}
+	\begin{tabular}{ccc}
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/2044_unimodal.png}} &
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/2079_unimodal.png}} &
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/2117_unimodal.png}}
+		\tabularnewline
+		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/2035_unimodal.png}} &
+		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/142_unimodal.png}} &
+		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/838_unimodal.png}}
 		\tabularnewline
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/838_unimodal.png}} &
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/868_unimodal.png}} &
@@ -311,13 +466,17 @@ In that sense, regarding the third row, left image shows how we compute an uni-m
 		\tabularnewline
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/11_unimodal.png}} & 
 		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/49_unimodal.png}} &
-		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/128_unimodal.png}} \tabularnewline
+		\fbox{\includegraphics[width=0.32\linewidth]{chapter_5_GAN/qualitative/128_unimodal.png}} 
+		\tabularnewline
 	\end{tabular}
-	\caption[Qualitative Results using our Attention-based GAN best model (including target points extraction and class balance)]{Qualitative Results using our Attention-based GAN best model (including target points extraction and class balance). The legend is as follows: our vehicle (\textcolor{blue}{ego}), the target \textcolor{red}{agent}, and \textcolor{ForestGreen}{other agents}. We can also see the \textcolor{orange}{real} trajectory, the \textcolor{purple}{prediction} and potential \textcolor{brown}{goal-points}. Markers are current positions.}
+	\captionsetup{justification=justified}
+	\caption[Qualitative Results using our Attention-based \ac{GAN} best model (including target points extraction and class balance)]{Qualitative Results using our Attention-based \ac{GAN} best model (including target points extraction and class balance). The legend is as follows: our vehicle (\textbf{\textcolor{blue}{ego}}), the target \textbf{\textcolor{red}{agent}}, and \textbf{\textcolor{ForestGreen}{other agents}}. We can also see the \textbf{\textcolor{orange}{real}} trajectory, the \textbf{\textcolor{purple}{prediction}} and potential \textbf{\textcolor{brown}{goal-points}}. Markers (starts and squares) represent the last observations for each agent.}
 	\label{fig:chapter_5_GAN/Unimodal_results}
 \end{figure*}
 
 \section{Summary}
 \label{sec:5_summary}
 
-Forecasting the future trajectories of surrounding actors in the scene is mandatory to achieve a safe planning, and thus, a crucial part of the Autonomous Driving stack. In this Chapter we explore a \ac{GAN}-based \ac{LSTM} with \ac{MHSA} for unimodal vehicle \ac{MP} using the Argoverse 1 Motion Forecasting Benchmark. Our model considers both the deep physical and social context of the scene to predict the most plausible trajectory using a generative model, and achieves competitive results in comparison to other state-of-the-art methods regarding the case of unimodal prediction. Given the aforementioned results, we realize that this uni-modal method lacks of plausible multi-modality and capacity to model complex traffic scenarios, so the future steps are an enhanced social attention and interaction, high-level and well-structured physical context, specially focusing on the vector features of HD Map, in order to produce feasible and realistic multi-modal trajectories.
+Forecasting the future trajectories of surrounding actors in the scene is mandatory to achieve a safe planning, and thus, a crucial part of the \ac{AD} stack. In this Chapter we explore a \ac{GAN}-based \ac{LSTM} with \ac{MHSA} for uni-modal vehicle \ac{MP} using the Argoverse 1 Motion Forecasting Benchmark. Our model considers both the deep physical and social context of the scene to predict the most plausible trajectory using a generative model, and achieves competitive results in comparison to other \ac{SOTA} methods regarding the uni-modal prediction scenario. 
+
+Given the aforementioned results, we realize that this uni-modal method lacks capacity to model complex traffic scenarios where several future actions are plausible (both in terms of directions or velocity profiles). Then, the future steps, which will be covered in further Chapters, are an enhanced social attention and interaction, high-level and well-structured physical context, specially focusing on the \ac{HDmap} vector features, in order to produce feasible and realistic multi-modal trajectories.
