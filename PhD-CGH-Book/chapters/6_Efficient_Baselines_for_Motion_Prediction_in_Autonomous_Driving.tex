@@ -44,26 +44,42 @@
 \section{Introduction}
 \label{sec:6_introduction}
 
-As observed in the previous Chapter, our \ac{GAN}-based model (more specifically the generator) was able to compute the deep context regarding the agents past observations, attention-based social interaction and target points as physical context, but the prediction was limited to the unimodal case. In other words, the \ac{GAN}-based model is able to reason more complex interactions and future behaviours than SmartMOT (physics-based prediction), but it lacks one of the main features of a deep learning-based model as a preliminary stage before the local planning or decision-making layers: Multimodality. On top of that, at this point of the thesis the literature was re-visited and despite \acp{GAN}-based approaches \cite{sadeghian2019sophie, dendorfer2020goal, gupta2018social, gomez2022exploring} provide certain control since they are focused on more simple methods framed in an adversarial training, most competitive approaches on \ac{MP} benchmarks in the field of \ac{AD}, such as Argoverse \cite{chang2019argoverse}, NuScenes \cite{caesar2020nuscenes} or Waymo \cite{ettinger2021large}, do not use adversarial training, where the training complexity is one the main reasons.
+As observed in the previous Chapter, our \ac{GAN}-based model (more specifically the generator) was able to compute the deep context regarding the agents past observations, attention-based social interaction and target points as physical context, but the prediction was limited to the uni-modal case. In other words, the \ac{GAN}-based model is able to reason more complex interactions and future behaviours than SmartMOT (physics-based prediction), but it lacks one of the main features of a \ac{DL}-based \ac{MP} model as a preliminary stage before the local planning or \ac{DM} layers: Multi-modality. 
 
-\begin{comment}
-In this paper, following the same principles as recent SOTA methods, we aim to achieve competitive results that ensure reliable predictions, as observed in Fig.~\ref{fig:results_teaser}, yet, using \textbf{light-weight} attention-based models that take as input the past trajectories of each agent, and integrate prior-knowledge about the map easily. The main contributions of our work are as following: 
+On top of that, at this point of the thesis the literature was re-visited and despite \acp{GAN}-based approaches \cite{sadeghian2019sophie, dendorfer2020goal, gupta2018social, gomez2022exploring} provide certain control since they are focused on more simple methods framed in an adversarial training, most competitive approaches on \ac{MP} benchmarks in the field of \ac{AD}, such as Argoverse \cite{chang2019argoverse}, NuScenes \cite{caesar2020nuscenes} or Waymo \cite{ettinger2021large}, do not use adversarial training as the first choice due to several reasons:
 
 \begin{itemize}
-	\item (1) Identify a key problem in the size of motion prediction models, with implications in real-time inference and edge-device deployment.
-	\item (2) Propose several efficient baselines for vehicle motion prediction that do not explicitly rely on an exhaustive analysis of the context HD map (either vectorized or rasterized), but on prior map information obtained in a simple preprocessing step, that serves as a guide in the prediction.
-	\item (3) Use fewer parameters and operations (FLOPs) than other SOTA models to achieve competitive performance on Argoverse 1.0~\cite{chang2019argoverse} with lower computational cost.
-\end{itemize} 
-\end{comment}
+	
+	\item \textbf{Limited interpretability and explainability}: \acp{GAN} often lack interpretability and explainability. The internal workings of a \ac{GAN} can be challenging to understand and explain to humans, which is a crucial requirement in safety-critical applications like \ac{AD}. On top of that, explainability is essential for building trust and understanding the \ac{DM} process of the system. \acp{GAN} typically prioritize generating realistic samples over providing explicit explanations for the predictions.
+	
+	\item \textbf{Data requirements and availability}: \acp{GAN} typically require large amounts data for training, specially in those scenarios where the input can be quite similar (the target agent is approaching to an intersection) but the output is totally different (in terms of future directions or velocity profiles). Acquiring such datasets for \ac{MP} in \ac{AD} can be challenging, as it requires accurately annotated and diverse real-world motion data. On the other hand, users can also opt for synthetic data generation to complement data obtained from the real world, but generating high-quality synthetic data that adequately represents the complexity of real-world driving scenarios is difficult. In contrast, other approaches like \acp{GNN} can be trained with readily available trajectory data, making them more practical and accessible in this context.
+	
+	\item \textbf{Focus on generation rather than prediction}: \acp{GAN} are primarily designed for data generation tasks, where the objective is to generate new samples that resemble the training data distribution, as illustrated in Chapter \ref{cha:theoretical_background}. Nevertheless, in \ac{MP} for \ac{AD}, the goal is to accurately predict future trajectories based on current observations and historical data, where \acp{GAN} may not inherently prioritize predictive accuracy, as they are not explicitly optimized for this task.
+	
+\end{itemize}
+
+In this Chapter, following the same principles as recent \ac{SOTA} methods, we aim to achieve competitive results that ensure reliable predictions, yet, using light-weight multi-modal prediction models that take as input the past trajectories of each agent, and integrate prior-knowledge about the map easily.
+
+In that sense, throughout this Chapter we develop several multi-modal efficient \ac{MP} models (social, map and augmented baselines) focused on the use \acfp{GNN} and Attention mechanism as an alternative to the uni-modal \ac{GAN} proposed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}. The work in this Chapter was partially published in the following journal paper \cite{gomez2023efficientbaselines}: "Efficient Baselines for Motion Prediction in Autonomous Driving", 2023 IEEE Transactions on Intelligent Transportation Systems.
+
+The main contributions of this Chapter are as following: 
+
+\begin{enumerate}
+	
+	\item We identify a key problem in the size of motion prediction models, with implications in real-time inference and edge-device deployment.
+	
+	\item Several \href{https://github.com/Cram3r95/mapfe4mp}{open-source} \footnote{https://github.com/Cram3r95/mapfe4mp} efficient baselines (social, map and augmented) for vehicle \ac{MP} are proposed, based on \acp{RNN}, \acp{GNN} and Attention mechanisms. Moreover, these methods do not explicitly rely on an exhaustive analysis of the context \ac{HDmap} (either vectorized or rasterized), but on prior map information obtained in a simple heuristic-based preprocessing step, that serves as a guide in the prediction.
+	
+	\item Our proposals use noticeable fewer parameters and operations (\acfp{FLOP}) than other \ac{SOTA} models to achieve competitive performance on Argoverse 1 \cite{chang2019argoverse} with lower computational cost.
+	
+\end{enumerate} 
 
 \section{Efficient Baselines}
 \label{sec:6_efficient_baselines}
 
-Considering the trade-off between curated input data and complexity, we aim to achieve competitive performance in the \ac{MP} using powerful DL techniques in terms of prediction metrics (\ac{minADE}, \ac{minFDE}), including attention mechanisms and \acp{GNN}, while reducing the number of parameters of operations with respect to other \ac{SOTA} methods. In particular, we propose two baselines, social and map baseline. 
+Considering the trade-off between curated input data and complexity, we aim to achieve competitive performance in the \ac{MP} using powerful DL techniques in terms of prediction metrics (\ac{minADE}, \ac{minFDE}), including attention mechanisms and \acp{GNN}, while reducing the number of parameters of operations with respect to other \ac{SOTA} methods. In particular, we propose three baselines: social, map and augmented baseline. 
 
-The only inputs for the social baseline are the agent past trajectories and their corresponding interactions. On the other hand, for the map baseline, we propose an extension with respect to our previous target points proposals where, based on a simple-yet-powerful map pre-processing algorithm where the corresponding agent trajectory is initially filtered, the feasible area with which the agent can interact is computed. In spite the fact that topological, semantic and geometric information are involved while computing this area due to road connectivity, we only retrieve the geometric information of the feasible area proposals in an efficient and elegant way. Therefore, our models do not require full-annotated (including, topological, geometric and semantic) HD Map information as input or even rasterized \ac{BEV} representations of the scene to compute the physical context. Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023} illustrates an overview of our final approach. We distinguish three main blocks: 1) \textbf{Encoding module}, which uses plausible HD Map information (specific centerlines and driveable area around) and agents past trajectories to compute the motion and physical latent features, 2) \textbf{Social Attention module}, which calculates the interaction among the different agents and returns the most relevant social features, 3) \textbf{Decoding module}, responsible for calculating the multimodal prediction by means of an auto-regressive strategy concatenating low-level map features and social features as a baseline, as well as iterating over the different latent centerlines for specific physical information per mode.
-
-
+It is important to note that both the social and map baseline refer to the same pipeline (Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023}). The only inputs for the social baseline are the agent past trajectories and their corresponding interactions. On the other hand, for the map baseline, we propose an extension with respect to our previous target points proposals presented in Chapter \ref{cha:exploring_gan_for_vehicle_mp} where, based on a simple-yet-powerful map pre-processing algorithm where the corresponding agent trajectory is initially filtered, the feasible area with which the agent can interact is computed. On the other hand, the augmented baseline (Figure \ref{fig:chapter_6_Efficient_Baselines/ITSC_2023}) can be considered an improved version of the map baseline, where we focus on an enhanced encoding of the physical and social interaction, as well as its corresponding interaction. 
 
 \begin{figure}[!h]
 	\centering
@@ -74,96 +90,113 @@ The only inputs for the social baseline are the agent past trajectories and thei
 	\label{fig:chapter_6_Efficient_Baselines/TITS_2023}
 \end{figure}
 
+Even though topological, semantic and geometric information are involved while computing the feasible physical information for the target agent, we only retrieve the geometric information of the feasible area proposals in an efficient and elegant way, both in the map baseline and in the augmented baseline. Therefore, the map-based models do not require full-annotated (including, topological, geometric and semantic) \ac{HDmap} information as input or even rasterized \ac{BEV} representations of the scene to compute the physical context. 
+
+Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023} illustrates an overview of the \textbf{\textcolor{blue}{social}} and \textbf{\textcolor{red}{map}} baselines. We distinguish three main blocks: 
+
+\begin{itemize}
+	
+	\item \textbf{Encoding Module}, which uses plausible HD Map information (specific centerlines and driveable area around) and agents past trajectories to compute the motion and physical latent features.
+	
+	\item \textbf{Social Interaction module}, which calculates the interaction among the different agents and returns the most relevant social features.
+	
+	\item \textbf{Decoding Module}, responsible for calculating the multi-modal prediction by means of an auto-regressive strategy concatenating low-level map features and social features as a baseline, as well as iterating over the different latent centerlines for specific physical information per mode.
+\end{itemize}
+
 \subsection{Social Baseline}
 \label{subsec:6_efficient_baselines_social}
 
-Our social baseline is inspired in the architecture proposed by \cite{schmidt2022crat}. It uses as input the past trajectories of the most relevant obstacles as relative displacements to feed the Encoding Module (Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023}). Then, the social information is computed using a \ac{GNN}, in particular Crystal-Graph Convolutional Network (\textbf{Crystal-GCN}) layers \cite{xie2018crystal, schmidt2022crat}, and Multi-Head Self Attention (MHSA) \cite{vaswani2017attention} to obtain the most relevant agent-agent interactions. Finally, we decode this latent information using an \textbf{autoregressive} strategy where the output at the \textit{i-th} step depends on the previous one for each mode respectively in the Decoding Module. The following sections provide in-depth description of the aforementioned modules.
+Our social baseline is inspired in the architecture proposed by \cite{schmidt2022crat}. It uses as input the past trajectories of the most relevant obstacles as relative displacements to feed a \ac{LSTM}-based Trajectory Encoder, as performed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}. Then, node aggregation (each agent takes information from surrounding agents and vice-versa) is computed by means several \ac{GNN} layers, in particular Crystal-\acf{GCN} layers \cite{xie2018crystal, schmidt2022crat}, and \ac{MHSA} \cite{vaswani2017attention} to obtain the most relevant agent-agent interactions. Finally, we decode this latent information using an auto-regressive strategy where the output at the \textit{i-th} step depends on the previous one for each mode respectively in the Decoding Module. The following sections provide in-depth description of the aforementioned modules.
 
-\subsubsection{Preprocessing and Encoding of past trajectories}
-\label{subsubsec:6_efficient_baselines_social_preprocessing_and_encoding}
+\subsubsection{Encoding Module - Social}
+\label{subsubsec:6_efficient_baselines_social_encoding}
 
-In a similar way to the GAN-based model proposed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}, in these efficient baselines we only consider the agents that have information over the full history horizon $T_h$ = \textit{$obs_{len}$} + \textit{$pred_{len}$}, reducing the number of agents to be considered in complex traffic scenarios. Nevertheless, instead of only substracting the origin of the scene (last position of the target agent) to make the model translation-invariant, we also rotate the whole coordinate system, \ie \ the coordinate system in our model is centered on the target agent at $t = 0$, and we use the orientation from the target location in the same timestamp as the positive $x$-axis. Note that this representation will benefit the model to have a common representation to enhance the generalization of the model and prevent over-fitting. Once the scene has been translated and rotated, instead of using absolute 2D-BEV (\textit{xy} plane), the input for the agent \textit{i} is a series of relative displacements.
+In a similar way to the \ac{GAN}-based model proposed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}, in these efficient baselines we only consider the agents that have information over the full history horizon (\textit{$obs_{len}$} + \textit{$pred_{len}$}), reducing the number of agents to be considered in complex traffic scenarios. Nevertheless, instead of only substracting the origin of the scene (last position of the target agent) to make the model translation-invariant, we also rotate the whole coordinate system, \ie \ the coordinate system is now centered on the target agent at $t = 0$, and we use the orientation from the target location in the same timestamp as the positive $x$-axis. Note that this representation will benefit the model to have a common representation to enhance the generalization of the model and prevent over-fitting. Once the scene has been translated and rotated, instead of using absolute 2D-\ac{BEV} (\textit{xy} plane), the input for the agent \textit{i} is a series of relative displacements.
 
-Then, as stated in Chapter \ref{cha:exploring_gan_for_vehicle_mp}, we do not limit nor fix the number of agents per sequence, and a single \ac{LSTM}-based encoder computes the deep features of the motion history of the agents. Finally, in order to feed the agent-agent interaction module (Social Attention Module in Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023}), we take the output hidden vector ($\mathbf{h_{out}}$).
+Then, as stated in Chapter \ref{cha:exploring_gan_for_vehicle_mp}, we do not limit nor fix the number of agents per sequence, and a single \ac{LSTM}-based Trajectory Encoder computes the deep features of the agents motion history. Finally, in order to feed the agent-agent interaction module (Social Attention Module in Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023}), we take the output hidden vector ($h_{out}$).
 
-\subsubsection{Social Attention module}
+\subsubsection{Social Interaction Module}
 \label{subsubsec:6_efficient_baselines_social_interactions}
 
-After encoding the past history of each vehicle in the sequence, we compute the agent-agent interactions to obtain the most relevant social information of the scene. For this purpose, we construct an interaction graph using Crystal-GCN \cite{xie2018crystal} \cite{schmidt2022crat}. , originally developed for the prediction of material properties, allowing to efficiently leverage edge features. Then, \ac{MHSA} \cite{vaswani2017attention} is applied to enhance the learning of agent-agent interactions. 
+After encoding the past history of each vehicle in the traffic scenario, we compute the agent-agent interactions to obtain the most relevant social information of the scene. To this end, we make use of several \acp{GNN} layers and \ac{MHSA} to model complex agent-agent interactions as an enhanced version with respect to the \ac{GAN} approach proposed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}. The main advantages of using \acp{GNN} for social interactions are as following:
 
-Before creating the \textbf{interaction mechanism}, we split the temporal information in the corresponding scenes, taking into account that each traffic scenario may have a different number of agents. The interaction mechanism is defined in \cite{schmidt2022crat} as a bidirectional fully-connected graph, where the initial node features $\mathbf{v}_i^{(0)}$ are represented by the latent temporal information for each vehicle $\mathbf{h}_{i,out}$ computed by the motion history encoder. On the other hand, the edges from node \textit{k} to node \textit{l} is represented as the vector distance ($\mathbf{e}_{k,l}$) between the corresponding agents at t = \textit{$obs_{len}$} in absolute coordinates, where the origin of the sequence ($x=0,y=0$) is represented by the position of the target at t = \textit{$obs_{len}$}:
+\begin{itemize}
+	\item \textbf{Representation of spatial dependencies}: As stated in Chapter \ref{cha:theoretical_background}, \acp{GNN} are well-suited for capturing complex spatial relationships and dependencies among agents in a scene. In \ac{AD}, understanding the interactions among different entities such as vehicles, pedestrians, and cyclists is crucial for accurate \ac{MP}. Then, \acp{GNN} can effectively model these spatial dependencies by leveraging the graph structure of the scene, where objects are represented as nodes ($v$) and edges ($e$) capture their relationships, as illustrated in Figures \ref{fig:chapter_6_Efficient_Baselines/TITS_2023}.
+	
+	\item \textbf{Temporal modeling}: \acp{GNN} can naturally incorporate temporal information (processed in advance) by propagating messages across the graph structure over multiple time steps. This allows the model to capture the historical context and dependencies in the motion of objects. By considering past trajectories and interactions, \acp{GNN} can make more informed predictions about future motion.
+	
+	\item \textbf{Explainability and interpretability}: \acp{GNN} provide inherent interpretability by encoding the reasoning process within the graph structure. This interpretability is particularly important in safety-critical applications like \ac{AD}, where the \ac{DM} module (\ie \ the next stage after the prediction module) needs to be explainable to humans.
+	
+\end{itemize}
 
-\begin{equation}
-	\mathbf{e}_{k,l} = \boldsymbol{\nu}^{obs_{len}}_k - \boldsymbol{\nu}^{obs_{len}}_l \text{,}
-\end{equation}
+In this particular case, we construct an interaction graph using Crystal-\ac{GCN} layers \cite{xie2018crystal, schmidt2022crat}, originally developed for the prediction of material properties, allowing to efficiently leverage edge features. 
 
-Given the interaction graph (nodes and edges), the Crystal-GCN, proposed by \cite{xie2018crystal}, is defined as:
-
-\begin{equation}
-	\mathbf{v}_i^{(g+1)} = \mathbf{v}_i^{(g)} +
-	\sum_{j = 0 \textbf{:} j \neq i }^{N} \sigma \left( \mathbf{z}_{i,j}^{(g)} \mathbf{W}_\mathrm{f}^{(g)} + \mathbf{b}_\mathrm{f}^{(g)} \right)
-	\odot \mu \left( \mathbf{z}_{i,j}^{(g)} \mathbf{W}_\mathrm{s}^{(g)} + \mathbf{b}_\mathrm{s}^{(g)}  \right)
-\end{equation}
-
-This operator, in contrast to many other graph convolution operators \cite{zeng2021lanercnn} \cite{liang2020learning}, allows the incorporation of edge features in order to update the node features based on the distance among vehicles (the closer a vehicle is, the more is going to affect to a particular node). As stated by \cite{schmidt2022crat}, we use $L_g = 2$ layers of the GNN ($g \in 0, \dots , L_g$ denotes the corresponding Crystal-GCN layer) with ReLU and batch normalization as non-linearities between the layers. $\sigma$ and $\mu$ are the sigmoid and softplus activation functions respectively. 
-
-Moreover, $\mathbf{z}_{i,j}^{(g)} = ( \mathbf{v}_i^{(g)} || \mathbf{v}_j^{(g)} ||\mathbf{e}_{i,j} )$ corresponds to the concatenation of two node features in the \textit{$g_{th}$} GNN layer and the corresponding edge feature (distance between agents), N represents the total number of agents in the scene and $\mathbf{W}$ and $\mathbf{b}$ the weights and bias of the corresponding layers respectively.
-
-After the interaction graph, each updated node feature $\mathbf{v}_i^{(L_g)}$ contains information about the temporal and social context of the agent \textit{i}. Nevertheless, depending on their current position and past trajectory, an agent may require to pay attention to specific social information. To model this, we make use of a scaled dot-product Multi-Head Self-Attention mechanism \cite{vaswani2017attention} which is applied to the updated node feature matrix $\mathbf{V}^{(L_g)}$ that contains the node features $\mathbf{v}_i^{(L_g)}$ as rows. 
-
-Each head $h \in 1,\dots, L_h$ in the MHSA mechanism is defined as:
+Before creating the interaction mechanism, we split the temporal information in the corresponding scenes, taking into account that each traffic scenario may have a different number of agents. The interaction mechanism is defined in \cite{schmidt2022crat} as a bidirectional fully-connected graph, where the initial node features $v_i^{(0)}$ for the \textit{i-th} agent in the graph are represented by the latent temporal information for each vehicle $h_{i,out}$ computed by the motion history encoder. On the other hand, the edge from node \textit{k} to node \textit{l} is represented as the vector distance ($e_{k,l}$) between the position $\nu$ of both agents at t = \textit{$obs_{len}$} in local coordinates, as stated in Equation \ref{eq:6_edge_gnn}. Note that the origin of the traffic scenario ($x=0,y=0$) is represented by the position of the target agent at t = \textit{$obs_{len}$}:
 
 \begin{equation}
-	\mathrm{head}_h = \mathrm{softmax} \left( \frac{\mathbf{V}^{(L_g)}_{Q_h} \mathbf{V}^{(L_g) T}_{K_h}}{\sqrt{d}}  \right) \mathbf{V}^{(L_g)}_{V_h} \text{.}
+	\label{eq:6_edge_gnn}
+	e_{k,l} = \nu^{obs_{len}}_k - \nu^{obs_{len}}_l = \mathcal{L}_2(\nu^{obs_{len}}_k, \nu^{obs_{len}}_l)
 \end{equation}
 
-where $\mathbf{V}^{(L_g)}_{Q_h}$ (Query), $\mathbf{V}^{(L_g)}_{K_h}$ (Key) and $\mathbf{V}^{(L_g)}_{V_h}$ (Value) represent the \textit{$h_{th}$} head linear projections of the node feature matrix $\mathbf{V}^{(L_g)}$ and $d$ is the normalization factor corresponding to the embedding size of each head. For our purpose, we use $L_h = 4$ as the total number of heads. 
-
-The result of the softmax weights multiplied by the node feature matrix $\mathbf{V}^{(L_g)}_{V_h}$ (Value) is often referred as the attention weight matrix, representing in this particular case pairwise dependencies among vehicles.
-
-Finally, the updated node feature matrix $\mathbf{SATT}$ is computed as the combination of the different attention heads in a single matrix:
+Then, given the interaction graph, represented by a set of nodes ($v = \text{agent latent state}$) and edges ($e= \text{vector distance between last observations}$), the Crystal-\ac{GCN}, proposed by \cite{xie2018crystal}, is defined as:
 
 \begin{equation}
-	\mathbf{SATT} = (\mathrm{head}_1 || \dots || \mathrm{head}_{L_h}) \mathbf{W}_\mathrm{o} + 
-	\begin{pmatrix}
-		\mathbf{b}_\mathrm{o}\\
-		\vdots \\
-		\mathbf{b}_\mathrm{o}
-	\end{pmatrix}.
+	v_i^{(g+1)} = v_i^{(g)} +
+	\sum_{j = 0 : j \neq i }^{N} \sigma \left(z_{i,j}^{(g)} W_\mathrm{f}^{(g)} + b_\mathrm{f}^{(g)} \right)
+	\odot \mu \left(z_{i,j}^{(g)} W_\mathrm{s}^{(g)} + b_\mathrm{s}^{(g)}  \right)
 \end{equation}
 
-Where each row of the final social attention matrix $\mathbf{SATT}$ (output of the social attention module, after the GNN and MHSA mechanisms) represents the interaction-aware feature of the agent \textit{i} with surroundings agents, considering the temporal information under the hood, being $\mathbf{W}_\mathrm{o}$ / $\mathbf{b}_\mathrm{o}$ the corresponding weight and bias of the layer that merges the different attention heads. As this model has been developed upon the Argoverse 1 Motion Forecasting benchmark, we only consider the row of the final matrix that takes into account the interactions of the target agent with surrounding obstacles.
+This operator, in contrast to many other graph convolution operators \cite{zeng2021lanercnn, liang2020learning}, allows the incorporation of edge features in order to update the node features based on the distance among vehicles (the closer a vehicle is, the more is going to affect to a particular node). As stated by \cite{schmidt2022crat}, we use $L_g$ \ac{GNN} layers ($g \in 0, \dots , L_g$ denotes the corresponding Crystal-\ac{GCN} layer) with \ac{ReLU} and batch normalization as non-linearities between the layers. $\sigma$ and $\mu$ are the sigmoid and softplus activation functions respectively and $\odot$ denotes element-wise multiplication.
+
+Moreover, $z_{i,j}^{(g)} = (v_i^{(g)} || v_j^{(g)} || e_{i,j} )$ corresponds to the concatenation of two node features in the \textit{$g_{th}$} \ac{GCN} layer and the corresponding edge feature (distance between agents), $N$ represents the total number of agents in the scene and $W$ and $b$ the weights and bias of the corresponding layers respectively.
+
+After the interaction graph, each updated node feature $v_i^{(L_g)}$ contains information about the temporal and social context of the agent \textit{i}. Nevertheless, depending on their current position and past trajectory, an agent may require to pay attention to specific social information. To model this, we make use of a scaled dot-product \ac{MHSA}, which is applied to the updated node feature matrix $V^{(L_g)}$ that contains the node features $v_i^{(L_g)}$ as rows. Then, each head $h \in 1,\dots, L_h$ in applied to the updated node feature matrix after the \ac{GCN} layers as following:
+
+\begin{equation}
+	\mathrm{head}_h = \mathrm{softmax} \left( \frac{V^{(L_g)}_{Q_h} V^{(L_g) T}_{K_h}}{\sqrt{d}}  \right) V^{(L_g)}_{V_h} \text{.}
+\end{equation}
+
+where $V^{(L_g)}_{Q_h}$ (Query), $V^{(L_g)}_{K_h}$ (Key) and $V^{(L_g)}_{V_h}$ (Value) represent the \textit{$h_{th}$} head linear projections of the updated node feature matrix $V^{(L_g)}$ and $d$ is the normalization factor corresponding to the embedding size of each head. The result of the softmax weights multiplied by the node feature matrix $V^{(L_g)}_{V_h}$ (Value) is often referred as the attention weight matrix, representing in this particular case pairwise dependencies among vehicles.
+
+Finally, as stated in Chapter \ref{cha:exploring_gan_for_vehicle_mp}, the social attention matrix $SATT$ is computed as the combination of $L_h$ different attention heads in a single matrix. As in the present Chapter our proposals are focused on the Argoverse 1 Motion Forecasting dataset, we only consider the row of the social matrix corresponding to the target agent for every traffic scenario.
 
 \subsection{Map Baseline} 
 \label{subsec:6_efficient_baselines_map_baseline}
 
-As mentioned before, in this work we extend our social baseline using minimal HD map information, from which we discretize the feasible area $\mathcal{P}$ of the target agent as a subset of $r$ randomly sampled points $\{p_0 , p_1 ... p_r\}$ (low-level features) around the plausible centerlines (high-level and well-structured features) considering the velocity and acceleration of the corresponding agent in the last observation frame, as observed in Figure \ref{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtering}. As stated in Section \ref{sec:5_attention_gan}, this is a map preprocessing step, therefore the model never sees the HD map (either vectorized or rasterized) image nor the whole graph of nodes.
+As aforementioned, we extend our social baseline using minimal \ac{HDmap} information (\ie \ the map baselines includes both the past trajectories and map information), from which we discretize the plausible area $\mathcal{P}$ of the target agent as a subset of $r$ randomly sampled points $\{p_0 , p_1 ... p_r\}$ (low-level features) around the plausible centerlines (high-level and well-structured features) considering the velocity and acceleration of the corresponding agent in the last observation frame, as observed in Figure \ref{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtering}. As stated in Section \ref{sec:5_attention_gan}, this is a map pre-processing step, therefore the model never sees the HD map (either vectorized or rasterized) image nor the whole graph of nodes.
 
-\subsubsection{Centerlines proposals and Feasible area points} 
+\subsubsection{Centerlines proposals and Plausible area} 
 \label{subsubsec:6_efficient_baselines_preprocessing_map}
 
-In a similar way to the target points computed in our \ac{GAN}-based model, we want to compute the heuristic proposals for each agent. Nevertheless, instead of limiting the map baseline to some discrete target points, now we aim to compute the most plausible future centerlines (that is, the center of the lane) as a connection of nodes (waypoints). Considering lane connectivity, multiple approaches have tried to predict realistic trajectories by means of learning physically feasible areas as heatmaps or probability distributions of the agent’s future location~\cite{dendorfer2020goal, sadeghian2019sophie, gilles2021home}. \cite{liang2020learning} represents the map as a set of lanes and their connectivity (predecessor, successor, right neighbour, left neighbour), taking into account all lanes whose distance from the target agent is smaller than 100 m as the input, regardless the orientation or the velocity of the vehicle. On the other hand, \cite{djuric2021multixnet} encodes static elements such as crosswalks, lane, road boundaries and intersections that are included in a local map 150m x 100m centered in the corresponding vehicle  as a multi-channel image.  These approaches require either a top-view RGB \ac{BEV} image of the scene, or a HD map with exhaustive topological, geometric and semantic information (commonly codified as channels). This information is usually encoded using a \ac{CNN} and fed into the model together with the social agent's information \cite{dendorfer2020goal, sadeghian2019sophie, gao2020vectornet}. 
+In a similar way to the target points computed in our \ac{GAN}-based model, we want to compute the heuristic proposals for each agent. Nevertheless, instead of limiting the map baseline to some discrete target points, now we aim to compute the most plausible future centerlines (that is, the center of the lane) as a connection of nodes (waypoints). Considering lane connectivity, multiple approaches have tried to predict realistic trajectories by means of learning physically feasible areas as heatmaps or probability distributions of the agent future location \cite{dendorfer2020goal, sadeghian2019sophie, gilles2021home}. \cite{liang2020learning} represents the map as a set of lanes and their connectivity (predecessor, successor, right neighbour, left neighbour), taking into account all lanes whose distance from the target agent is smaller than 100 m as the input, regardless the orientation or the velocity of the vehicle. 
 
-As observed, when trying to utilize HD map information, specially in terms of lane proposals, most SOTA methods utilize this physical to enhance the latent information to decode the future trajectories, but heavy computation or raw data features are required. 
+On the other hand, \cite{djuric2021multixnet} encodes static elements such as crosswalks, lane, road boundaries and intersections that are included in a local map 150m x 100m centered in the corresponding vehicle  as a multi-channel image.  These approaches require either a top-view RGB \ac{BEV} image of the scene, or a HD map with exhaustive topological, geometric and semantic information (commonly codified as channels). This information is usually encoded using a \ac{CNN} and fed into the model together with the social agent's information \cite{dendorfer2020goal, sadeghian2019sophie, gao2020vectornet}. 
+
+As observed, when trying to utilize HD map information, specially in terms of lane proposals, most \ac{SOTA} methods utilize this physical to enhance the latent information to decode the future trajectories, but heavy computation or raw data features are required. 
 
 \begin{figure*}[]
 	\centering
 	\includegraphics[width=0.95\linewidth]{chapter_6_Efficient_Baselines/compute_centerlines_argo_1.pdf}
 	\captionsetup{justification=justified}
-	\caption[Plausible centerlines estimation in Argoverse 1]{Plausible centerlines estimation. Left: General view of the scene, only considering the target agent (\textbf{\textcolor{YellowOrange}{observation (2s)}} and \textbf{\textcolor{red}{future ground-truth (3s)}}) and HD Map around its last observation (position of the \textbf{\textcolor{blue}{blue}} vehicle). Center: \textbf{Centerlines} proposed by the Argoverse Map API (maximum number of centerlines \textit{C} set to 3). Right: We filter the input observation by means of Least-Squares (2nd order) algorithm to estimate the velocity and acceleration of the agent. Then, the distance considering the \ac{CTRA} model and a prediction horizon of 3 s are used computed to obtain the end-points \textbf{E} of the \textbf{final proposals}. Start-points \textbf{S} are the closest centerlines waypoints to the agent in the last observation frame.}
+	\caption[Plausible centerlines estimation in Argoverse 1]{Plausible centerlines estimation. Left: General view of the scene, only considering the target agent (\textbf{\textcolor{YellowOrange}{observation (2s)}} and \textbf{\textcolor{red}{future ground-truth (3s)}}) and HD Map around its last observation (position of the \textbf{\textcolor{blue}{blue}} vehicle). Center: \textbf{Raw Centerlines} proposed by the Argoverse Map API (maximum number of centerlines \textit{C} set to 3). Right: We filter the input observation by means of Least-Squares ($2^{nd}$-order) algorithm to estimate the velocity and acceleration of the agent. Then, the distance considering a \ac{CTRA} model and a prediction horizon of 3 s are used to obtain the end-points \textbf{E} of the final proposals \textbf{Filtered centerlines}. Start-points \textbf{S} are the closest centerlines waypoints to the agent in the last observation frame.}
 	\label{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtering}
 \end{figure*}
 
-\textbf{Effectively} and \textbf{efficiently} exploiting HD maps is a must for MP models to produce accurate and plausible trajectories in real-time applications, specially in the field of AD, providing specific map information to each agent based on its kinematic state and geometric HD map information. In that sense, we propose to obtain the most plausible \textit{M} lane candidates, we make use of the pertinent heuristic functions proposed by the Argoverse 1 Motion Forecasting dataset Map API \cite{chang2019argoverse} as illustrated by \cite{khandelwal2020if} to choose the closest centerlines to the last observation data of the target agent, which are going to represent its most representative future trajectories. On the other hand, as depicted in the \ac{MP} dataset used to train this model (Argoverse 1), vehicles are the only evaluated object category as the target agent. Then, considering a vehicle as a rigid structure with non-holonomic \cite{triggs1993motion} features (no abrupt motion changes between consecutive timestamps) and the road driving task is usually described as anisotropic \cite{ross1989planning} (most relevant features are found in a specific direction, in this case the lanes ahead). In other words, the agent should follow a smooth trajectory in a short-mid term prediction. The heuristic to obtain these centerlines is summarized as follows:
+Effectively and efficiently exploiting HD maps is a must for \ac{MP} models to produce accurate and plausible trajectories in real-time applications, specifically in the field of \ac{AD}, providing specific map information to each agent based on its kinematic state and geometric \ac{HDmap} information. In that sense, we propose to obtain the most plausible \textit{C} lane candidates by means of some heuristic functions proposed by the Argoverse 1 Motion Forecasting dataset Map API \cite{chang2019argoverse, khandelwal2020if}. By doing so, we will choose the closest centerlines to the last observation data of the target agent, which are will represent its most representative future trajectories, as an enhanced and high-structured version of interpretable prior map information compared to the target points calculated in Chapter \ref{cha:exploring_gan_for_vehicle_mp}.
+
+On the other hand, as depicted in the dataset used to train this model (Argoverse 1), vehicles are the only evaluated object category as the target agent. Then, considering a vehicle as a rigid structure with non-holonomic \cite{triggs1993motion} features (no abrupt motion changes between consecutive timestamps) and the road driving task is usually described as anisotropic \cite{ross1989planning} (most relevant features are found in a specific direction, in this case the lanes ahead). In other words, the agent should follow a smooth trajectory in a short-mid term prediction. 
+
+The heuristic process to obtain these centerlines is summarized as follows:
 
 \begin{enumerate}
-	\item Trajectory data presents noise associated to the real-world data capturing the exact position of the previously tracked vehices in real-world scenarios. Regarding this, we filter the agent trajectory as a polynomial curve fitting problem by means of the Least Squares ($2^{nd}$ order) per axis and Savitzky-Golais \cite{savitzky1964smoothing} algorithms to obtain a smooth representation of the position vector.
+	
+	\item Trajectory data presents noise associated to the real-world data capturing the exact position of the previously tracked vehices in real-world scenarios. Regarding this, we filter the agent trajectory as a polynomial curve fitting problem by means of the Least Squares ($2^{nd}$-order) per axis and Savitzky-Golais \cite{savitzky1964smoothing} algorithms to obtain a smooth representation of the position vector.
 	
 	\item By doing so, and assuming the agent is moving with a constant acceleration, we are able to calculate the subsequent derivatives (velocity and acceleration) of the target agent in $t_{obs_{len}}$. Then, a vector of $obs_{len}$ - 1 and $obs_{len}$ - 2 length is computed to estimate the velocity and acceleration respectively as $V_{i}=\frac{X_{i}-X_{i-1}}{t_{i}-t_{i-1}}$ and $A_{i}=\frac{V_{i}-V_{i-1}}{t_{i}-t_{i-1}}$, where $X_{i}={[x_{i},y_{i}]}$ represents the 2D position of the agent at each observed frame $i$.
 	
 	\item In order to compute the velocity, acceleration and yaw angle in the last observation frame, we compute a weighted mean by assigning less importance (weight) to the first positions of the corresponding vector and higher importance to the latter states, in such a way immediate past observations are the key states to determine the current spatio-temporal variables of the agent, as depicted in Equation \ref{eq:5_dynamic_feats_last_observation_frame}.
 	
-	\item We compute the future travelled distance by means of the well-known Constant Acceleration (CA) model:
+	\item We compute the future travelled distance by means of the well-known \ac{CA} model:
 	
 	\begin{equation}
 		d(t) = x_0 + vt + \frac{1}{2}at^2
@@ -177,63 +210,63 @@ As observed, when trying to utilize HD map information, specially in terms of la
 	
 	\item Once some preliminary proposals are found, we employ the Depth First Search (DFS) algorithm to get all successor and predecessor candidates, merging the past and future candidates and removing the overlapping ones.
 	
-	\item Then, we process these raw candidates so as to use them as plausible physical information. Given these raw lanes, we aim to limit the number of centerlines to a fixed number $M$. First, given the previously computed smoothed trajectory, we compute the closest centerlines to our current position since they will represent the most realistic future lanes in the traffic scenario. Second, we evaluate the above-mentioned travelled distance along the raw centerlines. We determine the end-point index $p$ of the centerline $m$ as the waypoint (each discrete node of the centerline) where the accumulated distance (considering the $\mathcal{L}_2$ distance between each waypoint) is greater or equal than the above-computed $d(obs_{len})$:
+	\item Then, we process these raw candidates so as to use them as plausible physical information. Given these raw lanes, we aim to limit the number of centerlines to a fixed number $C$. First, given the previously computed smoothed trajectory, we compute the closest centerlines to our current position since they will represent the most realistic future lanes in the traffic scenario. Second, we evaluate the above-mentioned travelled distance along the raw centerlines. We determine the end-point index $p$ of the $c-th$ centerline  as the waypoint (each discrete node of the centerline) where the accumulated distance (considering the $\mathcal{L}_2$ distance between each waypoint) is greater or equal than the above-computed $d(obs_{len})$:
 	
 	\begin{equation}
 		p \quad \textbf{:} \quad d(obs_{len}) \leq \sum_{p=start_{point}}^{centerline_{length}} \mathcal{L}_2(w(p+1),w(p))
 	\end{equation}
 	
-	\item Finally, in order to have the same points (particularly, the number of points matches the prediction horizon $pred_{len}$) per centerline, we interpolate them using a $1^{st}$ spline order, considering as start point the last agent observation and as end or goal point the aforementioned travelled distance along the corresponding centerline.
+	\item Finally, in order to have the same points (particularly, the number of points matches the prediction horizon $pred_{len}$) per centerline, we interpolate them using a $1^{st}$-spline order, considering as start point the last agent observation and as end or goal point the aforementioned travelled distance along the corresponding centerline.
 	
-	\item Note that if the number of proposed centerlines is lower than a pre-defined number $M$, a virtual centerline is created and padded with zeros.
+	\item Note that if the number of proposed centerlines is lower than a pre-defined number $C$, a virtual centerline is created and padded with zeros.
 \end{enumerate}
 
-Figure \ref{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtering} summarizes this HDMap filtering process, where we are able to estimate the preliminary centerlines proposals as a \textbf{simplified version of the HD map}. Moreover, Fig. \ref{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtered_examples} illustrates how after our filtering process the end-points of the plausible centerlines are noticeable closer to the ground-truth prediction at the final timestep. 
-
-In addition to these \textbf{high-level} and well-structured centerlines, we apply point location perturbations to all plausible centerlines under a $\mathcal{N}(\mu, \sigma)$ [m] distribution~\cite{ye2021tpcn} in order to discretize the plausible area $\mathcal{P}$ as a subset of $r$ randomly sampled points $\{p_0 , p_1 ... p_r\}$ (\textbf{low-level} features) around the plausible centerlines. By doing this, we may have a common representation of the plausible area, defined as low-level map features. We make use of a normal distribution $\mathcal{N}$ to calculate these random points as an additional regularization term in a similar way that data augmentation is applied to the past trajectories. 
+Figure \ref{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtering} summarizes this \ac{HDMap} filtering process, where we are able to estimate the preliminary centerlines proposals as a simplified version of the \ac{HDMap}. Moreover, Figure \ref{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtered_examples} illustrates how after our filtering process the end-points of the plausible centerlines are noticeable closer to the ground-truth prediction at the final timestep. 
 
 \begin{figure}[t!]
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=\textwidth]{chapter_6_Efficient_Baselines/compute_centerlines_example_1.pdf}
-		
+		\fbox{\includegraphics[width=\textwidth]{chapter_6_Efficient_Baselines/compute_centerlines_example_1.pdf}}
+		\caption{}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=\textwidth]{chapter_6_Efficient_Baselines/compute_centerlines_example_2.pdf}
-		
+		\fbox{\includegraphics[width=\textwidth]{chapter_6_Efficient_Baselines/compute_centerlines_example_2.pdf}}
+		\caption{}
 	\end{subfigure}
 	
 	\captionsetup{justification=justified}
-	\caption[Some challenging examples of our preprocessing step to obtain relevant map features]{Some challenging examples of our preprocessing step to obtain relevant map features. In both scenarios the target agent (\textbf{\textcolor{YellowOrange}{observation (2 s)}} and \textbf{\textcolor{red}{future ground-truth (3 s)}}) presents a noticeable noisy past trajectory and the provided raw \textbf{centerlines} do not consider the current kinematic state of the vehicle. (a) The agent is stopped (maybe due to an stop, pedestrian crossing or red traffic light use case). We estimate a minimum travelled distance of 25 m in these situations to determine the centerline end-points \textbf{E}. (b) In this scenario, we can observe how the raw centerlines consider way more distance (both ahead and behind) than required. Our kinematic-based filter is able to minimize these proposals in an interpretable way to serve as prior information to the MP model
+	\caption[Some challenging examples of our preprocessing step to obtain relevant map features]{Some challenging examples of our preprocessing step to obtain relevant map features. In both scenarios (a) and (b), the target agent (\textbf{\textcolor{YellowOrange}{observation (2s)}} and \textbf{\textcolor{red}{future ground-truth (3s)}}) presents a noticeable noisy past trajectory and the provided raw \textbf{centerlines} do not consider the current kinematic state of the vehicle. (a) The agent is stopped (maybe due to an stop, pedestrian crossing or red traffic light use case). We estimate a minimum travelled distance of 25m in these situations to determine the centerline end-points \textbf{E}. (b) In this scenario, we can observe how the raw centerlines consider way more distance (both ahead and behind) than required. Our kinematic-based filter is able to minimize these proposals in an interpretable way to serve as prior information to the MP model
 	}
 	\label{fig:chapter_6_Efficient_Baselines/efficient_baselines_hdmap_filtered_examples}
 \end{figure}
 
-\subsubsection{Encoding module of map information}
+In addition to these high-level and well-structured map information, we apply point location perturbations to all plausible centerlines under a $\mathcal{N}(\mu, \sigma)$ [m] distribution \cite{ye2021tpcn} in order to discretize the plausible area $\mathcal{P}$ as a subset of $r$ randomly sampled points $\{p_0 , p_1 ... p_r\}$ around the plausible centerlines. We make use of a normal distribution $\mathcal{N}$ to calculate these random points. The main objective of calculating these low-level features is to have a common term for all plausible centerlines for the target agent, which will change in each iteration of the training process (in similar way to the target points proposed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}), as an additional regularization term in a similar way that data augmentation is applied to the past trajectories.
+
+\subsubsection{Encoding Module - Physical}
 \label{subsubsec:6_efficient_baselines_encoding_map}
 
-In order to calculate the latent map information, we employ a plausible area and centerline encoder (Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023}) to process the low-level and high-level map features respectively. Each of these encoders are represented by a Multi-Layer Perceptron (MLP). First, we flat the information along the points dimension, alternating the x-axis and y-axis information. Then, the corresponding MLP (three layers, with batch normalization, interspered ReLUs and dropout in the first layer) transforms the interpretable absolute coordinates around the origin ($x=0, y=0$) into representative latent physical information. The static physical context (output from the plausible area encoder) will serve as a common latent representation for the different modes, whilst the specific physical context will illustrate specific map information for each mode.
+In order to calculate the latent map information, we employ a plausible area and centerline encoder (Figure \ref{fig:chapter_6_Efficient_Baselines/TITS_2023}) to process the low-level and high-level map features respectively. Each of these encoders is represented by an \ac{MLP}. First, we flat the information along the points dimension, alternating the $x$-axis and $y$-axis information. Then, the corresponding \ac{MLP} (three layers, with batch normalization, interspered \acp{ReLU} and dropout in the first layer) transforms the interpretable absolute coordinates around the origin ($x=0, y=0$) into representative latent physical information. The static physical context (output from the plausible area encoder) will serve as a common latent representation for the different $K$ modes, whilst the specific physical context will illustrate specific map information for each mode.
 
 \subsection{Augmented Efficient baseline with Transformer Encoders}
 \label{subsec:6_augmented_baseline}
 
-Once the social and map baseline encoders are stated, we focus on a more powerful mechanism to encode the spatial and temporal information of inputs by encoding them into feature vectors. In that sense, we focus of designing an effective encoder transformer while keeping its structure as simple and efficient as possible. In a similar way to \cite{wang2023lane}, we adopt the combination of CNN/MLP, attention block and normalization, as observed in Figure \ref{fig:chapter_6_Efficient_Baselines/ITSC_2023}.
+Once the social and map baseline encoders are stated, we design an augmented baseline as an enhanced version upon the map baseline while keeping its structure as simple and efficient as possible, particularly improving the physical and social encoders by means of a combination of \ac{MLP}/\ac{CNN}, \ac{MHSA} block and normalization. Moreover, the information fusion is performed using a \ac{MHCA} block since both feature vectors come from different sources of information. We illustrate this augmented baseline in Figure \ref{fig:chapter_6_Efficient_Baselines/ITSC_2023}.
 
 \begin{figure*}[!ht]
 	\centering
 	\setlength{\tabcolsep}{2.0pt}
 	\includegraphics[width=0.95\linewidth]{chapter_6_Efficient_Baselines/ITSC_2023.pdf}
-	\caption{Efficient baseline with transformer encoders to process the physical and social input}	
+	\caption{Augmented baseline with attention-based encoders and information fusion via cross-attention}	
 	\label{fig:chapter_6_Efficient_Baselines/ITSC_2023}
 \end{figure*}
 
-In order to encode the centerlines, we first use an MLP-based encoder to transform the input vector at each time stamp ($d_i^t$, which actually represents a plausible position of the target agent) into deep features:
+In terms of the physical encoder, instead of computing separately the latent space of the plausible area and the plausible centerlines (high-level features), in this case we concatenate the centerlines and the plausible area as following. More specifically, we generate $T$ local perturbations for each waypoint of the centerline (\ie \ a local area around the corresponding waypoint. In that sense, the map input which is received by the Map Encoder (see Figure \ref{fig:chapter_6_Efficient_Baselines/ITSC_2023}) receives a 3D matrix of ($C$ x $pred_{len}$ x $2 \cdot (T+1)$), where $C$ is the number of centerlines in the traffic scenario, $pred_{len}$ the number of points per centerline that matches the prediction horizon, $2 \cdot (T+1)$ the $xy$ features of the corresponding waypoint and associated perturbations. 
 
-\begin{equation}
-	f_i^t=MLP_{\text{map}}\left(d_i^t ; W_{\text {map }}\right)
-\end{equation}
+Once the map input has been pre-preprocessed, we first use an \ac{MLP}-based encoder with a \ac{ReLU} as non-linear layer to transform the input matrix into deep features, obtaining a matrix of size ($C$ x $pred_{len}$ x $h_dim$), where $h_dim$ represents the length of the hidden vector. However, to predict the future trajectory, the separate feature of each vector is insufficient. For example, even if two road segments in the first half have the same structure, the difference in the last half can result in a total difference in geometric meaning. 
 
-where $MLP_{\text{map}}$ is a Multi-Layer (3) Perceptron with a ReLU asnon-linear layer and $W_{\text {map }}$ as the weight matrix that is learnable. However, to predict the future trajectory, the separate feature of each vector is insufficient. For example, even if two road segments in the first half have the same structure, the difference in the last half can result in a total difference in geometric meaning. Therefore, we make use of the well-established Multi-Head Self-Attention (MHSA) \cite{vaswani2017attention} mechanism to encode the overall set of physical features per agent as a single vector.
+HASTA AQUIIIIIII
+
+Therefore, we make use of a block \ac{MHSA} block to encode the overall set of physical features per agent as a single vector.
 
 To be more specific, we first calculate the query, key and value matrix:
 
@@ -459,7 +492,7 @@ The Argoverse Benchmark~\cite{chang2019argoverse} has over 290 submitted methods
 	\label{table:results_test}
 \end{table}
 
-We prove our best model (Augmented baseline) qualitatively in Figure \ref{fig:chapter_6/argoverse_1_qualitative_results}, where we can see how the estimated centerlines represent a good guidance for the model and the multi-modal prediction works accordingly specifically in challenging intersections.
+We prove our best model (Augmented baseline) qualitatively in Figure \ref{fig:chapter_6_Efficient_Baselines/argoverse_1_qualitative_results}, where we can see how the estimated centerlines represent a good guidance for the model and the multi-modal prediction works accordingly specifically in challenging intersections.
 
 \begin{figure}[h]
 	\centering
@@ -505,7 +538,7 @@ We prove our best model (Augmented baseline) qualitatively in Figure \ref{fig:ch
 	\end{tabular}
 	\captionsetup{justification=justified}
 	\caption[Qualitative Results on challenging scenarios in the Argoverse 1 validation set using our best model]{Qualitative Results on challenging scenarios in the Argoverse 1 validation set using our best model.	We represent: our vehicle (\textbf{\textcolor{blue}{ego}}), the \textbf{\textcolor{YellowOrange}{target agent}}, and \textbf{\textcolor{gray75}{other agents}}. We can also see the \textbf{\textcolor{red}{ground-truth}} trajectory of the target agent, our \textbf{\textcolor{ForestGreen}{multimodal predictions}} (with the corresponding confidences) and \textbf{plausible centerlines}. Circles represent last observations and diamonds last future positions. As we can see the plausible HDMap serves as a good guidance to our model, which can predict reasonable trajectories in presence of multiple agents and challenging scenarios. We show, from left to right, a general view of the traffic scenario (including social and map information), our calculated plausible HDMap, unimodal prediction (best mode in terms of confidence) and multimodal prediction (\textit{k} = 6), including confidences (the higher, the most probable)}
-	\label{fig:chapter_6/argoverse_1_qualitative_results}
+	\label{fig:chapter_6_Efficient_Baselines/argoverse_1_qualitative_results}
 \end{figure}
 
 \subsection{Efficiency discussion}

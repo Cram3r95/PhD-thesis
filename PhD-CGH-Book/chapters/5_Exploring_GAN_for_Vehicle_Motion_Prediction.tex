@@ -70,10 +70,14 @@ In this Chapter we explore the influence of attention mechanisms in generative m
 Figure \ref{fig:chapter_5_GAN/ITSC_2022} illustrates the overall pipeline. We make the following contributions:
 
 \begin{enumerate}
+	
 	\item We study the influence of the adversarial training in uni-modal vehicle \ac{MP} compared to other proposals. 
+	
 	\item A kinematic-based interpretable way to obtain preliminary target points from the driveable area is proposed.
 	\item We study the influence of the class balance in the dataset during training, particularly focusing on straight and curved target agent trajectories.
+	
 	\item Finally, we provide an \href{https://github.com/Cram3r95/mapfe4mp}{open-source} \footnote{https://github.com/Cram3r95/mapfe4mp} framework for \ac{MP}.
+	
 \end{enumerate}
 
 \section{Attention-based GAN}
@@ -178,6 +182,7 @@ Multiple methods \cite{liang2020learning, schmidt2022crat} consider only the age
 In our case, we consider the $N_{agents}$ that have information over the full history horizon (\eg \ $5s = 2s (observation time) + 3s (predictions time)$ for Argoverse 1) as relevant agents, reducing the number to be considered in complex traffic scenarios. Nevertheless, instead of using the past $obs_{len}$ observations in map (global) coordinates for each agent marked as relevant, we transform to local (relative) coordinates by substracting the last observation of the target agent (considered as the origin of the scene) to the past trajectory of an agent to make the model translation-invariant given the local coordinates the scene. Then of using absolute 2D-\ac{BEV} (\textit{xy} plane), the input for the agent \textit{n} is a series of relative displacements:
 
 \begin{equation}
+	\label{eq:5_relative_displacements}
 	\Delta \nu^{t}_n = \nu^{t}_n - \nu^{t-1}_n
 \end{equation}
 
@@ -315,7 +320,7 @@ Finally, the social attention matrix $SATT$ is computed as the combination of $L
 
 Where each row of the matrix $SATT$ (output of the Social Attention Module, after the \ac{LSTM} and \ac{MHSA} mechanisms) represents the interaction-aware feature of the \textit{n-th} agent with its surroundings agents, considering the temporal information under the hood, being $W_\mathrm{o}$ / $b_\mathrm{o}$ the corresponding weight and bias of the layer that merges the different attention heads.
 
-As this model has been developed upon the Argoverse 1 Motion Forecasting benchmark, we only consider the row of the final matrix that takes into account the interactions of the target agent with its surrounding obstacles.
+As this model has been developed upon the Argoverse 1 Motion Forecasting benchmark, we only consider the row of the social matrix that takes into account the interactions of the target agent with its surrounding obstacles.
 
 \subsection{GAN module}
 \label{subsec:5_gan_module}
@@ -342,7 +347,7 @@ On the other hand, the input trajectory $T_i^{t_{obs}:t_{pred}}$ to the discrimi
 	\hat{L}_{i}^{t_{obs}:t_{pred}} = LSTM_{dis}(T_i^{t_{obs}:t_{pred}})
 \end{eqnarray}
 
-After encoding this trajectory, a \ac{MLP} module and softmax operation returns a label $\hat{L}_{i}^{t_{obs}:t_{pred}}$ for the chosen trajectory indicating whether the trajectory is ground-truth (real) $Y_i^{t_{obs}:t_{pred}}$ or predicted (fake) $\hat{Y}_i^{t_{obs}:t_{pred}}$, being the labels $0$ and $1$ for fake and real trajectories respectively. Equation \ref{eq:5_dis} summarizes the discriminator working principles. 
+After encoding this trajectory, an \ac{MLP} module and softmax operation returns a label $\hat{L}_{i}^{t_{obs}:t_{pred}}$ for the chosen trajectory indicating whether the trajectory is ground-truth (real) $Y_i^{t_{obs}:t_{pred}}$ or predicted (fake) $\hat{Y}_i^{t_{obs}:t_{pred}}$, being the labels $0$ and $1$ for fake and real trajectories respectively. Equation \ref{eq:5_dis} summarizes the discriminator working principles. 
 
 \subsection{Losses}
 \label{subsec:5_losses}
@@ -366,7 +371,7 @@ where $W$ is the collection of weights of all networks used in our model and the
 
 We evaluate this model on the well-established and public available Argoverse 1 Motion Forecasting dataset \cite{chang2019argoverse}, including the training, validation and testing subsets from its official website \cite{argobench}. 
 
-As stated in Chapter \ref{cha:related_works}, it consists of 205942 training samples, 39472 validation samples and 78143 test samples. Each sample has a length of 5 seconds, with an observation window of 2 seconds and a prediction window of 3 seconds, including the corresponding labels of the agents ($AGENT$, as the target agent, $AV$, the vehicle that captures the scene and $OTHER$, representing the remaining relevant obstacles) and a global map from the cities of Pittsburgh and Miami. The sampling frequency is $10\mathrm{Hz}$. The main goal here is to predict the 3s future position of the target agent in the scene, which is supposed to be the vehicle that faces the most challenging traffic scenarios.
+As stated in Chapter \ref{cha:related_works}, it consists of 205942 training samples, 39472 validation samples and 78143 test samples. Each sample has a length of 5 seconds, with an observation window of 2s and a prediction window of 3s, including the corresponding labels of the agents ($AGENT$, as the target agent, $AV$, the vehicle that captures the scene and $OTHER$, representing the remaining relevant obstacles) and a global map from the cities of Pittsburgh and Miami. The sampling frequency is $10\mathrm{Hz}$. The main goal here is to predict the 3s future position of the target agent in the scene, which is supposed to be the vehicle that faces the most challenging traffic scenarios.
 
 \subsection{Metrics}
 \label{subsec:5_metrics}
