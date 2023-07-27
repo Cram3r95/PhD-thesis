@@ -32,7 +32,8 @@
 \begin{FraseCelebre}
 	\begin{Frase}
 		Trabaja duro en silencio, \\
-		y deja que tu éxito haga todo el ruido.
+		y deja que tu éxito \\ 
+		haga todo el ruido.
 	\end{Frase}
 	\begin{Fuente}
 		Autor original: Frank Ocean
@@ -213,7 +214,7 @@ Our approach for the RL implementation (Figure \ref{fig:chapter_8_Applications/d
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.45\textwidth]{chapter_8_Applications/dm_RL_network.pdf}
+	\includegraphics[width=0.8\textwidth]{chapter_8_Applications/dm_RL_network.pdf}
 	\captionsetup{justification=justified}
 	\caption[Overview of our Reinforcement Learning-based Decision-Making architecture]{Overview of our Reinforcement Learning-based Decision-Making architecture. The neural network architecture consists of two fully connected layers followed by the concatenation of both adversaries and ego vehicle features. The resulting concatenated features are then passed through an actor-critic structure, which comprises two layers, each containing 128 neurons.}	
 	\label{fig:chapter_8_Applications/dm_RL_network}
@@ -246,10 +247,13 @@ We define different scenario configurations to test the performance of the propo
 
 In decision-making, the success rate serves as a direct measure of the effectiveness of the RL agent in accomplishing the designated task. Besides, the average time of the episode is a common metric used in the literature. These metrics are defined as:
 
-\begin{itemize}
-	\item $success~[\%] = n_{success}/n_{episodes}$
-	\item $t_{e} [s] = \sum{t_{n}}/n_{episodes}$
-\end{itemize}
+\begin{equation}
+	success [\%] = \frac{n_{success}}{n_{episodes}}
+\end{equation}
+
+\begin{equation}
+	t_{e} [s] = \sum{\frac{t_n}{n_{episodes}}}
+\end{equation}
 
 where the number of episodes $n_{e}$ is 100 and simulation time is measured in seconds. 
 
@@ -265,14 +269,15 @@ This first study compares the proposed approach with other existing methods for 
 	\captionsetup{justification=justified}
 	\caption[Comparison of the proposed framework against the existing baselines in the T-intersection scenario]{Comparison of the proposed framework against the existing baselines in the T-intersection scenario. The success rate S[\%] and the average episode time $t_{e}$ are presented.}
 	\label{table:comp}
-	\setlength{\extrarowheight}{2pt}
-	\begin{tabular}{cccccc} 
-		\ChangeRT{1pt}
-		Metric & Ours & PPO & SAC & DrQ\\
-		\hline 
+	%\setlength{\extrarowheight}{2pt}
+	\begin{tabular}{c|ccccc} 
+		% \ChangeRT{1pt}
+		\toprule
+		Metric & Ours & PPO & SAC & DrQ \\
+		\midrule
 		S[\%] & \textbf{80} & 70 & 68 & 78 \\ 
-		$t_{e}$(s) & 22.3 & 36.4 & 19.2 & 18.2 \\
-		\hline
+		$t_{e}$(s) & 22.3 & 36.4 & 19.2 & \textbf{18.2} \\
+		\bottomrule
 		\ChangeRT{1pt}
 	\end{tabular}
 \end{table}
@@ -393,15 +398,15 @@ Moreover, it is important to note that this tool is designed to work either for 
 	
 	\BlankLine
 	
-	1. Transform \ac{LiDAR} raw data and CARLA World objects into \ac{ROS} format to enhance matrix operations and interpretability.
+	Transform \ac{LiDAR} raw data and CARLA World objects into \ac{ROS} format to enhance matrix operations and interpretability.
 	
-	2. Remove objects furthest than the maximum \ac{LiDAR} distance.
+	Remove objects furthest than the maximum \ac{LiDAR} distance.
 	
-	3. Delete points in the point cloud with heights higher or lower than the objects in the surroundings.
+	Delete points in the point cloud with heights higher or lower than the objects in the surroundings.
 	
-	4. Eliminate points outside the area where the objects are located, considering all possible rotations.
+	Eliminate points outside the area where the objects are located, considering all possible rotations.
 
-	5. Select visible objects having at least one point in the point cloud, considering the rotation of different objects.
+	Select visible objects having at least one point in the point cloud, considering the rotation of different objects.
 
 \end{algorithm}
 
@@ -412,69 +417,291 @@ Once we have calculated the 360 \degree visible objects in a frame $t$, as addit
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/simulator_CARLA_RVIZ.png}
+	\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/simulator_CARLA_RVIZ.png}
 	\captionsetup{justification=justified}
 	\caption[Ray-tracing-based filtering example in the \ac{RVIZ} simulator]{Ray-tracing-based filtering example in the \ac{RVIZ} simulator. We illustrate the \textbf{\textcolor{blue}{past observations}} (until \textit{$obs_{len}$} = 50) of the relevant agents, as well as the \textbf{\textcolor{red}{ego-vehicle}} observations.}
 	\label{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ}
 \end{figure}
 
-The experiments were run in a PC desktop computer consisting of an AMD Ryzen 9 5900X 12-Core Processor (overclocked to 3.7 GHz), NVIDIA 3090 RTX Ti and 32 GB of RAM (3200 MHz). To qualitatively validate our prediction pipeline, we have selected several interesting use cases of the CARLA Autonomous Driving Leadeboard inspired in the \ac{NHTSA} where either the prediction module is of vital importance to take the optimal action in the short/long term, or scenarios where the model is able to reason in an intelligent way, even though map information is not included for simplicity, which agents should keep their position in future frames (\eg \ agents stopped in front of a red traffic light or stop) and which agents, even though they are currently stopped, must be predicted since ahead vehicles have started moving. Dynamic agents, as expected, are predicted in all different scenarios. 
+The experiments were run in a PC desktop computer consisting of an AMD Ryzen 9 5900X 12-Core Processor (overclocked to 3.7 GHz), NVIDIA 3090 RTX Ti and 32 GB of RAM (3200 MHz). To qualitatively validate our prediction pipeline, we have selected several interesting use cases of the \ac{CARLA} Autonomous Driving Leadeboard inspired in the \ac{NHTSA} where either the prediction module is of vital importance to take the optimal action in the short/long term, even though map information is not included for simplicity. Table \ref{table:8_carla_use_cases} summarizes the proposed use cases. Note that, in all traffic scenarios, the model should be able to differentiate between static and dynamic objects, \ie \ the model must reason which agents should keep their position in future frames (\eg \ agents stopped in front of a red traffic light or stop) and which agents, even though they are currently stopped, must be predicted since ahead vehicles have started moving. Dynamic agents, as expected, are predicted in all different scenarios. 
+
+\begin{table}[!tpbh]
+	\centering
+	\captionsetup{justification=justified}
+	\caption{Summary of use cases conducted in the \ac{CARLA} to study the domain adaptation of our efficient social-based \ac{MP} algorithm}
+	\label{table:8_carla_use_cases}
+	\resizebox{\linewidth}{!}{
+	\begin{tabular}{c|c|c|c|c|c}
+		\toprule
+		Scenario ID & Town & Traffic situation & Actors per scenario & Ego max-velocity (km/h) & \ac{minADE} ($K$=6) $\downarrow$ \\
+		\midrule
+		1 & 3 & Stop + 4-ways intersection & 120 & 25.2 & 1.96 \\
+		2 & 4 & Crowded highway & 180 & 54 & 2.52 \\
+		3 & 3 & Red Traffic Light + Unexpected \ac{VRU} & 100 & 25.2 & 1.78 \\
+		4 & 3 & Crowded roundabout & 160 & 36 & 2.81 \\
+		\bottomrule
+	\end{tabular}
+	}
+\end{table} 
 
 As observed in Figure \ref{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ}, we will illustrate in the following use cases the \textbf{\textcolor{blue}{past observations}} (until \textit{$obs_{len}$} = 50) of the relevant agents, as well as the \textbf{\textcolor{red}{ego-vehicle}} observations, taking into account that the model will be able to predict only if the ego-vehicle has at least two observations, since to compute the rotation angle the current and past observations must be considered. Moreover, \textbf{\textcolor{ForestGreen}{multimodal predictions}} are calculated for each agent (including the ego-vehicle, treated as a standard agent, not taking into account the \ac{CMP} paradigm as explained in Chapter \ref{cha:related_works}). Note that for visualization purposes, we avoid plotting those modes with a confidence value lower than a certain threshold, in this case set to 0.2, being more solid (in terms of color) those modes which have the higher probability of occurrence, that is, the confidence value. Furthermore, even though in \ac{CARLA} our ego-vehicle is a gray Lincoln MKZ 2017, while in \ac{RVIZ}, for visualization purposes, it is the red vehicle.
 
-\begin{figure}[!h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/crowded_highway.png}
-	\caption{Crowded high-way use case}
-	\label{fig:chapter_8_Applications/use_cases/crowded_highway}
-\end{figure}
-
 Figure \ref{fig:chapter_8_Applications/use_cases/crowded_highway} illustrates a traffic jam in crowded highway, for example a standard situation when approaching a metropolis in the morning at work time. In this case, we may observe that the model does not compute multi-modal predictions towards different directions, but, as expected, it understands that all vehicles are driving in the same direction (either forward or reverse way) and the multi-modal prediction is computed in terms of different velocity profiles (that is, the agent can continue with the same velocity, suddenly break or accelerate in the mid/long term).
-
-\begin{figure}[!h]
-	\begin{subfigure}{\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/intersection_2_pre.png}
-		\label{subfig:chapter_8_Applications/use_cases/intersection_2_pre}
-		\caption{Intersection at frame $t$}
-	\end{subfigure}
-	\begin{subfigure}{\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/intersection_2_post.png}
-		\label{subfig:chapter_8_Applications/use_cases/intersection_2_post}
-		\caption{Intersection at frame $t+20$}
-	\end{subfigure}
-	
-	\caption{Intersection use case}
-	\label{fig:chapter_8_Applications/use_cases/intersection}
-\end{figure}
 
 Figure \ref{fig:chapter_8_Applications/use_cases/intersection} shows an intersection where the Toyota Prius in front of the ego-vehicle can conduct a multi-modal prediction (either turn left or keep straight), understanding that it is in an intersection given the surrounding agents position and past observations. Then, after turning left, 2s in the future, the model does not predict different directions, but only keep straights assuming there is not another intersection close to him ahead.
 
-\begin{figure}[!h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/unexpected_pedestrian.png}
-	\caption{Unexpected Vulnerable Road User (VRU) use case}
-	\label{fig:chapter_8_Applications/use_cases/unexpected_pedestrian}
-\end{figure}
-
 As commented in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}, predicting the behaviour of \acp{VRU}, such as cyclists or pedestrians, is one of the most critical aspect of an \ac{ADS} to be deployed and scaled to real-world applications in urban scenarios. In this particular case (Figure \ref{fig:chapter_8_Applications/use_cases/unexpected_pedestrian}), we may observe that a kid suddenly appears behind a CocaCola vending machine, and, after taking into account the minimum number of observations, the model is able to correctly predict the future intentions of the agent. Nevertheless, an interesting point of view for future works could be how to assign the minimum number of observations depending on the agent type or potential risks associated to the traffic situation. For example, in this particular case, even though the model has been trained with way more past observations, the model should predict the agent as fast as possible, even though several modes are computed in non-plausible or non-sense directions.
-
-\begin{figure}[!h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/stop_2_post.png}
-	\caption{Stop use case}
-	\label{fig:chapter_8_Applications/use_cases/stop}
-\end{figure}
 
 Figure \ref{fig:chapter_8_Applications/use_cases/stop} illustrates a standard Stop traffic scenario, where the model is clearly able to distinguish among dynamic and static objects, predicting the trajectories in the same point for agents stopped for a while. Moreover, it can be slightly appreciated a multi-modal prediction for the white and red van, but probably the model discards the possibility of turning right given the vehicle that is present in that lane in the current timestamp. Conducting transfer learning and fine-tuning the model with \ac{CARLA} scenarios could be an option to help the models understand the situation in an enhanced way.  
 
-\begin{figure}[!h]
-	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/use_cases/roundabout.png}
-	\caption{Roundabout use case}
-	\label{fig:chapter_8_Applications/use_cases/roundabout}
+Finally, Figure \ref{fig:chapter_8_Applications/use_cases/roundabout} shows one of the most challenging traffic situations in urban scenarios, that is, a roundabout full of agents, considering incoming, outcoming and present agents in the current time-stamp. To help the behavioural and local planning modules to take the optimal action, the model clearly predicts the circular motion of the agents, either for the agents that are in the roundabout with different velocity profiles or even for the incoming agents which are going to get into the roundabout and probably intersect with the trajectory of our ego-vehicle if the adversary does not respect the give-way traffic signal. Then, understanding this complex situation and taking account all different scenarios, from least dangerous to most optimistic, is the key to build a robust and reliable architecture.
+
+% Scenario 1
+
+	\begin{figure}[]
+		\centering
+		\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_route22_town03_training.pdf}}
+		%\captionsetup{justification=justified}
+		\caption{Scenario 1 overview: Stop and 4-ways intersection}
+		\label{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_route22_town03_training}
+	\end{figure}
+	
+	\begin{figure}[]
+		\centering
+		\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative.pdf}
+		\captionsetup{justification=justified}
+		\caption[Scenario 1 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+		\label{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative}
+	\end{figure}
+
+\begin{figure}[]
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_carla.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_carla}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\fbox{\includegraphics[width=\textwidth, trim={1.8cm 0 1cm 0.2cm},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_rviz.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_rviz}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t+40.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t+40}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0.5},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t+40.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t+40}
+	\end{subfigure}
+	\tabularnewline
+	%\captionsetup{justification=justified}
+	\caption{Scenario 1 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_1_frames_of_interest}
 \end{figure}
 
-Finally, Figure \ref{fig:chapter_8_Applications/use_cases/roundabout} shows one of the most challenging traffic situations in urban scenarios, that is, a roundabout full of agents, considering incoming, outcoming and present agents in the current time-stamp. To help the behavioural and local planning modules to take the optimal action, the model clearly predicts the circular motion of the agents, either for the agents that are in the roundabout with different velocity profiles or even for the incoming agents which are going to get into the roundabout and probably intersect with the trajectory of our ego-vehicle if the adversary does not respect the give-way traffic signal. Then, understanding this complex situation and taking account all different scenarios, from least dangerous to most optimistic, is the key to build a robust and reliable architecture.
+% Scenario 2
+
+\begin{figure}[]
+	\centering
+	\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_route15_town04_testing.pdf}}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 2 overview: Crowded highway}
+	\label{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_route15_town04_testing}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative.pdf}
+	\captionsetup{justification=justified}
+	\caption[Scenario 2 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+	\label{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative}
+\end{figure}
+
+\begin{figure}[]
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t}
+	\end{subfigure}
+    \hfill
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={1.5cm 0 1cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t}
+	\end{subfigure}
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+15.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+15}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={3cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+15.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+15}
+	\end{subfigure}
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+30.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+30}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={2cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+30.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+30}
+	\end{subfigure}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 2 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_2_frames_of_interest}
+\end{figure}
+
+% Scenario 3
+
+\begin{figure}[]
+	\centering
+	\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_route1_town01_training.pdf}}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 3 overview: Red Traffic Light and Unexpected \ac{VRU}}
+	\label{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_route1_town01_training}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative_threshold_3.pdf}
+	%\captionsetup{justification=justified}
+	\caption[Scenario 3 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+	\label{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative_threshold_3}
+\end{figure}
+
+\begin{figure}[]
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 1cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t}
+	\end{subfigure}
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t+20.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t+20}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0.5cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t+20.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t+20}
+	\end{subfigure}
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 1cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t}
+	\end{subfigure}
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t+5.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t+5}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t+5.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t+5}
+	\end{subfigure}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 3 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_3_frames_of_interest}
+\end{figure}
+
+% Scenario 4
+
+\begin{figure}[]
+	\centering
+	\fbox{\includegraphics[width=0.9\textwidth, trim={3cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_route_27_town03_training.pdf}}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 4 overview: Crowded roundabout}
+	\label{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_route_27_town03_training}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative.pdf}
+	%\captionsetup{justification=justified}
+	\caption[Scenario 4 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+	\label{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative}
+\end{figure}
+
+\begin{figure}[t!]
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t.png}
+	\end{subfigure}
+	\hfill 
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 2cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t}
+	\end{subfigure}
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+40.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+40.png}
+	\end{subfigure}
+	\hfill 
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 3cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+40.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+40}
+	\end{subfigure}
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+80.png}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+80}
+	\end{subfigure}
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 2cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+80.png}}
+		\caption{}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+80}
+	\end{subfigure}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 4 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_4_frames_of_interest}
+\end{figure}
 
 \section{Summary}
 \label{sec:8_summary}

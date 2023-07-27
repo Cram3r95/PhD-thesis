@@ -37,7 +37,7 @@
 
 		Algo extraño pasaba, \\
 		Digievolucionaban, en tamaño y color, \\
-		Ellos son los Digimon. 
+		¡Ellos son los Digimon!. 
 	\end{Frase}
 	\begin{Fuente}
 		Opening 1 de Digimon: "Butterfly" \\
@@ -537,7 +537,7 @@ Multi-head attention is a type of attention mechanism used in \ac{DL} models, pa
 \subsubsection{Self-Attention vs Cross-Attention}
 \label{subsubsec:3_self_attention_vs_cross_attention}
 
-Both self-attention and cross-attention are usually employed by means of several heads, that is, Multi-Head Self-Attention (MHSA) and Multi-Head Cross-Attention (MHCA). Self-attention operates on a single sequence, while cross-attention operates on two sequences. 
+Both self-attention and cross-attention are usually employed by means of several heads, that is, \acf{MHSA} and \acf{MHCA}. Self-attention operates on a single sequence, while cross-attention operates on two sequences. 
 
 Self-attention is a type of attention mechanism used in deep learning models, particularly in transformer-based architectures, that allows the model to attend to different parts of the input sequence to compute a representation of each input element.
 
@@ -555,7 +555,7 @@ The query, key, and value vectors are obtained through linear transformations of
 
 Self-attention has been shown to be a powerful mechanism for capturing long-range dependencies in sequential data, and it has been used successfully in a variety of natural language processing tasks, including machine translation, language modeling, and sentiment analysis.
 
-On the other hand, in cross-attention, there are two sources of information, where one of the input sequences serves as the query sequence, while the other sequence serves as the key-value sequence. The query sequence is transformed into a query vector, while the key-value sequence is transformed into key and value vectors. The query vector is then used to compute the attention score for each element in the query sequence with respect to every element in the key-value sequence. The attention scores are used to weight the value vectors, which are then combined to produce the final output. Cross-attention is commonly used in machine translation models, where one of the input sequences is the source language and the other sequence is the target language.
+On the other hand, in cross-attention, there are two sources of information, where one of the input sequences serves as the query sequence, while the other sequence serves as the key-value sequence. The query sequence is transformed into a query vector, while the key-value sequence is transformed into key and value vectors. The query vector is then used to compute the attention score for each element in the query sequence with respect to every element in the key-value sequence. The attention scores are used to weight the value vectors, which are then combined to produce the final output. Cross-attention is commonly used in machine translation models, where one of the input sequence is the source language and the other sequence is the target language.
 
 The mathematical formulation of cross-attention is as follows:
 
@@ -900,29 +900,29 @@ Regularization techniques in deep learning are used to prevent overfitting and i
 	
 	\item \textbf{Batch normalization} is a technique that normalizes the activations of a layer by subtracting the batch mean and dividing by the batch standard deviation. This helps stabilize the distribution of the activations and reduces the internal covariate shift, which can improve the training process and reduce overfitting.
 	
-	\item \textbf{Weight decay} is a technique that adds a penalty term to the loss function during training, similar to L2 regularization. The penalty term is proportional to the square of the weights, and it encourages the model to learn smaller and simpler weights, which can reduce overfitting.
+	\item \textbf{Weight decay} is a technique that adds a penalty term to the loss function during training, similar to $\mathcal{L}_2$ regularization. The penalty term is proportional to the square of the weights, and it encourages the model to learn smaller and simpler weights, which can reduce overfitting.
 	
 \end{itemize}
 
-Moreover, another interesting technique to help the model improve during training is hard-mining. Hard-mining is a technique in deep learning used to improve the training of a model by focusing on the samples that are most difficult to classify correctly.
+Moreover, another interesting technique to help the model improve during training is hard-mining. Hard-mining is a technique in \ac{DL} used to improve the training of a model by focusing on the samples that are most difficult to classify correctly. In terms of vehicle \ac{MP}, hard-mining is used to improve the accuracy of predictions by focusing on challenging or critical scenarios. It involves selecting and prioritizing difficult or informative examples during the training process to emphasize learning in those areas. It typically involves identifying and emphasizing challenging situations where accurate prediction is crucial. These situations could include complex traffic interactions, sudden maneuvers, or high-risk scenarios. By focusing on these challenging instances, the model can learn to handle them more effectively and improve its overall prediction capabilities.
 
-During training, the model makes predictions on a batch of training data, and the loss function is computed based on the difference between the predicted values and the true values. In hard-mining, the training samples that contribute the most to the loss function are identified, and these samples are given more importance during training.
+Assuming a dataset with a wide range of situations is provided (\eg \ Argoverse 1 and 2 datasets), the process of hard-mining involves several steps:
 
-The idea behind hard-mining is that by focusing on the difficult samples, the model is forced to learn more discriminative features that can better distinguish between the different classes. This can lead to better generalization performance and improved accuracy on the test data.
-
-There are several ways to implement hard-mining in deep learning, including:
-
-\begin{itemize}
+\begin{enumerate}
 	
-	\item \textbf{Hard negative mining} involves selecting the training samples that are misclassified with the highest confidence by the model and including them in the next batch of training data. By focusing on the difficult negative samples, the model can learn to better distinguish between the different classes and reduce the number of false negatives.
+	\item \textbf{Training}: The model is trained on the annotated dataset using machine learning techniques. During the training process, the model learns to predict future vehicle motions based on the available input data.
 	
-	\item \textbf{Hard positive mining} involves selecting the training samples that are misclassified with the lowest confidence by the model and including them in the next batch of training data. By focusing on the difficult positive samples, the model can learn to better distinguish between the different classes and reduce the number of false positives.
+	\item \textbf{Evaluation and Selection}: After training, we identify in the training dataset the instances where the model performance is suboptimal or where it fails to accurately predict certain behaviors (for example, challenging intersections, sudden accelerations or emergency breaks). These scenarios might include instances where the model fails to predict dangerous maneuvers accurately or struggles with complex interactions.
 	
-	\item \textbf{Curriculum learning} involves gradually increasing the difficulty of the training data over time. The model is first trained on easy samples and then gradually exposed to more difficult samples. This can help the model learn more robust and generalizable features by gradually increasing the complexity of the training data.
+	\item \textbf{Sample Selection}: The challenging examples identified in the previous step are selected as hard-mining samples. These samples are then given more weight or importance during subsequent training iterations.
+	
+	\item \textbf{Iterative Training}: The model is retrained using the original dataset, giving more emphasis to the hard-mining samples in the batch (\eg \ at least 20 \% of the samples of the batch must be a random subset of total hard-mining samples). By increasing the exposure to challenging scenarios, the model learns to improve its predictions specifically for those cases.
+	
+	\item \textbf{Iterative Evaluation}: The model performance is evaluated on the validation set, and the hard-mining process is repeated if necessary. This iterative approach allows the model to gradually refine its predictions and adapt to challenging situations more effectively.
+	
+\end{enumerate}
 
-\end{itemize}
-
-Overall, hard-mining is a useful technique in deep learning for improving the training of a model by focusing on the difficult samples. By incorporating hard-mining into the training process, the model can learn more discriminative features and improve its generalization performance on new, unseen data.
+As observed, by incorporating hard-mining into the training process, vehicle \ac{MP} models can focus on challenging scenarios and improve their generalization and performance in unknown scenarios and critical situations respectively.
 
 \section{Summary}
 \label{sec:3_summary}
