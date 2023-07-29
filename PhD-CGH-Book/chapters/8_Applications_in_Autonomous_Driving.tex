@@ -62,7 +62,7 @@ The increasing popularity of \acp{ADS} has brought with it significant challenge
 
 A key challenge in \ac{RL}-based \acp{ADS} is the development of effective state representations that can account for the complexity of urban driving scenarios. Unlike in simpler environments, state representations for urban driving must be able to incorporate a wide range of information, including dynamic features of traffic flows and interactions among different agents. Finding ways to effectively encode this information and develop accurate state representations is essential to enabling \ac{RL}-based \acp{ADS} to generalize to various scenarios and make effective driving decisions. Distilling predictive information from scene representations can aid in the development of effective decision-making policies for \acp{ADS}. By better understanding the potential consequences of different driving actions, \ac{RL}-based \acp{ADS} can make more informed decisions that lead to safer and more efficient driving behaviour.
 
-In this application we propose an approach to enhance the efficiency and generalization of \ac{RL}-based \acp{ADS} in urban driving scenarios. Specifically, we introduce the use of a \ac{MP} module to obtain the future positions of the ego-vehicle and the surrounding vehicles (adversaries) in the scenario. These predictions are the input to an \ac{RL}-based \ac{DM} module that executes high-level actions. Our approach is developed using the \ac{PPO} algorithm  \cite{Schulman2017}.  We carry out an evaluation in the unsignalized T-intersection scenario shown in Fig. \ref{fig:chapter_8_Applications/dm_t-intersection_scenario} with and without the proposed state representation and provide a comparison with some baseline methods.
+In this application we propose an approach to enhance the efficiency and generalization of \ac{RL}-based \acp{ADS} in urban driving scenarios. Specifically, we introduce the use of a \ac{MP} module to obtain the future positions of the ego-vehicle and the surrounding vehicles (adversaries) in the scenario. These predictions are the input to an \ac{RL}-based \ac{DM} module that executes high-level actions. Our approach is developed using the \ac{PPO} algorithm  \cite{Schulman2017}.  We carry out the evaluation in an unsignalized T-intersection scenario implemented in the \ac{SMARTS} simulator, as shown in Figure \ref{fig:chapter_8_Applications/dm_t-intersection_scenario}, with and without the proposed state representation and provide a comparison with some baseline methods.
 
 \begin{figure}[h]
 	\centering
@@ -103,6 +103,8 @@ As observed in Figure \ref{fig:chapter_8_Applications/dm_prediction_framework}, 
 \subsubsection{Efficient Social-based Prediction stage}
 \label{subsubsec:8_decision_making_our_approach_prediction}
 
+As observed throughout this thesis, predicting the future behaviour of traffic agents around the ego-vehicle is one of the key unsolved challenges in reaching full self-driving autonomy and it is required to be multi-modal, which means given the past motion of a particular vehicle and its surrounding scene, there may exist more than one possible future behaviour. Therefore, MP models need to cover the different choices a driver could make (\ie \ going straight or turning, accelerations or slowing down) as a possible trajectory in the immediate future or as a probability distribution of the agents future location. In other words, when an \ac{ADS} attempts to make a specific action (\eg \ left turn, brake or accelerate), it must consider the future motion of the other vehicles, since the own future actions (also known as decision-making or behaviour planning) depends on the all possible maneuvers of the other agents of the scene for safe driving. %In our case, though we train the MP model in a multi-modal way, we provide the best mode (trajectory with the highest confidence).
+
 \begin{figure}[h]
 	\centering
 	\setlength{\tabcolsep}{2.0pt}
@@ -115,9 +117,9 @@ As observed in Figure \ref{fig:chapter_8_Applications/dm_prediction_framework}, 
 	\label{fig:chapter_8_Applications/CVPR_2023_only_social}
 \end{figure}
 
-As observed throughout this thesis, predicting the future behaviour of traffic agents around the ego-vehicle is one of the key unsolved challenges in reaching full self-driving autonomy and it is required to be multi-modal, which means given the past motion of a particular vehicle and its surrounding scene, there may exist more than one possible future behaviour. Therefore, MP models need to cover the different choices a driver could make (\ie \ going straight or turning, accelerations or slowing down) as a possible trajectory in the immediate future or as a probability distribution of the agents future location. In other words, when an \ac{ADS} attempts to make a specific action (\eg \ left turn, brake or accelerate), it must consider the future motion of the other vehicles, since the own future actions (also known as decision-making or behaviour planning) depends on the all possible maneuvers of the other agents of the scene for safe driving. %In our case, though we train the MP model in a multi-modal way, we provide the best mode (trajectory with the highest confidence).
+Since our proposed decision-making and \ac{MP} pipeline (Figure \ref{fig:chapter_8_Applications/dm_prediction_framework}) is multi-stage to provide a more interpretable framework, we follow the principles of the Argoverse 2 Motion Forecasting dataset \cite{wilson2023argoverse}. In particular, we take the final proposal of this thesis (Chapter \ref{cha:improving_multi_agent}) but excluding the map and heuristic lane proposals for simplicity. Then, this model is solely based on past trajectories (motion history, $obs_{len} = 50$) and agent metadata (in \ac{SMARTS} we assume all agents are vehicles and are relevant), as observed in Figure \ref{fig:chapter_8_Applications/CVPR_2023_only_social}, which output is a set of multi-modal predictions with $pred_{len} = 60$ future steps.
 
-Since our proposed decision-making and \ac{MP} pipeline (Figure \ref{fig:chapter_8_Applications/dm_prediction_framework}) is multi-stage to provide a more interpretable framework, we follow the principles of the Argoverse 2 Motion Forecasting dataset \cite{wilson2023argoverse} to train our prediction model. In our case, we build an efficient model solely based on past trajectories (motion history, $obs_{len} = 50$) and agents interactions, taking into account the corresponding traffic rules, not requiring fully-annotated HD map information, to predict $obs_{len} = 60$ future steps. % Given the standard frequency of 10 Hz, this makes 5s and 6s of observation and prediction respectively. 
+% CONTINUARRRRRRRRRRRRRRR
 
 The \acf{SMARTS} \cite{SMARTS} framework provides only the positions of the agents in the timestamp \textit{t}. Nevertheless, in order to predict the future $pred_{len}$ trajectories of the agents, we require their corresponding $obs_{len}$ trackers over a certain set of observations. Most vehicle prediction datasets \cite{wilson2023argoverse} aim to predict the future behaviour of a target agent assuming the surrounding agents have been detected and tracked (so, monitored over time) and the map information is also provided. In that sense, since \ac{SMARTS} provide the agents in the same order for consecutive timestamps (that is, the agent 5, unless it disappears from the scene, will be the agent 5 again in the next frame), we are able to compute a FIFO (\textit{First Input First Output}) for each agent, not requiring data association \cite{kuhn1955hungarian} to perform this task. 
 
@@ -320,24 +322,24 @@ Finally, an overview of the behaviour of our system is shown in Figure \ref{fig:
 \section{Domain Adaptation in CARLA simulator}
 \label{sec:8_domain_adaptation_carla}
 
-In this Section we study the domain adaptation of our efficient social-based prediction model (Figure \ref{fig:chapter_8_Applications/CVPR_2023_only_social}) in the CARLA simulator. As stated in previous sections, CARLA provides a realistic sensor simulation environment, including cameras, \ac{LiDAR}, and other on-board sensors. On top of that, it accurately models vehicle dynamics, including realistic acceleration, braking, and steering behaviors in complex traffic scenarios with various types of vehicles, pedestrians, and cyclists, enabling motion prediction algorithms to be tested and evaluated in realistic traffic situations, such as sudden imminent collisions with another vehicle, unexpected \ac{VRU}, intersections or lane change maneuver in a high-way, where the ego-vehicle must pay attention to the surrounding scene and predict its future to take the optimal action. 
+In this Section we study the domain adaptation of our efficient social-based prediction model (Figure \ref{fig:chapter_8_Applications/CVPR_2023_only_social}) in the \ac{CARLA} simulator. As stated in previous sections, \ac{CARLA} provides a realistic sensor simulation environment, including cameras, \ac{LiDAR}, and other on-board sensors. On top of that, it accurately models vehicle dynamics, including realistic acceleration, braking, and steering behaviors in complex traffic scenarios with various types of vehicles, pedestrians, and cyclists, enabling motion prediction algorithms to be tested and evaluated in realistic traffic situations, such as sudden imminent collisions with another vehicle, unexpected \ac{VRU}, intersections or lane change maneuver in a high-way, where the ego-vehicle must pay attention to the surrounding scene and predict its future to take the optimal action. 
 
-To this end, we take the \ac{ADS} provided by the RobeSafe research group (including the control and global planning modules) to move the vehicle around the city given a pre-defined route. In this case, the global routes are pre-defined by the CARLA Autonomous Driving Leaderboard \cite{dosovitskiy2017carla}, one of the main competitions around the world to evaluate \ac{ADS} proposals, either end-to-end or modular-based. Since our \ac{MP} pipeline require a set of \textit{$obs_{len}$} observations per agent, \ie \ the agent has been previously detected and tracked in such a way a buffer is filled with its past observations, a robust and reliable detection and tracking stage should be implemented to perform 360 \degree sensor fusion and monitor the most relevant obstacles around the ego-vehicle. Nevertheless, implementing the whole perception pipeline is out of the scope of the thesis, which is mainly focused on the prediction stage.
+To this end, we take the \ac{ADS} provided by the RobeSafe research group (including the global planning, perception with basic map monitoring, control and \ac{DM}  modules) to move the vehicle around the city in a reactive way (that is, stop in front of red traffic lights, unexpected \ac{VRU} and avoid collisions, not taking into account the predictions of the model presented in this thesis) given a pre-defined route. In this case, the global routes are predefined by the \ac{CARLA} Autonomous Driving Leaderboard \cite{dosovitskiy2017carla}, one of the main competitions around the world to evaluate \ac{ADS} proposals, either end-to-end or modular-based. Since our \ac{MP} pipeline require a set of \textit{$obs_{len}$} observations per agent, \ie \ the agent has been previously detected and tracked in such a way a buffer is filled with its past observations, a robust and reliable detection and tracking stage should be implemented to perform 360 \degree sensor fusion and monitor the most relevant obstacles around the ego-vehicle. Nevertheless, implementing the whole perception pipeline is out of the scope of the thesis, which is mainly focused on the prediction stage.
 
-In that sense, as observed in Figure to validate our prediction pipeline in CARLA in real-time simulation (not in isolated traffic scenarios, as expected from a dataset), we make use of the Autonomous Driving Perception Development Kit (also referred as AD-PerDevKit), partially published in the following conference paper \cite{de2022ad}: "Ad perdevkit: an autonomous driving perception development kit using carla simulator and ros", 2022 IEEE 25th International Conference on Intelligent Transportation Systems (ITSC), p. 4095-4100.  
+In that sense, as observed in Figure to validate our prediction pipeline in \ac{CARLA} in real-time simulation (not in isolated traffic scenarios, as expected from a dataset), we make use of the Autonomous Driving Perception Development Kit (also referred as AD-PerDevKit), partially published (where I am a co-author) in the following conference paper \cite{de2022ad}: "Ad perdevkit: an autonomous driving perception development kit using carla simulator and ros", 2022 IEEE 25th International Conference on Intelligent Transportation Systems (ITSC), p. 4095-4100.  
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth, trim={0 4cm 0 1cm},clip]{chapter_8_Applications/ad_perdevkit.pdf}
 	\captionsetup{justification=justified}
-	\caption[Overview of the integration of our prediction pipeline in the CARLA simulator using the AD-PerDevKit tool]{Overview of the integration of our prediction pipeline in the CARLA simulator using the AD-PerDevKit tool. The PythonAPI module is used to obtain all actors in the world. Our AD-PerDevKit performs a ray-tracing-based filtering to keep only those obstacles which are hit by at least one LiDAR ray. Past observations are considered over time for these relevant obstacles which are used to feed the social-based prediction pipeline.}
+	\caption[Overview of the integration of our prediction pipeline in the \ac{CARLA} simulator using the AD-PerDevKit tool]{Overview of the integration of our prediction pipeline in the \ac{CARLA} simulator using the AD-PerDevKit tool. The PythonAPI module is used to obtain all actors in the world. Our \ac{AD-PerDevKit} performs a ray-tracing-based filtering to keep only those obstacles which are hit by at least one \ac{LiDAR} ray. Past observations are considered over time for these relevant obstacles which are used to feed the social-based prediction pipeline.}
 	\label{fig:chapter_8_Applications/ad_perdevkit}
 \end{figure}
 
 \subsection{Autonomous Driving Perception Development Kit (AD-PerDevKit)}
 \label{subsec:8_ad_perdevkit}
 
-As stated above, most \ac{SOTA} \ac{MP} pipelines in the field of \ac{AD} require 360\degree~\ac{DAMOT} to get the past observations of the agents and then predict their future actions. Since this thesis is not focused neither in object detection nor tracking, which would involve significant complexity and effort, surpassing the intended focus of this research, utilizing ray-tracing-based ground-truth as a realistic representation of the environment is a justifiable decision.
+As stated above, most \ac{SOTA} \ac{MP} pipelines in the field of \ac{AD} require 360\degree \ac{DAMOT} to get the past observations of the agents and then predict their future actions. Since this thesis is not focused neither in object detection nor tracking, which would involve significant complexity and effort, surpassing the intended focus of this research, utilizing ray-tracing-based ground-truth as a realistic representation of the environment is a justifiable decision.
 
 Autonomous driving systems rely on accurate and reliable input data to make informed decisions. Ray-tracing techniques, which simulate the behavior of light in a virtual environment, provide a highly realistic representation of the surroundings. By employing ray-tracing-based ground-truth, precise information about the positions, shapes, and properties of obstacles in the environment can be generated as preliminary information before conducting the prediction stage. This approach ensures that the \ac{ADS} receives high-fidelity data that closely resembles real-world conditions. 
 
@@ -356,352 +358,161 @@ There are many studies about ray tracing that solve this issue. These techniques
 
 Moreover, it is important to note that this tool is designed to work either for offline or online \ac{GT} generation. On the other hand, one of the most important and delicate parts for the real-time use of this application is efficiency, so it is necessary to perform a method similar to the \ac{SOTA} in terms of ray-tracing, but with low computational cost. Therefore, it was decided to use the latest point-cloud processed by our custom \ac{ROS} bridge to filter the objects in the environment given a frequency of 10 Hz (standard in the \ac{AD} industry, and particularly in the \ac{CARLA} Autonomous Driving Leaderboard). For the implementation of this operation, vectorization of the operations is necessary, as computation needs to be done in less than $10^{-2}$ seconds. It must be noted that only vehicles and pedestrians are considered for our purposes, since \ac{CARLA} also provides the traffic lights and other traffic infrastructure as World agents or actors. The steps to be performed are the summarized in Algorithm \ref{alg:8_ray_tracing_object_visibility}, where a maximum distance of 120 m is considered to filter the furthest agents:
 
-\begin{comment}
+\begin{algorithm}[H]
+	\SetAlgoLined
+	\footnotesize
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	
+	\Input{\ac{LiDAR} raw data and \ac{CARLA} World objects}
+	\Output{Bounding box parameters of visible agents}
+	
 	\BlankLine
 	
-	\textbf{Function} $f_{\text{visible_{bb}}}(\text{bb}, \text{points})$:\;
-	\Indp
-	\textbf{return} $\text{np.logical_{and}} \\
+	Transform \ac{LiDAR} raw data and \ac{CARLA} World objects into \ac{ROS} format to enhance matrix operations and interpretability.
 	
-	(\left( \text{np.logical_{and}} \left( \text{bb}[0] - \frac{\text{bb}[3]}{2} \leq \text{np.array(points[:, 0])}, \\
-	\text{np.array(points[:, 0])} \leq \text{bb}[0] + \frac{\text{bb}[3]}{2} \right), \\
-	\text{bb}[1] - \frac{\text{bb}[4]}{2} \leq \text{np.array(points[:, 1])} \right), \\
-	\left( \text{np.logical_{and}} \left(\text{np.array(points[:, 1])} \leq \text{bb}[1] + \frac{\text{bb}[4]}{2} \right), \\
-	\text{bb}[2] - \frac{\text{bb}[5]}{2} \leq \text{np.array(points[:, 2])}, \\
-	\text{bb}[2] \leq \frac{\text{bb}[5]}{2})) $\;
+	\BlankLine
+	
+	Remove objects further than the maximum \ac{LiDAR} distance.
+	
+	\BlankLine
+	
+	Delete points in the point cloud with heights higher or lower than the objects in the surroundings.
+	
+	\textbf{Function} $f_{\text{visible\_bb}}(\text{bb}, \text{points})$:
+	
+	\Indp
+	\Return $\text{np.logical\_and}($
+	
+	\hspace{3em} $\text{np.logical\_and}(\text{bb}[0] - \frac{\text{bb}[3]}{2} \leq \text{np.array(points}[:,0]),$
+	
+	\hspace{3em} $\text{np.array(points}[:,0]) \leq \text{bb}[0] + \frac{\text{bb}[3]}{2},$
+	
+	\hspace{3em} $\text{bb}[1] - \frac{\text{bb}[4]}{2} \leq \text{np.array(points}[:,1])), $
+	
+	\hspace{3em} $\text{np.logical\_and}(\text{np.array(points}[:,1]) \leq \text{bb}[1] + \frac{\text{bb}[4]}{2},$
+	
+	\hspace{3em} $\text{bb}[2] - \frac{\text{bb}[5]}{2} \leq \text{np.array(points}[:,2]),$
+	
+	\hspace{3em} $\text{np.array(points}[:,2]) \leq \text{bb}[2] + \frac{\text{bb}[5]}{2}))$
+	
 	\Indm
 	
 	\BlankLine
 	
-	5. Select visible objects having at least one point in the point cloud, considering the rotation of different objects;
+	Select visible objects having at least one point in the pointcloud, considering the rotation of different objects.
 	
 	\BlankLine
 	
-	$n_{\text{points\_in\_bb}} = 0$\;
+	\textbf{If} pointcloud data is available:
 	
-	\If{\text{pointcloud is not None}}{
-		$points\_in\_bb = f_{\text{visible\_bb}} \left( (\text{obj.position\_x}, \text{obj.position\_y}, \\ \text{obj.position\_z}, \text{obj.l}, \text{obj.w}, \text{obj.h}), \\
-		\text{self.pointcloud} \right)$\;
-		$n_{\text{points\_in\_bb}} = \text{np.add.reduce}(points\_in\_bb)$\;
-	}
-\end{comment}
-
-\begin{algorithm}[h]
-	\SetAlgoLined
-	\SetKwInOut{Input}{Input}
-	\SetKwInOut{Output}{Output}
-	\Input{Point cloud provided by the simulator and \ac{CARLA} world agents}
-	\Output{Bounding box parameters of agents with at least one \ac{LiDAR} point of incidence}
+	\Indp
+	$points\_in\_bb \gets f_{\text{visible\_bb}}((\text{obj.position\_x}, \text{obj.position\_y},$
 	
-	\caption{Ray-tracing-based filtering algorithm to perform object visibility}
+	\hspace{9.5em} $\text{obj.position\_z, obj.l, obj.w, obj.h}), \text{self.pointcloud})$
+	
+	$n\_points\_in\_bb \gets \text{np.add.reduce}(points\_in\_bb)$
+	
+	\Indm
+	
+	\BlankLine
+	
+	\caption{Ray-tracing-based filtering algorithm to perform object visibility in the \ac{AD-PerDevKit}}
 	\label{alg:8_ray_tracing_object_visibility}
-	
-	\BlankLine
-	
-	Transform \ac{LiDAR} raw data and CARLA World objects into \ac{ROS} format to enhance matrix operations and interpretability.
-	
-	Remove objects furthest than the maximum \ac{LiDAR} distance.
-	
-	Delete points in the point cloud with heights higher or lower than the objects in the surroundings.
-	
-	Eliminate points outside the area where the objects are located, considering all possible rotations.
-
-	Select visible objects having at least one point in the point cloud, considering the rotation of different objects.
-
 \end{algorithm}
 
 \subsection{Experimental results}
 \label{subsec:8_experimental_results}
 
-Once we have calculated the 360 \degree visible objects in a frame $t$, as additional pre-processing steps the \ac{AD-PerDevKit} tool fills a buffer with the past positions of the corresponding object (simulating a real-world buffered Multi-Object Tracker). Nevertheless, since the proposed prediction model has been trained in Argoverse 2 using an observation length of \textit{$obs_{len}$} = 50 (\ie \ 5s of motion history regarding a frequency of 10 Hz). Then, calculating the predictions with only 2 or 3 observations would not make sense, since even though there are several agents in Argoverse 1 and Argoverse 2 with only a few observations (for example, an object is relevant in the scene since it is relevant to the \ac{ADS} in $t=0$, with only has 4 observations because suddenly appeared in the traffic scenario). To this end, we filter those obstacles with a number of observations less than a certain threshold, set to 20 in this case. Figure \ref{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ} depicts an example of the \ac{AD-PerDevKit} output while driving our \ac{ADS} in the \ac{CARLA} simulator (particularly Town03). Filtered objects and observations are plotted in the well-established RVIZ simulator. 
+Once we have calculated the 360\degree~visible objects in a frame $t$, as additional preprocessing steps the \ac{AD-PerDevKit} tool fills a buffer with the past positions of the corresponding agent (simulating a real-world buffered Multi-Object Tracker). Note that if the buffer of an agent was created and in a given frame $t$ it is occluded, the observation at that particular timestamp (in the same way than computed in previous Chapters) is filled with zeros and the binary flag $b_i^t$ set to 1, indicating that the observation $t$ of the agent $i$ has been padded. 
+
+Nevertheless, since the proposed prediction model has been trained in Argoverse 2 using an observation length of \textit{$obs_{len}$} = 50 (\ie \ 5s of motion history regarding a frequency of 10 Hz). Then, calculating the predictions with only 2 or 3 observations would not make sense, since even though there are several agents in Argoverse 1 and Argoverse 2 with only few observations (for example, an object is relevant in the scene since it is relevant to the \ac{ADS} in $t=0$, with only has 4 observations because suddenly appeared in the traffic scenario), most agents should not be predicted with such a low number of observations. To this end, we filter those obstacles with a number of observations less than a certain threshold, set to 30 in this case. Figure \ref{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ} depicts an example in Town03 of the \ac{AD-PerDevKit} output while driving our \ac{ADS} in the \ac{CARLA} simulator. We illustrate the past observations (until \textit{$obs_{len}$} = 50) of the relevant agents such as \textbf{\textcolor{blue}{vehicles}} (cars, vans, trucks, buses) and \textbf{\textcolor{brown}{VRUs}} (cyclists, motorcyclists and pedestrians), as well as the \textbf{\textcolor{red}{ego-vehicle}} observations. All agents have their corresponding identifier.
+
+In terms of prediction, model will be able to predict only if the ego-vehicle has at least two observations, since to compute the rotation angle, at least the current and past observations are required. Moreover, \textbf{\textcolor{ForestGreen}{multi-modal predictions}} are calculated for each agent (including the ego-vehicle, treated as a standard agent, not taking into account the \ac{CMP} paradigm as explained in Chapter \ref{cha:related_works}). Note that for visualization purposes, we avoid plotting the ego-vehicle predictions, other agents modes with a confidence value lower than a certain threshold, in this case set to 0.2. The remaining predictions will be sorted in terms of opacity based on their confidence: the higher the transparency, the less probable the future mode or behavior will be, as illustrated throughout the thesis. Furthermore, even though in \ac{CARLA} our ego-vehicle is a gray Lincoln MKZ 2017, in the \ac{RVIZ} tool, for visualization purposes, it is represented as the red vehicle. Note that, in all traffic scenarios, the model should be able to differentiate between static and dynamic objects, \ie \ the model must reason which agents should keep their position in future frames (\eg \ agents stopped in front of a red traffic light or stop) and which agents, even though they are currently stopped, must be predicted since ahead vehicles have started moving. Dynamic agents, as expected, are predicted in all different situations. 
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/simulator_CARLA_RVIZ.png}
+	\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/simulator_CARLA_RVIZ.pdf}
 	\captionsetup{justification=justified}
-	\caption[Ray-tracing-based filtering example in the \ac{RVIZ} simulator]{Ray-tracing-based filtering example in the \ac{RVIZ} simulator. We illustrate the \textbf{\textcolor{blue}{past observations}} (until \textit{$obs_{len}$} = 50) of the relevant agents, as well as the \textbf{\textcolor{red}{ego-vehicle}} observations.}
+	\caption[Ray-tracing-based filtering and buffered \ac{MOT} example in the \ac{RVIZ} simulator]{Ray-tracing-based filtering example and buffered \ac{MOT} in the \ac{RVIZ} simulator. Past observations (until \textit{$obs_{len}$} = 50) of the relevant agents such as \textbf{\textcolor{blue}{vehicles}} (cars, vans, trucks, buses) and \textbf{\textcolor{brown}{VRUs}} (cyclists, motorcyclists and pedestrians), as well as the \textbf{\textcolor{red}{ego-vehicle}} observations. All agents have their corresponding identifier.}
 	\label{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ}
 \end{figure}
 
-The experiments were run in a PC desktop computer consisting of an AMD Ryzen 9 5900X 12-Core Processor (overclocked to 3.7 GHz), NVIDIA 3090 RTX Ti and 32 GB of RAM (3200 MHz). To qualitatively validate our prediction pipeline, we have selected several interesting use cases of the \ac{CARLA} Autonomous Driving Leadeboard inspired in the \ac{NHTSA} where either the prediction module is of vital importance to take the optimal action in the short/long term, even though map information is not included for simplicity. Table \ref{table:8_carla_use_cases} summarizes the proposed use cases. Note that, in all traffic scenarios, the model should be able to differentiate between static and dynamic objects, \ie \ the model must reason which agents should keep their position in future frames (\eg \ agents stopped in front of a red traffic light or stop) and which agents, even though they are currently stopped, must be predicted since ahead vehicles have started moving. Dynamic agents, as expected, are predicted in all different scenarios. 
+Experiments were run in a PC desktop computer consisting of an AMD Ryzen 9 5900X 12-Core Processor (overclocked to 3.7 GHz), NVIDIA 3090 RTX Ti and 32 GB of RAM (3200 MHz). To qualitatively validate our prediction pipeline, we have designed several interesting use cases in the \ac{CARLA} simulator using the OpenScenario tool, inspired in the \ac{NHTSA} where a prediction algorithm is of vital importance to take the optimal action in the short/long term, being essential to improve the safety and comfort of both the ego-vehicle and the surrounding environment. As aforementioned, map information is not included in the model for simplicity due to the noticeable amount of work to adapt the \ac{HDmap} format and heuristic lane proposals extraction (as proposed in Chapter \ref{cha:improving_multi_agent}) to a completely different environment. Furthermore, as trained in Argoverse 1 and 2, observations are received at a frequency of 10 Hz from the simulator.
 
-\begin{table}[!tpbh]
+Table \ref{table:8_carla_use_cases} summarizes the proposed use cases, including the following features: Scenario ID, \ac{CARLA} simulator town where it was conducted, use case highlights, total number of actors in the world, ego-vehicle speed, and \ac{minADE} $K$=6, which is the most representative \ac{MP} metric throughout this thesis, and a threshold of minimum of number of observations to start predicting an agent. Note that the number of actors in the \ac{CARLA} is the recommended traffic density for the corresponding town in the \ac{CARLA} Autonomous Driving Leaderboard to avoid unnecessary blockouts specially in crowded roads and intersections.
+
+In order to evaluate the model in the different scenarios, we store the buffers of all observed objects at frame $t$ in a $csv$ file. Then, after the traffic scenario has finished, we have $obs_{len}=50$ observations at frame $t$ per agent, which is the input required by the prediction network in Argoverse 2. Furthermore, it is important to take into account that the \ac{GT} for each timestamp $t$ must be a set of $pred_{len}=60$ 2D \ac{BEV} positions in global coordinates. To this end, as a preprocessing step, given a timestamp (so, its corresponding $csv$ file), we gather the future positions of the agents observed in the current file. If an agent has not been observed at a particular frame in the prediction horizon (\ie \ the agent was not observed in the $39-th$ future step out of 60), that position of the \ac{GT} is masked in such a way it will not be compared with the output of our model. Finally, after having the \ac{GT} of the whole scenario and predictions per frame, we follow standard practices to compute the \ac{minADE} and \ac{minFDE} metrics (both in the uni-modal and multi-modal scenario). As observed in Figures \ref{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative}, \ref{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative}, \ref{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative} and \ref{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative}, at the end of the scenarios the metrics are closed to zero since the number of future steps start decreasing from $frames_{total}-60$, in such a way we can only compare our predictions with the nearest future steps (from long-term to short-term, because other positions of the \ac{GT} are masked). Further details and code to generate the \ac{GT} and calculate the metrics may be found in the final \href{https://github.com/Cram3r95/argo2goalmp}{open-source} \footnote{https://github.com/Cram3r95/argo2goalmp} proposal of this thesis. 
+
+\begin{table}[]
 	\centering
 	\captionsetup{justification=justified}
 	\caption{Summary of use cases conducted in the \ac{CARLA} to study the domain adaptation of our efficient social-based \ac{MP} algorithm}
 	\label{table:8_carla_use_cases}
 	\resizebox{\linewidth}{!}{
-	\begin{tabular}{c|c|c|c|c|c}
-		\toprule
-		Scenario ID & Town & Traffic situation & Actors per scenario & Ego max-velocity (km/h) & \ac{minADE} ($K$=6) $\downarrow$ \\
-		\midrule
-		1 & 3 & Stop + 4-ways intersection & 120 & 25.2 & 1.96 \\
-		2 & 4 & Crowded highway & 180 & 54 & 2.52 \\
-		3 & 3 & Red Traffic Light + Unexpected \ac{VRU} & 100 & 25.2 & 1.78 \\
-		4 & 3 & Crowded roundabout & 160 & 36 & 2.81 \\
-		\bottomrule
-	\end{tabular}
+		\begin{tabular}{c|c|c|c|c|c|c}
+			\toprule
+			Scenario ID & Town & Use case & Actors & Ego max-vel & \ac{minADE} ($K$=6) $\downarrow$ & Threshold \\
+			 & & highlights & in the world & [km/h] & & min observations \\
+			\midrule
+			1 & 03 & Stop + 4-ways intersection & 120 & 25.2 & 1.96 & 30 \\
+			2 & 04 & Crowded highway & 180 & 54 & 2.52 & 30 \\
+			3 & 01 & Red Traffic Light + Unexpected \ac{VRU} & 100 & 25.2 & 1.78 & 3 \\
+			4 & 03 & Crowded roundabout & 160 & 36 & 2.81 & 30 \\
+			\bottomrule
+		\end{tabular}
 	}
 \end{table} 
 
-As observed in Figure \ref{fig:chapter_8_Applications/use_cases/simulator_CARLA_RVIZ}, we will illustrate in the following use cases the \textbf{\textcolor{blue}{past observations}} (until \textit{$obs_{len}$} = 50) of the relevant agents, as well as the \textbf{\textcolor{red}{ego-vehicle}} observations, taking into account that the model will be able to predict only if the ego-vehicle has at least two observations, since to compute the rotation angle the current and past observations must be considered. Moreover, \textbf{\textcolor{ForestGreen}{multimodal predictions}} are calculated for each agent (including the ego-vehicle, treated as a standard agent, not taking into account the \ac{CMP} paradigm as explained in Chapter \ref{cha:related_works}). Note that for visualization purposes, we avoid plotting those modes with a confidence value lower than a certain threshold, in this case set to 0.2, being more solid (in terms of color) those modes which have the higher probability of occurrence, that is, the confidence value. Furthermore, even though in \ac{CARLA} our ego-vehicle is a gray Lincoln MKZ 2017, while in \ac{RVIZ}, for visualization purposes, it is the red vehicle.
+% One of the things we realized was the significant influence of the data acquisition frequency to feed the prediction network. As mentioned throughout the thesis, Argoverse 1 and Argoverse 2 provide observations at a rate of 10 Hz (for example, 5 seconds correspond to 50 frames). However, since the prediction network in CARLA has been integrated with the other layers of our reactive autonomous navigation architecture (to avoid running red lights or colliding with an agent), to obtain new data from the simulator (i.e., tick), the system must wait for the most restrictive layer (as expected, the prediction layer) to trigger an output flank to indicate that the current data has been processed. In this regard, it has been observed that the output frequency of the ROS topic from the perception layer, which indicates the end of a simulation cycle, is approximately 8.7 Hz, lower than the 10 Hz specified by Argoverse 1 and 2. Refactoring the perception layer to acquire new simulator data at the same frequency as a network trained in Argoverse 2 is beyond the scope of this thesis.
 
-Figure \ref{fig:chapter_8_Applications/use_cases/crowded_highway} illustrates a traffic jam in crowded highway, for example a standard situation when approaching a metropolis in the morning at work time. In this case, we may observe that the model does not compute multi-modal predictions towards different directions, but, as expected, it understands that all vehicles are driving in the same direction (either forward or reverse way) and the multi-modal prediction is computed in terms of different velocity profiles (that is, the agent can continue with the same velocity, suddenly break or accelerate in the mid/long term).
+\subsubsection{Scenario 1: Stop and 4-ways intersection in Town03}
+\label{subsubsec:8_experimental_results_scenario_1}
 
-Figure \ref{fig:chapter_8_Applications/use_cases/intersection} shows an intersection where the Toyota Prius in front of the ego-vehicle can conduct a multi-modal prediction (either turn left or keep straight), understanding that it is in an intersection given the surrounding agents position and past observations. Then, after turning left, 2s in the future, the model does not predict different directions, but only keep straights assuming there is not another intersection close to him ahead.
+Figures \ref{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_route22_town03_training}, \ref{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative} and \ref{fig:chapter_8_Applications/scenarios/scenario_1_frames_of_interest} show the ego-vehicle conducting a stop maneuver and 4-ways intersection in Town03. The number of agents in the world is set to 120, the maximum velocity for the ego-vehicle is 25.4 km/h, and the minimum number of observations is set to 30. As observed in Figure \ref{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative}, the mean value of the \ac{minADE} $K$=6 metric is 1.96, which is noticeable higher than the results obtained in Argoverse 2 with our proposed model without map information (multi-modal $K$=6 \ac{minADE} = 1.19). However, it may be appreciated that most values are up-to-pair with the validated model (1.19) since the average value is greatly increased due to the large error from frames $\simeq$ 700 to $\simeq$ 800 when agents start moving after the corresponding traffic lights change from red to green, and the uncertainty in the prediction stage becomes noticeable higher.
 
-As commented in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}, predicting the behaviour of \acp{VRU}, such as cyclists or pedestrians, is one of the most critical aspect of an \ac{ADS} to be deployed and scaled to real-world applications in urban scenarios. In this particular case (Figure \ref{fig:chapter_8_Applications/use_cases/unexpected_pedestrian}), we may observe that a kid suddenly appears behind a CocaCola vending machine, and, after taking into account the minimum number of observations, the model is able to correctly predict the future intentions of the agent. Nevertheless, an interesting point of view for future works could be how to assign the minimum number of observations depending on the agent type or potential risks associated to the traffic situation. For example, in this particular case, even though the model has been trained with way more past observations, the model should predict the agent as fast as possible, even though several modes are computed in non-plausible or non-sense directions.
+Regarding the stop maneuver (Figures \ref{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_carla} and \ref{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_rviz} at frame $t$), according to the traffic rules, the ego-vehicle must stop regardless if there are opponents around, so prediction is not required for the first stop. Nevertheless, predicting future behavior is absolutely necessary after making the first stop in order to safely merge into the new lane. It can be observed how the model proposes curved trajectories from straight past trajectories, as well as multi-modality, fundamentally in terms of different velocity profiles. This is because the model understands, based on the deep social features of the scene, that there are not several clearly distinct directions as is the case with an intersection. On the other hand, in the case of the 4-ways intersection, it can be clearly seen how the model is capable of understanding the difference between static objects (waiting behind a red traffic light, so predictions are calculated in the same site than observations), and dynamic objects. For example, agent number 392 (green Chevrolet Impala in Figures \ref{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t}, \ref{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t} at frame $t+240$) presents multi-modality in terms of different possible directions (turn left or go straight) since the model understands that the agent is in an intersection given the surrounding agents and past observations, even though map information is not included. On the other hand, 2 seconds (20 frames) in the future the model reasons that agent 392 has left the intersection and makes multi-modal predictions with different speed profiles in a single direction.
 
-Figure \ref{fig:chapter_8_Applications/use_cases/stop} illustrates a standard Stop traffic scenario, where the model is clearly able to distinguish among dynamic and static objects, predicting the trajectories in the same point for agents stopped for a while. Moreover, it can be slightly appreciated a multi-modal prediction for the white and red van, but probably the model discards the possibility of turning right given the vehicle that is present in that lane in the current timestamp. Conducting transfer learning and fine-tuning the model with \ac{CARLA} scenarios could be an option to help the models understand the situation in an enhanced way.  
+% Figure \ref{fig:chapter_8_Applications/use_cases/stop} illustrates a standard Stop traffic scenario, where the model is clearly able to distinguish among dynamic and static objects, predicting the trajectories in the same point for agents stopped for a while. Moreover, it can be slightly appreciated a multi-modal prediction for the white and red van, but probably the model discards the possibility of turning right given the vehicle that is present in that lane in the current timestamp. Conducting transfer learning and fine-tuning the model with \ac{CARLA} scenarios could be an option to help the models understand the situation in an enhanced way.  
 
-Finally, Figure \ref{fig:chapter_8_Applications/use_cases/roundabout} shows one of the most challenging traffic situations in urban scenarios, that is, a roundabout full of agents, considering incoming, outcoming and present agents in the current time-stamp. To help the behavioural and local planning modules to take the optimal action, the model clearly predicts the circular motion of the agents, either for the agents that are in the roundabout with different velocity profiles or even for the incoming agents which are going to get into the roundabout and probably intersect with the trajectory of our ego-vehicle if the adversary does not respect the give-way traffic signal. Then, understanding this complex situation and taking account all different scenarios, from least dangerous to most optimistic, is the key to build a robust and reliable architecture.
+\subsubsection{Scenario 2: Crowded highway in Town04}
+\label{subsubsec:8_experimental_results_scenario_2}
 
-% Scenario 1
+Figures \ref{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_route15_town04_testing}, \ref{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative} and \ref{fig:chapter_8_Applications/scenarios/scenario_2_frames_of_interest} illustrate a crowded highway scenario in Town04. The number of agents in the world is set to 180, the maximum velocity for the ego-vehicle is 54 km/h, and the minimum number of observations is set to 30. This situation can be interpreted as a traffic jam, a standard situation when approaching a metropolis in the morning at work time. In this case, we may observe that the model does not compute multi-modal predictions towards different directions, but, as expected, it understands that all vehicles are driving in the same direction (either forward or reverse way) and the multi-modal prediction is computed in terms of different velocity. profiles (that is, the agent can continue with the same velocity, suddenly break or accelerate in the mid/long term).
 
-	\begin{figure}[]
-		\centering
-		\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_route22_town03_training.pdf}}
-		%\captionsetup{justification=justified}
-		\caption{Scenario 1 overview: Stop and 4-ways intersection}
-		\label{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_route22_town03_training}
-	\end{figure}
-	
-	\begin{figure}[]
-		\centering
-		\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative.pdf}
-		\captionsetup{justification=justified}
-		\caption[Scenario 1 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
-		\label{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative}
-	\end{figure}
+The mean \ac{minADE} $K$=6 metric throughout the scenario and in general most values throughout the whole scenario are higher than the previous use case (2.52 vs 1.96) whilst from human perspective, a traffic jam should be easier to be predicted than an intersection since most agents present a similar velocity towards the same direction (either forward or reverse way). In that sense, one of the advantages of using our proposed \ac{AD-PerDevKit} pipeline to compute realistic object trackers is that we realize about one of the most important concerns when driving in the \ac{AD} field: object occlusion. Due to the large amount of agents in relatively small areas, \ac{LiDAR} rays are not able to hit the corresponding agents, specially those which are further away from the ego-vehicle. Then, a lot of padding data is introduced to the network at the same time, so the model is not able to properly reason what is happening around. To this end, a possible solution could be integrating the object tracking and motion predictor in the same loop in order to use the most plausible predictions from previous timestamps as object observations if the sensor fusion module and tracker in the short-term cannot estimate the current position of the agent. 
 
-\begin{figure}[]
-	\begin{subfigure}[b]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_carla.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_carla}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.48\textwidth}
-		\centering
-		\fbox{\includegraphics[width=\textwidth, trim={1.8cm 0 1cm 0.2cm},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_rviz.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_rviz}
-	\end{subfigure}
-	\tabularnewline
-	\begin{subfigure}[b]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.48\textwidth}
-		\centering
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t}
-	\end{subfigure}
-	\tabularnewline
-	\begin{subfigure}[b]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t+40.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t+40}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.48\textwidth}
-		\centering
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0.5},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t+40.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t+40}
-	\end{subfigure}
-	\tabularnewline
-	%\captionsetup{justification=justified}
-	\caption{Scenario 1 frames of interest}
-	\label{fig:chapter_8_Applications/scenarios/scenario_1_frames_of_interest}
-\end{figure}
+% Figure \ref{fig:chapter_8_Applications/use_cases/crowded_highway} illustrates a traffic jam in crowded highway, for example a standard situation when approaching a metropolis in the morning at work time. In this case, we may observe that the model does not compute multi-modal predictions towards different directions, but, as expected, it understands that all vehicles are driving in the same direction (either forward or reverse way) and the multi-modal prediction is computed in terms of different velocity profiles (that is, the agent can continue with the same velocity, suddenly break or accelerate in the mid/long term).
 
-% Scenario 2
+\subsubsection{Scenario 3: Red Traffic Light and Unexpected \ac{VRU} in Town01}
+\label{subsubsec:8_experimental_results_scenario_3}
 
-\begin{figure}[]
-	\centering
-	\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_route15_town04_testing.pdf}}
-	%\captionsetup{justification=justified}
-	\caption{Scenario 2 overview: Crowded highway}
-	\label{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_route15_town04_testing}
-\end{figure}
+Figures \ref{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_route1_town01_training}, \ref{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative} and \ref{fig:chapter_8_Applications/scenarios/scenario_3_frames_of_interest} illustrate an urban scenario in Town01 where the ego-vehicle is initially stopped in front of a red traffic light, then turn left in a 3-ways intersection and finally must predict the future behaviour of an unexpected \ac{VRU} (in this particular case, a kid suddenly appears running towards the road from behind a CocaCola vending machine). The number of agents in the world is set to 100, the maximum velocity for the ego-vehicle is 25.2 km/h.
 
-\begin{figure}[]
-	\centering
-	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative.pdf}
-	\captionsetup{justification=justified}
-	\caption[Scenario 2 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
-	\label{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative}
-\end{figure}
+Moreover, as discussed throughout this thesis, predicting the behaviour of \acp{VRU}, such as cyclists or pedestrians, is one of the most critical aspect of an \ac{ADS} to be deployed and scaled to real-world applications in urban scenarios. In that sense, unlike other use cases, in this particular case the minimum number of observations is set to 3. The reason is simple: In order to predict the future actions of a challenging unexpected \ac{VRU} who suddenly appears behind an obstacle (\eg \ a wall, van, vending machine, etc.), we need to reduce the minimum number of observations to get predictions on time in order to perform an emergency break (note that in these experiments the predictions do not feed the \ac{DM} module, but our reactive \ac{ADS}, which includes map monitoring, is able to deal with the unexpected situation).
 
-\begin{figure}[]
-	\begin{subfigure}{0.48\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t}
-	\end{subfigure}
-    \hfill
-	\begin{subfigure}{0.48\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={1.5cm 0 1cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t}
-	\end{subfigure}
-	\begin{subfigure}{0.48\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+15.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+15}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.48\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={3cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+15.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+15}
-	\end{subfigure}
-	\begin{subfigure}{0.48\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+30.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+30}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.48\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={2cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+30.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+30}
-	\end{subfigure}
-	%\captionsetup{justification=justified}
-	\caption{Scenario 2 frames of interest}
-	\label{fig:chapter_8_Applications/scenarios/scenario_2_frames_of_interest}
-\end{figure}
+The mean \ac{minADE} $K$=6 metric (1.78) of the whole scenario is worse than the reference in Argoverse 2 (1.19), but the actual metric in most frames is noticeable smaller than the mean. The model struggles from frame $t=400$ to $t=600$ when the ego-vehicle turns left and suddenly faces an unexpected \ac{VRU}. In terms of the 3-ways intersection, Figures \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t}, \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t} and Figures \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t+20}, \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t+20} depict the traffic scenario at frame $t$ and $t+20$ respectively. In that sense, the vehicle 423 is approaching to the intersection. Since the model lacks of map information, it predicts keeping straight and turning right. Then, 2s in the future, due to its past motion (velocity and orientation, which are implicit in the relative displacements), the model correct computes all predictions in the same direction with different velocity profiles.
 
-% Scenario 3
+Finally, at the end of the scenario the ego-vehicle faces the unexpected \ac{VRU} (Figures \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t}, \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t} and Figures \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t+5}, \ref{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t+5} depict the traffic scenario at frame $t+145$ and $t+147$ respectively). Despite the fact that the model only has 3 observations out of $obs_{len}=50$ to start predicting (remaining observations are padded with zeros), preliminary intentions are correctly computed with the corresponding velocity. Moreover, 2 frames later, due to the lack of past information, the model cannot decide a particular behaviour for the kid and still predicts the future actions in completely different directions, which is coherent given the nature of agent.
 
-\begin{figure}[]
-	\centering
-	\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_route1_town01_training.pdf}}
-	%\captionsetup{justification=justified}
-	\caption{Scenario 3 overview: Red Traffic Light and Unexpected \ac{VRU}}
-	\label{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_route1_town01_training}
-\end{figure}
+As observed, even though the model struggles in a particular moment of the traffic scenario, changing the minimum number of observations from 30 to 3 only increases the error at the beginning of the sequence when the model misses past information from the agents. However, in steady state (that is, when most of the agents have the observation buffer filled), the prediction accuracy is similar to the previous use cases.
 
-\begin{figure}[]
-	\centering
-	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative_threshold_3.pdf}
-	%\captionsetup{justification=justified}
-	\caption[Scenario 3 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
-	\label{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative_threshold_3}
-\end{figure}
+An interesting point of view for future works could be how to assign the optimal minimum number of observations in the pipeline, or if it can depend on the agent type or potential risks associated to the traffic situation. Better predictions are usually associated to enriched past information (\ie \ more data), so for vehicles it make sense to have at least 30 observations. Nevertheless, for \acp{VRU}, even though the model has been trained with way more past observations, it should predict the agent behaviour as fast as possible in spite of the fact that several modes are computed in non-plausible or non-sense directions.
 
-\begin{figure}[]
-	\begin{subfigure}{0.42\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.42\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 1cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t}
-	\end{subfigure}
-	\begin{subfigure}{0.42\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t+20.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t+20}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.42\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0.5cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t+20.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t+20}
-	\end{subfigure}
-	\begin{subfigure}{0.42\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.42\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 1cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t}
-	\end{subfigure}
-	\begin{subfigure}{0.42\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t+5.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t+5}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.42\textwidth}
-		\fbox{\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t+5.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t+5}
-	\end{subfigure}
-	%\captionsetup{justification=justified}
-	\caption{Scenario 3 frames of interest}
-	\label{fig:chapter_8_Applications/scenarios/scenario_3_frames_of_interest}
-\end{figure}
+\subsubsection{Scenario 4: Crowded roundabout in Town03}
+\label{subsubsec:8_experimental_results_scenario_4}
 
-% Scenario 4
+Figures \ref{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative}, \ref{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative} and \ref{fig:chapter_8_Applications/scenarios/scenario_4_frames_of_interest} illustrate one of the most challenging traffic situations in urban scenarios, that is, a roundabout full of agents in Town03, considering incoming, outcoming and present agents in the current time-stamp. The number of agents in the world is set to 160, the maximum velocity for the ego-vehicle is 36 km/h, and the minimum number of observations is set to 30. 
 
-\begin{figure}[]
-	\centering
-	\fbox{\includegraphics[width=0.9\textwidth, trim={3cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_route_27_town03_training.pdf}}
-	%\captionsetup{justification=justified}
-	\caption{Scenario 4 overview: Crowded roundabout}
-	\label{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_route_27_town03_training}
-\end{figure}
+To help the behavioural and local planning modules to take the optimal action, the model clearly predicts the circular motion of the agents, either for the agents that are in the roundabout with different velocity profiles or even for the incoming agents which are going to get into the roundabout and probably intersect with the trajectory of our ego-vehicle if the adversary does not respect the give-way traffic signal.
 
-\begin{figure}[]
-	\centering
-	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative.pdf}
-	%\captionsetup{justification=justified}
-	\caption[Scenario 4 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
-	\label{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative}
-\end{figure}
+The mean \ac{minADE} $K$=6 metric (2.81) of the whole scenario is the worst among all proposed scenarios, due to the huge difficulty of predicting the future motion of the agents in a roundabout without map information. There are some agents (such as 405 and 289) which are turning left (roundabout direction is counter-clockwise) and once they leave the roundabout, they are turning right, which is quite difficult to predict without the geometrical constraints, as well as semantic and topological information, of the road. 
 
-\begin{figure}[t!]
-	\begin{subfigure}{0.48\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t.png}
-	\end{subfigure}
-	\hfill 
-	\begin{subfigure}{0.48\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 2cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t}
-	\end{subfigure}
-	\begin{subfigure}{0.48\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+40.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+40.png}
-	\end{subfigure}
-	\hfill 
-	\begin{subfigure}{0.48\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 3cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+40.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+40}
-	\end{subfigure}
-	\begin{subfigure}{0.48\textwidth}
-		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+80.png}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+80}
-	\end{subfigure}
-	\begin{subfigure}{0.48\textwidth}
-		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 2cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+80.png}}
-		\caption{}
-		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+80}
-	\end{subfigure}
-	%\captionsetup{justification=justified}
-	\caption{Scenario 4 frames of interest}
-	\label{fig:chapter_8_Applications/scenarios/scenario_4_frames_of_interest}
-\end{figure}
+Moreover, in a similar way to the Scenario 2 (crowded highway), due to the large amount of agents (either vehicles or \acp{VRU}), as well as the fountain in the middle of the roundabout, there are many occlusions (\eg \ object 376 in Figure \ref{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t}) which generate way more discontinuous past trajectories than in the training dataset, making difficult the generalization of the model. Conducting transfer learning and fine-tuning the model with \ac{CARLA} scenarios could be an option to help the models understand high-complex situation in an enhanced way. 
+
+As observed, understanding this complex situation and taking account all different scenarios, from least dangerous to most optimistic, is the key to build a robust and reliable architecture.
+
+% Finally, Figure \ref{fig:chapter_8_Applications/use_cases/roundabout} shows one of the most challenging traffic situations in urban scenarios, that is, a roundabout full of agents, considering incoming, outcoming and present agents in the current time-stamp. To help the behavioural and local planning modules to take the optimal action, the model clearly predicts the circular motion of the agents, either for the agents that are in the roundabout with different velocity profiles or even for the incoming agents which are going to get into the roundabout and probably intersect with the trajectory of our ego-vehicle if the adversary does not respect the give-way traffic signal. Then, understanding this complex situation and taking account all different scenarios, from least dangerous to most optimistic, is the key to build a robust and reliable architecture.
 
 \section{Summary}
 \label{sec:8_summary}
@@ -735,3 +546,259 @@ On the other hand, we have successfully integrated the prediction algorithm in o
 	
 	Si todo fuese bien, y hasta la fecha de la lectura, mi idea es ayudar al equipo a meter detección, fusión y tracking en simulación y real, aunque no sean integraciones mid-level, y quitar el by-pass, pero lo anterior es más prioritario.
 \end{comment}
+
+\newpage
+
+% Scenario 1
+
+\begin{figure}[]
+	\centering
+	\fbox{\includegraphics[width=0.8\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_route22_town03_training.pdf}}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 1 overview: Stop and 4-ways intersection}
+	\label{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_route22_town03_training}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative.pdf}
+	\captionsetup{justification=justified}
+	\caption[Scenario 1 quantitative results]{Scenario 1 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+	\label{fig:chapter_8_Applications/scenarios/scenario_1/scenario_1_quantitative}
+\end{figure}
+
+\begin{figure}[]
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_carla.png}
+		\caption{\ac{CARLA} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_carla}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\fbox{\includegraphics[width=\textwidth, trim={1.8cm 0 1cm 0.2cm},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_rviz.png}}
+		\caption{\ac{RVIZ} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_stop_rviz}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t.png}
+		\caption{\ac{CARLA} at frame $t+240$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t.png}}
+		\caption{\ac{RVIZ} at frame $t+240$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t+40.png}
+		\caption{\ac{CARLA} at frame $t+260$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_carla_t+40}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0.5},clip]{chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t+40.png}}
+		\caption{\ac{RVIZ} at frame $t+260$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_1/scenario_1_intersection_rviz_t+40}
+	\end{subfigure}
+	\tabularnewline
+	%\captionsetup{justification=justified}
+	\caption{Scenario 1 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_1_frames_of_interest}
+\end{figure}
+
+% Scenario 2
+
+\begin{figure}[]
+	\centering
+	\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_route15_town04_testing.pdf}}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 2 overview: Crowded highway}
+	\label{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_route15_town04_testing}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative.pdf}
+	\captionsetup{justification=justified}
+	\caption[Scenario 2 quantitative results]{Scenario 2 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+	\label{fig:chapter_8_Applications/scenarios/scenario_2/scenario_2_quantitative}
+\end{figure}
+
+\begin{figure}[]
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth, trim={0 0 0 0.5cm},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t.png}
+		\caption{\ac{CARLA} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t}
+	\end{subfigure}
+	%\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={1.3cm 0 1cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t.png}}
+		\caption{\ac{RVIZ} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t}
+	\end{subfigure}
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+15.png}
+		\caption{\ac{CARLA} at frame $t+15$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+15}
+	\end{subfigure}
+	%\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={4cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+15.png}}
+		\caption{\ac{RVIZ} at frame $t+15$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+15}
+	\end{subfigure}
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+30.png}
+		\caption{\ac{CARLA} at frame $t+30$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_carla_t+30}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={2cm 0 3cm 1cm},clip]{chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+30.png}}
+		\caption{\ac{RVIZ} at frame $t+30$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_2/scenario_2_highway_rviz_t+30}
+	\end{subfigure}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 2 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_2_frames_of_interest}
+\end{figure}
+
+% Scenario 3
+
+\begin{figure}[]
+	\centering
+	\fbox{\includegraphics[width=0.9\textwidth, trim={4cm 0 4cm 0},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_route1_town01_training.pdf}}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 3 overview: Red Traffic Light and Unexpected \ac{VRU}}
+	\label{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_route1_town01_training}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative_threshold_3.pdf}
+	\captionsetup{justification=justified}
+	\caption[Scenario 3 quantitative results]{Scenario 3 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+	\label{fig:chapter_8_Applications/scenarios/scenario_3/scenario_3_quantitative_threshold_3}
+\end{figure}
+
+\begin{figure}[]
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t.png}
+		\caption{\ac{CARLA} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t}
+	\end{subfigure}
+	%\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 1cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t.png}}
+		\caption{\ac{RVIZ} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t+20.png}
+		\caption{\ac{CARLA} at frame $t+5$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_carla_t+20}
+	\end{subfigure}
+	%\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 0.5cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t+20.png}}
+		\caption{\ac{RVIZ} at frame $t+5$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_rtl_rviz_t+20}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t.png}
+		\caption{\ac{CARLA} at frame $t+145$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t}
+	\end{subfigure}
+	%\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 1cm},clip]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t.png}}
+		\caption{\ac{RVIZ} at frame $t+145$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}{0.42\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t+5.png}
+		\caption{\ac{CARLA} at frame $t+147$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_carla_t+5}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.42\textwidth}
+		\fbox{\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t+5.png}}
+		\caption{\ac{RVIZ} at frame $t+147$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_3/scenario_3_VRU_rviz_t+5}
+	\end{subfigure}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 3 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_3_frames_of_interest}
+\end{figure}
+
+% Scenario 4
+
+\begin{figure}[]
+	\centering
+	\fbox{\includegraphics[width=0.9\textwidth, trim={3cm 0 3cm 0},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_route_27_town03_training.pdf}}
+	%\captionsetup{justification=justified}
+	\caption{Scenario 4 overview: Crowded roundabout}
+	\label{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_route_27_town03_training}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative.pdf}
+	\captionsetup{justification=justified}
+	\caption[Scenario 4 quantitative results]{Scenario 4 quantitative results. Constant lines represent the mean value for the corresponding metric throughout the whole scenario.}
+	\label{fig:chapter_8_Applications/scenarios/scenario_4/scenario_4_quantitative}
+\end{figure}
+
+\begin{figure}[t!]
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t.png}
+		\caption{\ac{CARLA} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t.png}
+	\end{subfigure}
+	\hfill 
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0 0 2cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t.png}}
+		\caption{\ac{RVIZ} at frame $t$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+40.png}
+		\caption{\ac{CARLA} at frame $t+40$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+40.png}
+	\end{subfigure}
+	\hfill 
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 1cm 0 1cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+40.png}}
+		\caption{\ac{RVIZ} at frame $t+40$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+40}
+	\end{subfigure}
+	\tabularnewline
+	\begin{subfigure}{0.48\textwidth}
+		\includegraphics[width=\textwidth]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+80.png}
+		\caption{\ac{CARLA} at frame $t+80$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_carla_t+80}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth, trim={0 0.5 0 2.5cm},clip]{chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+80.png}}
+		\caption{\ac{RVIZ} at frame $t+80$}
+		\label{subfig:chapter_8_Applications/scenarios/scenario_4/scenario_4_roundabout_rviz_t+80}
+	\end{subfigure}
+	\tabularnewline
+	%\captionsetup{justification=justified}
+	\caption{Scenario 4 frames of interest}
+	\label{fig:chapter_8_Applications/scenarios/scenario_4_frames_of_interest}
+\end{figure}

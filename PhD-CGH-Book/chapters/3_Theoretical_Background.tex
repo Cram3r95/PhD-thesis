@@ -32,11 +32,13 @@
 \begin{FraseCelebre}
 	\begin{Frase}
 		Desde que el mundo cambió, \\
-		estamos mucho más unidos con los Digimon, \\
+		estamos mucho más unidos \\
+		con los Digimon, \\
 		luchamos juntos contra el mal. \\ 
 
 		Algo extraño pasaba, \\
-		Digievolucionaban, en tamaño y color, \\
+		Digievolucionaban, 
+		en tamaño y color, \\
 		¡Ellos son los Digimon!. 
 	\end{Frase}
 	\begin{Fuente}
@@ -58,12 +60,12 @@ First of all, we will start with the mathematical formulation of the methods to 
 % https://arxiv.org/pdf/1710.04055.pdf
 % https://github.com/NickNair/Multiple-Object-Tracking-using-Kalman-Filter
 
-As stated in Chapter \ref{cha:related_works}, in terms of \ac{MP}, initially researchers rely on physics-based methods which are basic and straightforward. These methods may not offer high accuracy, but many models use the underlying idea of physics-based models to improve their accuracy. Physics-based approaches yield better results when the movement of vehicles is described by kinematics or dynamics models accurately. Nevertheless, the physical model of traffic participants is constantly evolving, so most physics-based models are only applicable for short-term predictions of no more than one second. In this Section we will study the mathematical formulation of the physics-based prediction algorithms, as well as the data association problem regarding the Multi-Object Tracking stage, that are directly related to our algorithm proposed in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}.
+As stated in Chapter \ref{cha:related_works}, in terms of \ac{MP}, initially researchers rely on physics-based methods, which are basic and straightforward. These methods may not offer high accuracy, but many models use the underlying idea of physics-based models to improve their accuracy. Physics-based approaches yield better results when the movement of vehicles is described by kinematics or dynamics models accurately. Nevertheless, the physical model of traffic participants is constantly evolving, so most physics-based models are only applicable for short-term predictions of no more than one second. In this Section we will study the mathematical formulation of the physics-based prediction algorithms, as well as the data association problem regarding the \acf{MOT} stage, that are directly related to our algorithm proposed in Chapter \ref{cha:smartmot_exploiting_the_fusion_of_hdmaps_and_mot}.
 
 \subsection{Kalman Filter under the hood}
 \label{subsec:3_kf_formulation}
 
-The \acf{KF} \cite{kalman1960new} is a recursive algorithm used for estimating the state of a dynamic system in the presence of noise. It is widely used in various fields such as engineering, control systems, and robotics. The algorithm works by combining a prediction of the system state based on a mathematical model with measurements (updates) from sensors to improve the accuracy of the state estimation, as shown in Figure \ref{fig:chapter_3_theoretical_background/KF_cycle}. The Kalman Filter is a powerful algorithm for state estimation, and it has many variations and extensions that can handle various types of systems and measurements. The filter can be applied to non-linear systems using the Extended Kalman Filter (EKF) or the Unscented Kalman Filter (UKF), and it can handle multiple models using the multiple model Kalman Filter. The filter can also be used for smoothing, which involves estimating the state of the system based on past and future measurements.
+The \acf{KF} \cite{kalman1960new} is a recursive algorithm used for estimating the state of a dynamic system in the presence of noise. It is widely used in various fields such as engineering, control systems, and robotics. The algorithm works by combining a prediction of the system state based on a mathematical model with measurements (updates) from sensors to improve the accuracy of the state estimation, as shown in Figure \ref{fig:chapter_3_theoretical_background/KF_cycle}. The \ac{KF} is a powerful algorithm for state estimation, and it has many variations and extensions that can handle various types of systems and measurements. The filter can be applied to non-linear systems using the Extended Kalman Filter (EKF) or the Unscented Kalman Filter (UKF), and it can handle multiple models using the multiple model \ac{KF}. The filter can also be used for smoothing, which involves estimating the state of the system based on past and future measurements.
 
 In its most simple version, the \ac{KF} assumes that the system can be described using a set of linear equations, where the state of the system can be represented by a vector $\mathbf{x}_k$, and the measurements can be represented by a vector $\mathbf{z}_k$. The \ac{KF} also assumes that the noise in the system follows a Gaussian distribution.
 
@@ -71,7 +73,7 @@ In its most simple version, the \ac{KF} assumes that the system can be described
 	\centering
 	\captionsetup{justification=justified}
 	\includegraphics[trim=0cm 2cm 0cm 2cm, width=0.8\linewidth]{chapter_3_theoretical_background/KF_cycle.pdf}
-	\caption[Overview of the Kalman Filter Predict-Update cycle]{Overview of the Kalman Filter Predict-Update cycle. The Kalman Filter keeps track of the estimated state of the system and the variance or uncertainty of the estimate. The estimate is updated using a state transition model and measurements.}
+	\caption[Overview of the \ac{KF} Predict-Update cycle]{Overview of the \ac{KF} Predict-Update cycle. The \ac{KF} keeps track of the estimated state of the system and the variance or uncertainty of the estimate. The estimate is updated using a state transition model and measurements.}
 	Source: \textit{An introduction to the kalman filter} \cite{bishop2001introduction}
 	\label{fig:chapter_3_theoretical_background/KF_cycle}
 \end{figure}
@@ -79,7 +81,6 @@ In its most simple version, the \ac{KF} assumes that the system can be described
 The state estimation process is performed in two steps: the prediction step and the update step. In the prediction step, the current state of the system is predicted based on the previous state and a mathematical model of the system. In the update step, the predicted state is corrected based on a measurement from the sensors.
 
 The prediction step can be represented using the following equations:
-
 
 \begin{equation}
 	\begin{split}
@@ -254,19 +255,19 @@ In this section the mathematical formulation of the \ac{DL} layers employed in t
 % https://e2eml.school/convolution_one_d.html
 % https://arxiv.org/pdf/1512.07108.pdf
 
-\acp{CNN} are commonly used for image and signal processing tasks. The type of CNN architecture used depends on the nature of the input data. Here are the differences among the three main types of \acp{CNN}:
+\acp{CNN} are commonly used for image and signal processing tasks. The type of \ac{CNN} architecture used depends on the nature of the input data. Here are the differences among the three main types of \acp{CNN}:
 
 \begin{itemize}
 	
-	\item \textbf{1D Convolutional Neural Networks (1D-CNNs)}: 1D-\acp{CNN} are used for processing sequential data such as time series data, speech signals or text data. The input is a one-dimensional sequence of data, such as a time series of sensor readings. 1D-\acp{CNN} typically have fewer parameters and are computationally efficient compared to 2D- and 3D-\acp{CNN}.
+	\item \textbf{1D Convolutional Neural Networks (1D-\acp{CNN})} are used for processing sequential data such as time series data, speech signals or text data. The input is a one-dimensional sequence of data, such as a time series of sensor readings. 1D-\acp{CNN} typically have fewer parameters and are computationally efficient compared to 2D- and 3D-\acp{CNN}.
 	
-	\item \textbf{2D Convolutional Neural Networks (2D-CNNs)}: 2D-\acp{CNN} are used for processing 2D images. The input is a two-dimensional image represented as a matrix of pixels. The convolutional layers in a 2D-\ac{CNN} apply filters that slide over the image to extract local features. The output of each convolutional layer is a set of 2D feature maps. 2D-\acp{CNN} are widely used for image classification, object detection, and image segmentation.
+	\item \textbf{2D Convolutional Neural Networks (2D-\acp{CNN})} are used for processing 2D images. The input is a two-dimensional image represented as a matrix of pixels. The convolutional layers in a 2D-\ac{CNN} apply filters that slide over the image to extract local features. The output of each convolutional layer is a set of 2D feature maps. 2D-\acp{CNN} are widely used for image classification, object detection, and image segmentation.
 	
-	\item \textbf{3D Convolutional Neural Networks (3D-CNNs)}: 3D-\acp{CNN} are used for processing 3D volumetric data such as CT scans, MRI images, and video data. The input is a three-dimensional volume represented as a sequence of 2D images. The convolutional layers in a 3D-\ac{CNN} apply filters that slide over the 3D volume to extract local features. The output of each convolutional layer is a set of 3D feature maps. 3D-\acp{CNN} are used for tasks such as medical image analysis, video classification, 3D object detection and action recognition.
+	\item \textbf{3D Convolutional Neural Networks (3D-\acp{CNN})} are used for processing 3D volumetric data such as CT scans, MRI images, and video data. The input is a three-dimensional volume represented as a sequence of 2D images. The convolutional layers in a 3D-\ac{CNN} apply filters that slide over the 3D volume to extract local features. The output of each convolutional layer is a set of 3D feature maps. 3D-\acp{CNN} are used for tasks such as medical image analysis, video classification, 3D object detection and action recognition.
 	
 \end{itemize}
 
-As we will see in further Chapters, in this work we focus on 1D-\acp{CNN}. The basic building blocks of a 1D CNN are convolutional layers, which learn local patterns in the input data by applying a set of filters to it, as illustrated in Figure \ref{fig:chapter_3_theoretical_background/CNN_1D}. Each filter slides over the input sequence and performs a dot product operation at each position to generate a feature map. These feature maps capture the presence of certain patterns at different positions in the input sequence. 
+As we will see in further Chapters, in this work we focus on 1D-\acp{CNN}. The basic building blocks of a 1D \ac{CNN} are convolutional layers, which learn local patterns in the input data by applying a set of filters to it, as illustrated in Figure \ref{fig:chapter_3_theoretical_background/CNN_1D}. Each filter slides over the input sequence and performs a dot product operation at each position to generate a feature map. These feature maps capture the presence of certain patterns at different positions in the input sequence. 
  
 The architecture of a 1D-\ac{CNN} typically consists of several convolutional layers, followed by one or more fully connected layers for classification or regression. The output of each convolutional layer is fed into the next layer, with optional pooling layers in between to reduce the spatial dimension of the feature maps, which are finally flattened before the final layer. The output of the network is obtained by passing the output of the last fully connected layer through a suitable activation function, such as softmax for classification or linear for regression.
  
@@ -316,16 +317,16 @@ We make use of the 1D-\ac{CNN} mechanism in Chapters \ref{cha:efficient_baseline
 
 \acfp{RNN} are a type of neural network that are designed to process sequential data, where the order of the input matters, usually assuming the presence of discrete timestep. They are widely used in a variety of applications such as natural language processing, speech recognition, image captioning, and time series prediction.
 
-The general theory of RNNs is that they have a feedback loop in their architecture that allows information to be passed from one time step to the next, thereby enabling the network to capture dependencies between the inputs at different time steps. The input at each time step is fed into the network along with the output from the previous time step, and the network uses this information to generate a new output.
+The general theory of \acp{RNN} is that they have a feedback loop in their architecture that allows information to be passed from one time step to the next, thereby enabling the network to capture dependencies between the inputs at different time steps. The input at each time step is fed into the network along with the output from the previous time step, and the network uses this information to generate a new output.
 
-There are several types of RNNs, including the basic RNN, the Gated Recurrent Unit (GRU), and the Long Short-Term Memory (LSTM) \cite{hochreiter1997long}. The basic RNN is the simplest form of RNN, where the output at each time step is a function of the input at that time step and the output from the previous time step. However, it suffers from the vanishing gradient problem, where the gradients become exponentially small as they propagate through time, making it difficult to learn long-term dependencies.
+There are several types of \acp{RNN}, including the basic \ac{RNN}, the \ac{GRU}, and the \acf{LSTM} \cite{hochreiter1997long}. The basic \ac{RNN} is the simplest form of \ac{RNN}, where the output at each time step is a function of the input at that time step and the output from the previous time step. However, it suffers from the vanishing gradient problem, where the gradients become exponentially small as they propagate through time, making it difficult to learn long-term dependencies.
 
-The GRU is a variation of the basic RNN that uses gating mechanisms to control the flow of information through the network. It has fewer parameters than the LSTM and can be faster to train, but it may not perform as well as the LSTM on tasks that require more complex temporal dependencies.
+The \ac{GRU} is a variation of the basic \ac{RNN} that uses gating mechanisms to control the flow of information through the network. It has fewer parameters than the \ac{LSTM} and can be faster to train, but it may not perform as well as the \ac{LSTM} on tasks that require more complex temporal dependencies.
 
-\subsubsection{Long Short-Term Memory}
+\subsubsection{Long Short-Term Memory (LSTM)}
 \label{subsubsec:3_LSTMs}
 
-LSTM networks were introduced to address the vanishing gradient problem in standard \acp{RNN}. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network. Figure \ref{fig:chapter_3_theoretical_background/LSTM} provides a detailed overview of the LSTM cell structure, illustrating the workflow from the previous cell output and input at time $t-1$ in order to compute the current cell state and hidden state at time $t$.
+\ac{LSTM} networks were introduced to address the vanishing gradient problem in standard \acp{RNN}. They achieve this by using a memory cell to store information over long periods of time, and three gating mechanisms to control the flow of information through the network. Figure \ref{fig:chapter_3_theoretical_background/LSTM} provides a detailed overview of the \ac{LSTM} cell structure, illustrating the workflow from the previous cell output and input at time $t-1$ in order to compute the current cell state and hidden state at time $t$.
 
 \begin{figure}[h]
 	\centering
@@ -381,7 +382,7 @@ Unlike generative models, which learn the joint probability distribution of the 
 \begin{figure}[h]
 	\centering
 	\includegraphics[trim=0cm 8cm 0cm 0cm, width=\linewidth]{chapter_3_theoretical_background/GAN_diagram.pdf}
-	\caption{Overview of a Generative Adversarial Network (GAN) structure}
+	\caption{Overview of a \ac{GAN} structure}
 	\label{fig:chapter_3_theoretical_background/GAN}
 \end{figure}
 
@@ -414,19 +415,19 @@ There are some well-known types of \acp{GAN}, such as:
 	\item \textbf{CycleGANs}: These are \acp{GAN} that are designed for image-to-image translation tasks, where the goal is to transform an image from one domain to another. CycleGANs use two generators and two discriminators to learn the mapping between the two domains.
 \end{itemize}
 
-Nevertheless, in this work we focus on a particular type of \ac{GAN}, known as conditional \ac{cGAN}, where the generator is conditioned on some additional information, allowing for more specific generation of data. 
+Nevertheless, in this work we focus on a particular type of \ac{GAN}, known as \acf{cGAN}, where the generator is conditioned on some additional information, allowing for more specific generation of data. 
 
 \subsubsection{GAN vs cGAN}
 \label{subsubsec:3_cGAN}
 
-The main difference between the original \ac{GAN} and \ac{cGAN} is that the original \ac{GAN} generates samples without any control over the generated output, whereas the \ac{cGAN} generates samples conditioned on some additional information.
+The main difference between the original \acf{GAN} and \acf{cGAN} is that the original \ac{GAN} generates samples without any control over the generated output, whereas the \ac{cGAN} generates samples conditioned on some additional information.
 
 In the original \ac{GAN}, the generator network takes as input a random noise vector, and generates a sample that is meant to mimic real data. The discriminator network takes as input a sample, and tries to distinguish between real data and generated data. The goal of the original \ac{GAN} is to train the generator network to generate samples that are indistinguishable from real data.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[trim=0cm 0.5cm 0cm 0.5cm, width=0.75\linewidth]{chapter_3_theoretical_background/GAN_vs_cGAN.pdf}
-	\caption{Comparison between the original GAN and conditional GAN (cGAN)}
+	\caption{Comparison between the original \ac{GAN} and \ac{cGAN}}
 	Source: \textit{Logan: Generating logos with a generative adversarial neural network conditioned on color} \cite{mino2018logan}
 	\label{fig:chapter_3_theoretical_background/GAN_vs_cGAN}
 \end{figure}
@@ -595,9 +596,9 @@ Overall, the Transformer architecture has achieved \ac{SOTA} results on a wide r
 \begin{itemize}
 	\item \textbf{Attention mechanism}: Transformers employ the attention mechanism (both self and cross, if the Transformer decoder is used) that allows them to capture relationships between elements in a sequence more effectively. This mechanism enables the model to focus on relevant elements (or agents, in the field of \ac{MP}) and assign different weights to different words during the encoding and decoding processes. \ac{LSTM} networks, on the other hand, rely on recurrent connections that propagate information sequentially, which may not capture long-range dependencies as effectively as self-attention.
 	
-	\item \textbf{Parallel Computation}: Transformers are highly parallelizable, meaning that they can process inputs in parallel, which accelerates training and inference. In contrast, \ac{LSTM} networks are inherently sequential in nature, as the recurrent connections require information from previous time steps to be processed before moving on to the next step. This sequential nature limits the parallelizability of LSTM networks and can result in slower training and inference times.
+	\item \textbf{Parallel Computation}: Transformers are highly parallelizable, meaning that they can process inputs in parallel, which accelerates training and inference. In contrast, \ac{LSTM} networks are inherently sequential in nature, as the recurrent connections require information from previous time steps to be processed before moving on to the next step. This sequential nature limits the parallelizability of \ac{LSTM} networks and can result in slower training and inference times.
 	
-	\item \textbf{Long-term Dependency}: Transformers are specifically designed to capture long-term dependencies in sequences. The self-attention mechanism allows the model to consider all positions in the input sequence when making predictions, enabling it to capture dependencies over long distances. LSTM networks, although capable of capturing short-term dependencies, can struggle with capturing long-term dependencies due to the vanishing or exploding gradient problem.
+	\item \textbf{Long-term Dependency}: Transformers are specifically designed to capture long-term dependencies in sequences. The self-attention mechanism allows the model to consider all positions in the input sequence when making predictions, enabling it to capture dependencies over long distances. \ac{LSTM} networks, although capable of capturing short-term dependencies, can struggle with capturing long-term dependencies due to the vanishing or exploding gradient problem.
 	
 	\item \textbf{Transfer Learning}: Transformers have shown to be highly effective for transfer learning tasks. Pretrained transformer models, such as BERT (Bidirectional Encoder Representations from Transformers), have been trained on large-scale datasets and can be fine-tuned for specific downstream tasks with relatively small amounts of task-specific data. \ac{LSTM} networks typically require more task-specific data to achieve good performance, as they don't benefit from the same level of transfer learning capabilities as transformers.
 	
@@ -640,7 +641,7 @@ Nevertheless, Graph-based data structures have drawbacks, and researchers must u
 	\centering
 	\includegraphics[width=0.8\linewidth]{chapter_3_theoretical_background/input_graph_and_gnn.pdf}
 	\captionsetup{justification=justified}
-	\caption[Overview of a Graph Neural Network]{Overview of a Graph Neural Network. On the left, it can be observed the input graph of $N$ agents (in this particular case six agents for simplicity) where \textbf{\textcolor{red}{A}} represents the target node over which the influence of neighbouring nodes is going to be calculated. On the right, the latent space of the neighbours is measured as a preliminary stage before aggregating their information to the target node.}
+	\caption[Overview of a \ac{GNN}]{Overview of a \ac{GNN}. On the left, it can be observed the input graph of $N$ agents (in this particular case six agents for simplicity) where \textbf{\textcolor{red}{A}} represents the target node over which the influence of neighbouring nodes is going to be calculated. On the right, the latent space of the neighbours is measured as a preliminary stage before aggregating their information to the target node.}
 	\label{fig:chapter_3_theoretical_background/gnn}
 \end{figure}
 
@@ -654,7 +655,7 @@ h_i^{(l+1)} = f(h_i^{(l)}, \sum_{j} A_{ij} h_j^{(l)})
 
 where $h_i^{(l)}$ is the representation of node $i$ at iteration $l$, $f$ is a non-linear activation function, and $\sum_{j} A_{ij} h_j^{(l)}$ is the sum of the representations of the neighbours of node $i$ at iteration $l$ (as stated above, $j$ represents the neighbour node).
 
-By stacking multiple layers of such updates, a GNN can learn increasingly complex representations of the graph.
+By stacking multiple layers of such updates, a \ac{GNN} can learn increasingly complex representations of the graph.
 
 There are several types of neural networks, such as:
 
@@ -685,7 +686,7 @@ The majority of \acp{GNN} are \acfp{GCN}, which are a specific type of \ac{GNN} 
 
 The major difference between \ac{GCN} and \ac{CNN} is that it is developed to work on non-euclidean data structures where the order of nodes and edges can vary, as it can be appreciated in Figure \ref{fig:chapter_3_theoretical_background/gcn_vs_cnn}. In the 2D convolution operation, each pixel in an image is taken as a node where neighbours are determined by the filter size. The 2D convolution takes the weighted average of pixel values of the red node along with its neighbors. The neighbours of a node are ordered and have a fixed size. On the other hand, to get a hidden representation of a given node red, one simple solution of the graph convolutional operation is to take the average value of the node features of the red node along with its neighbors. Different from image data, the neighbors of a node are unordered and variable in size.
 
-The convolution in GCN is the same as a convolution in \acp{CNN}. It multiplies neurons with weights (filters) to learn from data features. A convolutional operation on a graph is defined as:
+The convolution in \ac{GCN} is the same as a convolution in \acp{CNN}. It multiplies neurons with weights (filters) to learn from data features. A convolutional operation on a graph is defined as:
 
 \begin{equation}
 H^{(l+1)} = \sigma(D^{-\frac{1}{2}} A D^{-\frac{1}{2}} H^{(l)} W^{(l)})
@@ -693,14 +694,14 @@ H^{(l+1)} = \sigma(D^{-\frac{1}{2}} A D^{-\frac{1}{2}} H^{(l)} W^{(l)})
 
 where $H^{(l)}$ is the matrix of node representations at iteration $l$, $W^{(l)}$ is the weight matrix of the $l$-th layer, $A$ is the adjacency matrix of the graph, $D$ is the degree matrix of the graph, and $\sigma$ is a non-linear activation function. Note that in the mathematical field of algebraic graph theory, the degree matrix of an undirected graph is a diagonal matrix which contains information about the degree of each vertex, that is, the number of edges attached to each vertex
 
-The operation $D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ is a normalization step that scales the adjacency matrix by the inverse square root of the degree matrix. This normalization ensures that nodes with different degrees have similar influence in the convolutional operation. By stacking multiple layers of such convolutions, a GCN can learn increasingly complex features of the graph.
+The operation $D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ is a normalization step that scales the adjacency matrix by the inverse square root of the degree matrix. This normalization ensures that nodes with different degrees have similar influence in the convolutional operation. By stacking multiple layers of such convolutions, a \ac{GCN} can learn increasingly complex features of the graph.
 
 \subsection{Training}
 \label{subsec:3_training}
 
 Training is the process of iterating through a dataset to make the network learn the optimal mapping (combination of weights) from input to desired output in the data samples. In each iteration, a forward pass through the network is performed, computing the output of each layer until the end. This produces the output response of the network, which is then compared to a desired output through a defined Loss function ($\mathcal{L}$). This function estimates the output error, which is back-propagated through the network to update its weights with the aim of minimizing the error. 
 
-Regarding the supervised training paradigm, Backpropagation \cite{rumelhart1995backpropagation} is an algorithm used for training artificial neural networks (ANNs) to update the weights and biases of the neurons in the multi-layer network based on the error between the predicted output and the actual output.
+Regarding the supervised training paradigm, backpropagation \cite{rumelhart1995backpropagation} is an algorithm used for training artificial neural networks to update the weights and biases of the neurons in the multi-layer network based on the error between the predicted output and the actual output.
 
 \begin{figure}[h]
 	\centering
@@ -710,9 +711,7 @@ Regarding the supervised training paradigm, Backpropagation \cite{rumelhart1995b
 	\label{fig:chapter_3_theoretical_background/backpropagation}
 \end{figure}
 
-The backpropagation (Figure \ref{fig:chapter_3_theoretical_background/backpropagation}) algorithm consists of two phases: the forward pass and the backward pass. During the forward pass, the input is fed into the network and propagated through the layers to obtain the predicted output. During the backward pass, the error between the predicted output and the actual output is computed and used to update the weights and biases of the neurons in the network.
-
-The backpropagation algorithm is based on the chain rule of calculus, which allows the gradient of the loss function with respect to each weight and bias to be computed recursively from the output layer to the input layer of the network. The gradient descent algorithm is then used to update the weights and biases in the direction of the negative gradient of the loss function. In that sense, the main losses used in this work are described throughout the remaining content of this Chapter.
+The backpropagation (Figure \ref{fig:chapter_3_theoretical_background/backpropagation}) algorithm consists of two phases: the forward pass and the backward pass. During the forward pass, the input is fed into the network and propagated through the layers to obtain the predicted output. During the backward pass, the error between the predicted output and the actual output is computed and used to update the weights and biases of the neurons in the network. This algorithm is based on the chain rule of calculus, which allows the gradient of the loss function with respect to each weight and bias to be computed recursively from the output layer to the input layer of the network. The gradient descent algorithm is then used to update the weights and biases in the direction of the negative gradient of the loss function. In that sense, the main losses used in this work are described throughout the remaining content of this Chapter.
 
 \subsubsection{Optimizer and learning rate}
 \label{subsubsec:3_optimizer_and_lr}
@@ -755,6 +754,8 @@ In this thesis, we will use the \ac{ADAM} optimizer and learning rate scheduler 
 
 \subsubsection{Losses}
 \label{subsubsec:3_losses}
+
+In this Section we explore the different losses that will be employed in order to train the \ac{DL}-based \ac{MP} algorithms in Chapter \ref{cha:exploring_gan_for_vehicle_mp}, \ref{cha:efficient_baseline_for_mp_in_ad} and \ref{cha:improving_multi_agent}.
 
 \paragraph{Regression losses}
 \label{par:3_regressions_losses}

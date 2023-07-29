@@ -31,11 +31,11 @@
 
 \begin{FraseCelebre}
 \begin{Frase}
-	Llegaré a ser el mejor, El mejor que habrá jamás \\
-	Mi causa es ser su entrenador, Tras poderlos capturar.  
+	Llegaré a ser el mejor, El mejor que habrá jamás. \\
+	Mi causa es ser su entrenador, Tras poderlos capturar. \\
 	
 	Viajaré a cualquier lugar, Llegaré a cualquier rincón \\  
-	Y al fin podré desentrañar, El poder de su interior.  
+	Y al fin podré desentrañar el poder de su interior. \\ 
 	
 	¡Pokémon! Hazte con todos (solos tú y yo), \\
 	Es mi destino, mi misión \\
@@ -85,13 +85,13 @@ where $T(m, a_P, a^O_P)$ is the space of candidate goals depending on the drivin
 
 However, the map space $m$ is large, and the goal space $T(m, a_P, a^O_P)$ requires careful design. In that sense, some methods expect to accurately predict the actor motion by extracting good features. For example, LaneGCN \cite{liang2020learning} tries to approximate $p(a_F|m, a_P, a^O_P)$ by modeling $p(a_F|M_{a_0}, a_P, a^O_P)$, where $M_{a_0}$ is a \textit{local} map feature that is related to the actor state $a_0$ at final observed step $t=0$.
 
-To extract $M_{a_0}$, they use $a_0$ as an anchor to retrieve its surrounding map elements and aggregate their features. We found that not only the \textit{local} map information is important, but also the goal area maps information is of great importance for accurate trajectory prediction. So, the probability can be reconstructed as:
+To extract $M_{a_0}$, they use $a_0$ as an anchor to retrieve its surrounding map elements and aggregate their features. In that sense, not only the local map information is important, but also the goal area maps information is of great importance for accurate trajectory prediction. So, the probability can be reconstructed as:
 
 \begin{equation}
 	\sum _{\tau}{p(\tau|M_{a_0}, a_P, a^O_P) p(M_{\tau}|m, \tau)p(a_F|M_{\tau},M_{a_0}, a_P, a^O_P)}
 \end{equation}
 
-Then, in this work we aim to include preliminary heuristic information, as well as predict possible goals $\tau$ based on agents motion histories and driving context to retrieve the map elements in goal areas explicitly and aggregate their map features as $M_{\tau}$. to meet the requirements of the problem formulation. 
+Then, in this work we aim to progressively include preliminary heuristic information, as well as predict possible goals $\tau$ based on agents motion histories and driving context to retrieve the map elements in goal areas explicitly and aggregate their map features as $M_{\tau}$ to meet the requirements of the problem formulation. 
 
 \section{Contextual Factors and Classification of Motion Prediction methods}
 \label{sec:2_contextual_factors_and_classification_mp}
@@ -101,7 +101,7 @@ This section studies the contextual factors (inputs) and classification of \ac{M
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{chapter_2_related_works/inputs_outputs_mp.pdf}
-	\caption{Contextual factors and output types in Vehicle Motion Prediction}
+	\caption{Contextual factors and output types in Vehicle \ac{MP}}
 	Source: \textit{A survey on trajectory-prediction methods for autonomous driving} \cite{huang2022survey}
 	\label{fig:chapter_2_related_works/input_output_mp}
 \end{figure}
@@ -131,17 +131,17 @@ On the other hand, regarding the output types, \ac{MP} methods need to provide t
 
 As we will study throughout this section, most prediction methods focus on the multi-modal output with an associated probability for each mode, since this is the most realistic way to imitate the human brain during navigation. First of all, there are plenty of problems during navigation, since there is a high uncertainty of traffic behavior and a large number of different situations. That means that one cannot use a discrete number of situations and a discrete number of car movements. Second, the main tasks of \ac{ADS}, like ensuring safe and efficient operations and anticipating a multitude of possible behaviors of traffic actors in its surroundings, provide a large need in knowing the position of all vehicles beforehand. Multi-modal means that we have multiple predictions for each timeframe. 
 
-Figure \ref{fig:chapter_2_related_works/um_vs_mm_mp} illustrates an interesting traffic scenario processed by one of our algorithms. The \textbf{\textcolor{YellowOrange}{target agent}} is getting close to an intersection, where several future maneuvers are plausible. In both cases (uni-modal and multi-modal, which are the most common ones), the model must reason the future trajectory of the target agent based on its past observations, interactions with other agents and physical context. On the left (\ref{subfig:chapter_2_related_works/um_vs_mm_mp_a}) illustrates the uni-modal case, where a single trajectory is predicted. On the right (\ref{subfig:chapter_2_related_works/um_vs_mm_mp_b}), multiple trajectories (or modes) with associated probabilities are predicted, with most modes turning left and one mode keeping straight since in similar situations the agent could also perform this behaviour with a similar context. As stated above, the main point of having this multi-modality is to compute different plausible options with an associated confidence. Note that lots of \ac{SOTA} algorithms study the problem of multi-modal predictions since similar past trajectories (\eg \ a vehicle stopped in front of an intersection) can produce totally different future trajectories (\eg \ turn left, turn right or keep straight).
+Figure \ref{fig:chapter_2_related_works/um_vs_mm_mp} illustrates an interesting traffic scenario processed by one of our algorithms. The \textbf{\textcolor{orange}{target agent}} is getting close to an intersection, where several future maneuvers are plausible. In both cases (uni-modal and multi-modal), the model must reason the future trajectory of the target agent based on its past observations, interactions with other agents and physical context. On the left (\ref{subfig:chapter_2_related_works/um_vs_mm_mp_a}) illustrates the uni-modal case, where a single trajectory is predicted. On the right (\ref{subfig:chapter_2_related_works/um_vs_mm_mp_b}), multiple trajectories (or modes) with associated probabilities are predicted, with most modes turning left and one mode keeping straight since in similar situations the agent could also perform this behaviour with a similar context. As stated above, the main point of having this multi-modality is to compute different plausible options with an associated confidence. Note that lots of \ac{SOTA} algorithms study the problem of multi-modal predictions since similar past trajectories (\eg \ a vehicle stopped in front of an intersection) can produce totally different future trajectories (\eg \ turn left, turn right or keep straight).
 
 \begin{figure}[t!]
-	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=\textwidth]{chapter_2_related_works/mm_example_um.png}
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth]{chapter_2_related_works/mm_example_um.png}}
 		\caption{Uni-modal prediction}
 		\label{subfig:chapter_2_related_works/um_vs_mm_mp_a}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=\textwidth]{chapter_2_related_works/mm_example_mm.png}
+	\begin{subfigure}{0.48\textwidth}
+		\fbox{\includegraphics[width=\textwidth]{chapter_2_related_works/mm_example_mm.png}}
 		\caption{Multi-modal prediction}
 		\label{subfig:chapter_2_related_works/um_vs_mm_mp_b}
 	\end{subfigure}
@@ -155,8 +155,8 @@ After defining the contextual factors and output types, a classification of the 
 \begin{figure}[h]
 	\centering
 	% trim={left bottom right top}
-	\includegraphics[trim={0 1cm 0 1cm}, width=\linewidth]{chapter_2_related_works/taxonomy_mp.pdf}
-	\caption[Contextual factors and output types in Vehicle Motion Prediction]{Contextual factors and output types in Vehicle Motion Prediction. We \textcolor{magenta}{highlight} the main algorithms used in this thesis: Physics-based and Deep Learning based.}
+	\includegraphics[trim={0 3cm 0 3cm}, width=\linewidth]{chapter_2_related_works/taxonomy_mp.pdf}
+	\caption[Contextual factors and output types in Vehicle Motion Prediction]{Contextual factors and output types in Vehicle Motion Prediction. We \textbf{\textcolor{magenta}{highlight}} the main algorithms used in this thesis: Physics-based and Deep Learning based.}
 	%Source: \textit{A survey on trajectory-prediction methods for autonomous driving} \cite{huang2022survey}
 	\label{fig:chapter_2_related_works/taxonomy_mp}
 \end{figure}
@@ -182,7 +182,7 @@ On the other hand, single trajectory methods are not able to consider the road-r
 \subsubsection{Kalman Filter}
 \label{subsubsec:2_kalman_filter_mp}
 
-\acf{KF}-based methods aim to solve one of drawbacks of physics-based models: In real-world, the states of agents are not perfectly known since they present an associated noise. These methods model the uncertainty of the current agent state and its physic model by means of a Normal (Gaussian) distribution. Compared to the single trajectory methods, the main advantage is that KF methods consider the uncertainty of the predicted trajectory, specially when using its Extended (EKF) or Unscented (UKF) versions where non-linearities are modeled. As proposed by the original algorithm \cite{kalman1960new}, the prediction and update steps are combined into a loop where the mean value and covariance matrix of the agent state is computed for each future step, calculated as an average trajectory with related uncertainty. 
+\acf{KF}-based methods aim to solve one of drawbacks of physics-based models. In real-world, the states of agents are not perfectly known since they present an associated noise. These methods model the uncertainty of the current agent state and its physic model by means of a Normal (Gaussian) distribution. Compared to the single trajectory methods, the main advantage is that KF methods consider the uncertainty of the predicted trajectory, specially when using its Extended (EKF) or Unscented (UKF) versions where non-linearities are modeled. As proposed by the original algorithm \cite{kalman1960new}, the prediction and update steps are combined into a loop where the mean value and covariance matrix of the agent state is computed for each future step, calculated as an average trajectory with related uncertainty. 
 
 Nevertheless, these \ac{KF}-based methods use uni-modal Gaussian distributions, which are not enough to represent agents interactions. In that sense, \cite{kaempchen2004imm} propose an Interactive Multiple Model (IMM) to compute a multi-modal prediction. Moreover, \cite{jin2015switched} model a set of \acp{KF} used to describe physical models of the vehicles and switch between them, defined as Switched Kalman Filter (SKF). \cite{lefkopoulos2020interaction} propose IMM-KF, a novel Interacting Multiple Model Kalman Filter which takes interaction-related factors (social regulation, inter-dependencies) into consideration, as shown in Figure \ref{fig:chapter_2_related_works/input_output_mp}.
 
@@ -347,12 +347,12 @@ Recently, \ac{MP} methods based on \ac{DL} have become increasingly popular sinc
 	\centering
 	% trim={left bottom right top}
 	\includegraphics[trim={0 7cm 0 7cm}, width=\linewidth]{chapter_2_related_works/DL_methods_mp.pdf}
-	\caption{Deep Learning methods applied in Motion Prediction}
+	\caption{Deep Learning methods applied in \ac{MP}}
 	Source: \textit{A survey on trajectory-prediction methods for autonomous driving} \cite{huang2022survey}
 	\label{fig:chapter_2_related_works/DL_example_mp}
 \end{figure}
 
-The main \ac{DL}-based approaches are: \acp{CNN}, \acp{RNN}, \acp{GAN}, Attention mechanisms (where the Transformer architecture is included) and \acp{GNN}. Figure \ref{fig:chapter_2_related_works/DL_example_mp} illustrates the main idea of using \ac{DL} to predict the future trajectories of the agents. Since this thesis is focused on developing efficient and accurate \ac{DL}-based \ac{MP} models in the field of \ac{AD}, the theoretical explanation of the different \ac{DL} mechanisms used in our pipelines will be further detailed in Chapter \ref{cha:theoretical_background} along with some physics-based models theory to fully-understand the proposed models. The input is represented by, at least, the physics-factors of the corresponding, though road-factors and interaction-factors are present in most \ac{DL} algorithms. Then, a neural network extracts the most important features and outputs a future trajectory according to the training process in a supervised way. 
+The main \ac{DL}-based approaches are: \acp{CNN}, \acp{RNN}, \acp{GAN}, Attention mechanisms (where the Transformer architecture is included) and \acp{GNN}. Figure \ref{fig:chapter_2_related_works/DL_example_mp} illustrates the main idea of using \ac{DL} to predict the future trajectories of the agents. Since this thesis is focused on developing efficient and accurate \ac{DL}-based \ac{MP} models in the field of \ac{AD}, the theoretical explanation of the different \ac{DL} mechanisms used in our pipelines will be further detailed in Chapter \ref{cha:theoretical_background} along with some physics-based models theory to fully-understand the proposed models. %The input is represented by, at least, the physics-factors of the corresponding, though road-factors and interaction-factors are present in most \ac{DL} algorithms. Then, a neural network extracts the most important features and outputs a future trajectory according to the training process in a supervised way. 
 
 \begin{table}[h!]
 	\centering
@@ -462,7 +462,7 @@ As stated in previous sections, \ac{MP} (also referred in the literature as Moti
 
 As observed, Yandex is the dataset with the highest number of scenarios, total recorded time and amount of data, but there are very few entries and all of them dated from 2021, so, at the moment of writing this thesis, the research community is not focused in this dataset anymore. On the other hand, Lyft has the highest number of entries, but the number of unique roadways is limited to 10 km and it does not provide a vector map. Interaction is limited to some interesting scenarios, with very few unique tracks and roadways compared to the other datasets. Overall, these datasets have common goals of enabling motion prediction and improving the safety and efficiency of \acp{ADS}. However, their coverage, data size, features, and limitations vary, which makes it important to consider the specific requirements and use cases when choosing a dataset for research or development purposes. 
 
-Regarding this, we conclude the best vehicle \ac{MP} datasets in the literature are NuScenes, Waymo, Argoverse 1 and Argoverse 2. In that sense, since the \ac{DL} part of the thesis was started (around 2021) approximately when Argoverse 1 had a lot of interest from the research community, and, on top of that, they recently released Argoverse 2 ()the largest \ac{MP} dataset to date) we finally decided to build our algorithms upon the Argoverse 1 and Argoverse 2 datasets.
+Regarding this, we conclude the best vehicle \ac{MP} datasets in the literature are NuScenes, Waymo, Argoverse 1 and Argoverse 2. In that sense, since the \ac{DL} part of the thesis was started (around 2021) approximately when Argoverse 1 had a lot of interest from the research community, and, on top of that, they recently released Argoverse 2 (the largest \ac{MP} dataset to date) we finally decided to build our algorithms upon the Argoverse 1 and Argoverse 2 datasets.
 
 \subsection{Argoverse 1 Motion Forecasting}
 \label{subsec:2_argoverse_1}
@@ -495,7 +495,7 @@ We have used this dataset to train and validate our algorithms in Chapters \ref{
 \subsection{Argoverse 2 Motion Forecasting}
 \label{subsec:2_argoverse_2}
 
-We have used the Argoverse 2 \cite{wilson2023argoverse} Motion Forecasting dataset to implement and validate our final \ac{MP} included in Chapter \ref{cha:improving_multi_agent}. In the same way than Argoverse 1, Argoverse 2 is a high-quality \ac{MP} dataset where the real driving scenario are paired with the corresponding local \ac{HDmap}. Nevertheless, while Argoverse 1 provides a substantial amount of labeled data, it may still have limitations in capturing the full diversity of real-world driving scenarios. Built upon the success of Argoverse 1, the Argoverse 2 Motion Forecasting dataset provides an updated set of prediction scenarios collected from a self-driving fleet, improving its previous version by spanning +2000 km over six different cities and the traffic scenarios approximately twice longer and more diverse.
+Argoverse 2 \cite{wilson2023argoverse} Motion Forecasting dataset has been used to implement and validate our final \ac{MP} included in Chapter \ref{cha:improving_multi_agent}. In the same way than Argoverse 1, Argoverse 2 is a high-quality \ac{MP} dataset where the real driving scenario are paired with the corresponding local \ac{HDmap}. Nevertheless, while Argoverse 1 provides a substantial amount of labeled data, it may still have limitations in capturing the full diversity of real-world driving scenarios. Built upon the success of Argoverse 1, the Argoverse 2 Motion Forecasting dataset provides an updated set of prediction scenarios collected from a self-driving fleet, improving its previous version by spanning +2000 km over six different cities and the traffic scenarios approximately twice longer and more diverse.
 
 \begin{comment}
 \begin{figure}[h]
@@ -566,13 +566,13 @@ In order to validate a whole \ac{ADS} the system must be tested in countless env
 	
 	\item \textbf{CarSim} \cite{benekohal1988carsim} is a vehicle simulator commonly used by academia and industry. Its newest version supports moving objects and sensors that benefit simulations involving self-driving tecnology and ADAS. These moving objects may be linked to 3D objects with their own embedded animations, such as vehicles, cyclists or pedestrians.
 	
-	\item \textbf{PreScan} \cite{tideman2013simulation} provides a simulator framework to design self-driving cars and \ac{ADAS}. It presents PreScan's automatic traffic generator which enables manufacturers to validate their autonomous navigation architectures providing a variety of realistic environments and traffic conditions. This simulator also supports HIL simulation, quite common for evaluating Electronic Control Units (ECUs) used in real-world applications.
+	\item \textbf{PreScan} \cite{tideman2013simulation} provides a simulator framework to design self-driving cars and \ac{ADAS}. It presents PreScan's automatic traffic generator which enables manufacturers to validate their autonomous navigation architectures providing a variety of realistic environments and traffic conditions. This simulator supports Hardware-in-the-Loop (HIL) simulation, quite common for evaluating Electronic Control Units (ECUs) used in real-world applications.
 	
 	\item \textbf{\ac{CARLA}} \cite{dosovitskiy2017carla} an open-source autonomous driving simulator implemented as a layer over Unreal Engine 4 (UE4) \cite{sanders2016introduction}. This simulation engine provides to \ac{CARLA} an ecosystem of interoperable plugins, a realistic physics and a state-of-the-art image quality. \ac{CARLA} is designed as a server-client system so as to support this functionality provided by UE4, where the simulation is rendered and run by the server. The environment is composed of 3D models of static objects, such as buildings, infrastructure or vegetation, as well as dynamic objects like pedestrians, cyclists or vehicles. These objects are designed using low-weight geometric textures and models though maintaining visual realism by making use of variable level of detail and carefully crafting the materials. Moreover, one of the main advantages when using \ac{CARLA} is the possibility to modify in an easy way the vehicle on-board sensors and their features in order to obtain accurate data, the weather and even the possibility to create realistic traffic scenarios.
 	
 	\item \textbf{Gazebo} \cite{koenig2004design} is an scalable, open-source, flexible and multi-robot 3D simulator. It supports the recreation of both outdoor and indoor environments in which there are two core elements that define the 3D scene, also known as world and model. The world is used to represent the 3D scene, defined in a Simulation Description File (SDF) and a model is basically any 3D object. Gazebo uses Open Dynamic Engine (ODE) as its default physic engine.
 	
-	\item \textbf{LGSVL (LG Electronics America R\&D Center)} \cite{rong2020lgsvl} is the most recent simulator for testing autonomous driving technology, focused on multi-robot simulation. It is based on the Unity game engine \cite{haas2014history}, providing different bridges for message passing between the simulator backbone and the autonomous driving stack. LGSVL provides a PythonAPI to control different environment entitities, such as weather conditions, the position of the adversaries, etc. in a similar way to the \ac{CARLA} simulator. It also provides Functional Mockup Interface (FMI) so as to integrate vehicle dynamics platform to the external third party dynamics models.
+	\item \textbf{LGSVL (LG Electronics America R\&D Center)} \cite{rong2020lgsvl} is the most recent simulator for testing autonomous driving technology, focused on multi-robot simulation. It is based on the Unity game engine \cite{haas2014history}, providing different bridges for message passing between the simulator backbone and the autonomous driving stack. LGSVL provides a PythonAPI to control different environment entitities, such as weather conditions, the position of the adversaries, etc, in a similar way to the \ac{CARLA} simulator. It also provides Functional Mockup Interface (FMI) so as to integrate vehicle dynamics platform to the external third party dynamics models.
 	
 \end{itemize}
 
@@ -687,51 +687,52 @@ To this end, we have two simulators as our final options: LGSVL and \ac{CARLA}. 
 \section{Summary}
 \label{sec:2_summary}
 
+In order to finish this Chapter, we perform a brief comparison between the different methods (Physics-based, Classic \ac{ML}, \ac{RL} and \ac{DL}) in terms of accuracy, prediction horizon, computation cost and applications in the \ac{AD} field. 
+
 \begin{table}[h]
 	\centering
-	\caption[Summary of Motion Prediction methods features]{Summary of Motion Prediction methods features. Short-term and long-term characterize prediction horizons of no more than 1-s and no less than 3-s, respectively.}
-\begin{adjustbox}{max width=\textwidth}
-%\begin{tabular}{|P|P|P|P|P|}
-\begin{tabular}{c | c c c c }
-	% Methods & Accuracy & $\begin{array}{l}\text { Prediction } \\
-	%	\text { Horizon }\end{array}$ & $\begin{array}{l}\text { Computation } \\
-	%	\text { Cost }\end{array}$ & Applications \\ \hline 
-	\toprule
-	Methods & Accuracy & Prediction Horizon & Computation Cost & Applications \\
-	% \toprule
-	\midrule
-	
-	Physics-based & $\begin{array}{l}\text { High in short-term prediction,  } \\
-		\text { low in other prediction horizon }\end{array}$ & Short & Small & Colision risk analysis \\
-	\midrule
-	 $\begin{array}{l}\text { Classic Machine } \\
-		\text { Learning-based }\end{array}$ & $\begin{array}{l}\text { Good at recognizing maneuvers but } \\
-		\text { generalization ability is poor }\end{array}$ & Medium & Medium & Maneuver recognition \\
-	\midrule
-	$\begin{array}{l}\text { Reinforcement } \\
-		\text { Learning-based }\end{array}$ & $\begin{array}{l}\text { Relatively high, prediction methods  } \\
-		\text { are relatively few }\end{array}$ & Long & High & More applied in planning \\
-	\midrule
-	Deep Learning-based & High in considering some factors & Long & $\begin{array}{l}\text { Relatively } \\
-		\text { high }\end{array}$ & $\begin{array}{l}\text { More and more applied } \\
-		\text { in real-world }\end{array}$ \\ 
-	\bottomrule
-\end{tabular}
-\label{table:2_summary_mp_methods}
-\end{adjustbox}
+	\captionsetup{justification=justified}
+	\caption[Summary of \ac{MP} methods features]{Summary of \ac{MP} methods features. Short-term and long-term characterize prediction horizons of no more than 1-s and no less than 3-s, respectively.}
+	\begin{adjustbox}{max width=\textwidth}
+		%\begin{tabular}{|P|P|P|P|P|}
+		\begin{tabular}{c | c c c c }
+			% Methods & Accuracy & $\begin{array}{l}\text { Prediction } \\
+				%	\text { Horizon }\end{array}$ & $\begin{array}{l}\text { Computation } \\
+				%	\text { Cost }\end{array}$ & Applications \\ \hline 
+			\toprule
+			Methods & Accuracy & Prediction Horizon & Computation Cost & Applications \\
+			% \toprule
+			\midrule
+			
+			Physics-based & $\begin{array}{l}\text { High in short-term prediction,  } \\
+				\text { low in other prediction horizon }\end{array}$ & Short & Small & Colision risk analysis \\
+			\midrule
+			$\begin{array}{l}\text { Classic Machine } \\
+				\text { Learning-based }\end{array}$ & $\begin{array}{l}\text { Good at recognizing maneuvers but } \\
+				\text { generalization ability is poor }\end{array}$ & Medium & Medium & Maneuver recognition \\
+			\midrule
+			$\begin{array}{l}\text { Reinforcement } \\
+				\text { Learning-based }\end{array}$ & $\begin{array}{l}\text { Relatively high, prediction methods  } \\
+				\text { are relatively few }\end{array}$ & Long & High & More applied in planning \\
+			\midrule
+			Deep Learning-based & High in considering some factors & Long & $\begin{array}{l}\text { Relatively } \\
+				\text { high }\end{array}$ & $\begin{array}{l}\text { More and more applied } \\
+				\text { in real-world }\end{array}$ \\ 
+			\bottomrule
+		\end{tabular}
+		\label{table:2_summary_mp_methods}
+	\end{adjustbox}
 \end{table}
-
-In order to finish this Chapter, we perform a brief comparison between the different methods (Physics-based, Classic \ac{ML}, \ac{RL} and \ac{DL}) in terms of accuracy, prediction horizon, computation cost and applications in the \ac{AD} field. 
 
 \begin{itemize}
 	
-	\item Physics-Based Methods are suitable for the movement of vehicles, which can be accurately described by kinematics or dynamics models. Given a suitable physics model, these methods can be applied to a variety of scenarios at small computational cost and in a short time but without training. However, the prediction results based on such models heavily depends on the inputs and the model selection. The inputs are closely related to human or machine drivers, influenced by the driving environment or the interactions with other participants. Therefore, without the capability to describe such factors, physics-based models are limited to short-term prediction and in static scenes. Because of its simplicity and fast response, these methods can be easily used in real applications for \acp{ADS}, such as collision risk analysis.
+	\item \textbf{Physics-based methods} are suitable for the movement of vehicles, which can be accurately described by kinematics or dynamics models. Given a suitable physics model, these methods can be applied to a variety of scenarios at small computational cost and in a short time but without training. However, the prediction results based on such models heavily depends on the inputs and the model selection. The inputs are closely related to human or machine drivers, influenced by the driving environment or the interactions with other participants. Therefore, without the capability to describe such factors, physics-based models are limited to short-term prediction and in static scenes. Because of its simplicity and fast response, these methods can be easily used in real applications for \acp{ADS}, such as collision risk analysis.
 	
-	\item Classic \ac{ML}-Based Methods, compared with physics-based methods, are able to consider more factors and its accuracy is relatively high with a longer prediction length at a higher computing cost. Most of these methods are maneuver-based methods, which predicts the trajectory with the maneuver known as a prior. However, vehicle maneuvers of human drivers are usually diverse and vary greatly in different scenarios such that the generalization ability of this approach is poor. In real applications for \acp{ADS}, such methods are used in scenarios such as lane change studies, leveraging their advantages in maneuver recognition.
+	\item \textbf{Classic \ac{ML}-based methods}, compared with physics-based methods, are able to consider more factors and its accuracy is relatively high with a longer prediction length at a higher computing cost. Most of these methods are maneuver-based methods, which predicts the trajectory with the maneuver known as a prior. However, vehicle maneuvers of human drivers are usually diverse and vary greatly in different scenarios such that the generalization ability of this approach is poor. In real applications for \acp{ADS}, such methods are used in scenarios such as lane change studies, leveraging their advantages in maneuver recognition.
 	
-	\item \ac{RL}-Based Methods imitate the human \ac{DM} process and obtain the reward function through learning the expert demonstration to generate the corresponding optimal driving policy. They can continuously evolve through learning and adapt to complex environments and long prediction horizons. Such methods probably generate higher accuracy trajectories than \ac{DL} methods in a longer time domain. However, most of these methods are typically computationally expensive in their recovery of an expert cost function, require long training times and its training is based on actions and episodes, in such a way its use in real-world \ac{MP} applications is not suitable, being \ac{RL} more applied to trajectory planning, taking its advantages in the \ac{DM} process.
+	\item \textbf{\ac{RL}-based methods} imitate the human \ac{DM} process and obtain the reward function through learning the expert demonstration to generate the corresponding optimal driving policy. They can continuously evolve through learning and adapt to complex environments and long prediction horizons. Such methods probably generate higher accuracy trajectories than \ac{DL} methods in a longer time domain. However, most of these methods are typically computationally expensive in their recovery of an expert cost function, require long training times and its training is based on actions and episodes, in such a way its use in real-world \ac{MP} applications is not suitable, being \ac{RL} more applied to trajectory planning, taking its advantages in the \ac{DM} process.
 	
-	\item \ac{DL}-Based Methods can perform accurate predictions in a longer time horizon with respect to traditional methods that are only suitable for simple scenes and short-term prediction. By means of powerful neural networks, such as \acp{RNN}, \acp{CNN}, \acp{GAN}, Attention mechanisms or \acp{GNN} for feature extraction, physics-related, interaction-related and road-related factors are processed as inputs to the model. Furthermore, they can adapt to more complex environments and a longer prediction horizon. \ac{DL}-based methods require to use a large amount of data for training.
+	\item \textbf{\ac{DL}-based methods} can perform accurate predictions in a longer time horizon with respect to traditional methods that are only suitable for simple scenes and short-term prediction. By means of powerful neural networks, such as \acp{RNN}, \acp{CNN}, \acp{GAN}, Attention mechanisms or \acp{GNN} for feature extraction, physics-related, interaction-related and road-related factors are processed as inputs to the model. Furthermore, they can adapt to more complex environments and a longer prediction horizon. \ac{DL}-based methods require to use a large amount of data for training.
 	
 	Besides, with the increase of consideration factors and the increase of the number of network layers, the computing costs and time increases sharply. Such methods can naturally generate multi-modal trajectories, which is consistent with the diversity of vehicles maneuvers. In real applications for \ac{ADS}, it is necessary to reach a balance between calculation time and model complexity to ensure the real-time performance and safety of \ac{ADS}. At present, more and more real-world trials use these methods to predict the future trajectory of traffic participants.
 \end{itemize}	
