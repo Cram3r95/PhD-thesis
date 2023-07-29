@@ -390,7 +390,7 @@ In order to calculate the proposed target points we consider the same prediction
 
 To make our model more robust to scene orientation, we augment the training data adding some white noise ($\mu=0, \sigma=0.25$, [m]) to the observation data, rotating the scene and also dropping and replacing (with their last frame) some observations of the past trajectory in order to make the trained model general enough so as to perform well on the unseen traffic scenarios in the split test that includes different scene geometries such as left/right turning or emergency braking.% and so forth and so on.
 
-\subsection{Statistical study of the \ac{GAN} baseline in validation}
+\subsection{Statistical study of the GAN baseline in validation}
 \label{subsec:5_target_agent_distribution}
 
 In terms of validation, we conduct a preliminary statistical analysis for \ac{ADE} and \ac{FDE} metrics, distinguishing the performance between straight and curved trajectories for our baseline model, \ie \ without considering target goals as physical information. To this end, we make use of the Argoverse 1 validation set that consists of 31,000 samples.
@@ -422,7 +422,7 @@ In this section, we perform an ablation study and compare our method performance
 
 \begin{table}[!h]
 	\captionsetup{justification=justified}
-	\caption[Ablation study of our Attention-based \ac{GAN} uni-modal ($K$=1) pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting test set]{Ablation study of our \ac{GAN}-based uni-modal ($K$=1) pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting test set. We can see the improvement using Target points (TP) and Class balance (CB). Our methods are indicated with $\dag$. Prediction metrics (\ac{minADE}, \ac{minFDE}) are reported in meters. We bold the best results in \textbf{black} and the second best in \boldblue{blue} for each metric.}
+	\caption[Ablation study of our Attention-based \ac{GAN} uni-modal ($K$=1) pipeline, and comparison with other relevant methods on Argoverse 1 test set]{Ablation study of our \ac{GAN}-based uni-modal ($K$=1) pipeline, and comparison with other relevant methods on Argoverse 1 Motion Forecasting test set. We can see the improvement using Target points (TP) and Class balance (CB). Our methods are indicated with $\dag$. Prediction metrics (\ac{minADE}, \ac{minFDE}) are reported in meters. We bold the best results in \textbf{black} and the second best in \boldblue{blue} for each metric.}
 	\begin{center}
 		\begin{tabular}{ l | c | c }
 			\toprule

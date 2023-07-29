@@ -44,7 +44,7 @@
 
 This Chapter shows the last and most advanced \ac{MP} algorithm proposed in this thesis. Based on our previously stated augmented baseline \cite{gomez2023efficientgraphtransformer}, we aim to get an efficient model that consider more information about the agents, \ac{HDmap} topological and semantic information (in addition to the previously stated geometric features) and contextual interactions. Note that obtaining and fusing this information (\eg \ actor-to-actor, map-to-actor) is a research topic by itself \cite{varadarajan2022multipath++, zeng2021lanercnn, liang2020learning} and a core part in the \ac{ADS} pipeline. Here we identify a bottleneck for efficient real-time applications \cite{KATRAKAZAS2015416realtime, gomez2021smartmot}, as usually, more (complex) data-inputs implies higher model complexity and inference time \cite{gao2020vectornet}. 
 
-Regarding this, we propose a model to achieve accurate \ac{MP}, yet, using light-weight transformer-based models for social encoding, \acp{GNN} for social-map context interaction, enhanced heuristic map proposals and motion refinement, reducing notably the complexity of our model with respect to previous methods such as GANet \cite{wang2022ganet} to avoid these possible constraints. The work in this Chapter was partially published in the following conference paper \cite{gomez2023improving}: "Improving Multi-Agent Motion Prediction With Heuristic Goals and Motion Refinement", 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), p. 5322-5331. 
+Regarding this, we propose a model to achieve accurate \ac{MP}, yet, using light-weight transformer-based models for social encoding, \acp{GNN} for social-map context interaction, enhanced heuristic map proposals and motion refinement, reducing notably the complexity of our model with respect to previous methods such as GANet \cite{wang2022ganet} (CVPR 2022 Argoverse Motion Forecasting challenge winner) to avoid these possible constraints. The work in this Chapter was partially published in the following conference paper \cite{gomez2023improving}: "Improving Multi-Agent Motion Prediction With Heuristic Goals and Motion Refinement", 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), p. 5322-5331. 
 
 The main contributions of this Chapter are as following: 
 
@@ -92,7 +92,7 @@ Furthermore, Argoverse 2 presents more semantic information regarding the differ
 
 Nevertheless, as stated by \cite{zhang2022banet}, only using the geometric information of the lane centerline as input to get latent features of vector map nodes is not enough. The lane centerline can only provide the position and topology (\ie \ connection) of the lanes, but other elements of the vector map also contain very rich information to understand the scene around the agent. For example, the lane boundary (left way and right way) can provide traffic rule constraint information such as whether it is possible to conduct the lane change behaviour or not (dashed vs solid line, yellow vs white, etc.). When considering such amount of information, specifically in terms of physical context and interactions, most \ac{SOTA} methods require an overwhelming model complexity which can be inefficient in terms of computation \cite{gao2020vectornet, walters2020trajectory, can2022maps}. In our case, we refer these plausible future centerlines with additional metadata (lane boundaries and presence of intersection) as heuristic-based lane proposals, which will be encoded along with past social information.
 
-Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023} illustrates the overall pipeline. Throughout this Chapter we will explain the different modules of the proposed \ac{MP} method, which are:
+Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023} illustrates the overall pipeline, which is organized in two stages: The first stage provides preliminary multi-modal predictions with associated confidences, whilst the second stage is represented by a motion refinement module to further improve tempora consistency. Throughout this Chapter we will explain the different modules of the proposed \ac{MP} method, which are:
 
 \begin{itemize}
 	
@@ -118,7 +118,7 @@ Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023} illustrates the overa
 \end{figure}
 
 \subsection{Social Encoder}
-\label{subsubsec:7_improving_efficiency_social_encoder}
+\label{subsec:7_improving_efficiency_social_encoder}
 
 In terms of agent trajectory and preliminary intentions, as observed in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}, we integrate additional features related to the type and properties of agents (also referred as metadata in the literature), apart from standard past trajectories. Moreover, we also compute heuristic scene understanding to constrain the model predictions towards the real scene geometry (\eg \ plausible centerlines and lanes), including lane and boundary topological information or presence of an intersection. 
 
@@ -143,7 +143,7 @@ In terms of preliminary intentions, given the map data and API, we propose the u
 \subsubsection{Agent trajectories encoding}
 \label{subsubsec:7_improving_trajectories_encoding}
 
-In terms of social encoding, to capture more complex features for subsequent features fusion and interaction, we initially adopted the social encoder proposed by GANet \cite{wang2022ganet}, based on LaneGCN \cite{liang2020learning}, to encode motion history and scene context for its outstanding performance. In this backbone (given the aforementioned social input: translation and rotation invariant with respect to a target agent, and relative displacements), LaneGCN makes use of a network with $3$ groups/scales of 1D convolutions 1D CNN to process the trajectory input for its effectiveness in extracting multi-scale features and efficiency in parallel computing. The output is a well-structured feature map, whose element at $t=0$ is used as the actor feature. The network has $3$ groups/scales of 1D convolutions. Then, a Feature Pyramid Network (FPN) \cite{lin2017feature} to fuse the multi-scale features, and another residual block to obtain the output tensor is applied. Moreover, GANet applies an \ac{LSTM} network on FPN output features and use two identical parallel networks to enhance the motion history encoding.
+In terms of social encoding, to capture more complex features for subsequent features fusion and interaction, we initially adopted the social encoder proposed by GANet \cite{wang2022ganet}, based on LaneGCN \cite{liang2020learning}, to encode motion history and scene context for its outstanding performance. In this backbone (given the aforementioned social input: translation and rotation invariant with respect to a target agent, and relative displacements), LaneGCN makes use of a network with $3$ groups/scales of 1D convolutions to process the trajectory input for its effectiveness in extracting multi-scale features and efficiency in parallel computing. The output is a well-structured feature map, whose element at $t=0$ is used as the actor feature. The network has $3$ groups/scales of 1D convolutions. Then, a Feature Pyramid Network (FPN) \cite{lin2017feature} to fuse the multi-scale features, and another residual block to obtain the output tensor is applied. Moreover, GANet applies an \ac{LSTM} network on FPN output features and use two identical parallel networks to enhance the motion history encoding.
 
 Regarding this, we aimed to improve social encoding taking into account that in spite the fact that \acp{LSTM} became popular because they could solve the problem of vanishing gradients, they suffer from \textit{short-term memory} due to the vanishing gradient problem, as well as require a lot of resources to get trained and become ready for real-world applications, as discussed in Section \ref{subsubsec:3_transformer}. In particular, they need high memory-bandwidth because of linear layers present in each cell which the system usually fails to provide for. To solve that, we replace the motion encoder proposed by \cite{wang2022ganet} for a transformer encoder (based on our previous augmented baseline from Chapter \ref{cha:efficient_baseline_for_mp_in_ad}), which is faster than \ac{RNN}-based models as all the input is ingested once, decreasing the computational complexity. 
 
@@ -249,7 +249,7 @@ Based on the dilated LaneConv, LaneGCN \cite{liang2020learning} proposes a multi
 where $k_c$ is the $c$-th dilation size. We denote  $\text{LaneConv}(k_1, \cdots, k_C)$ this multi-scale layer. 
 
 \subsection{Fusion Cycle}
-\label{subsubsec:4_improving_efficiency_fusion_cycle}
+\label{subsec:4_improving_efficiency_fusion_cycle}
 
 Once both the map and social latent features are computed, we obtain a 2D feature matrix $X$ where each row $X_i$ indicates the feature of the $i$-th actor, and a 2D matrix $Y$ where each row $Y_i$ indicates the feature of the $i$-th lane node. Then, we make use of the well-established actor-map fusion cycle proposed by \cite{liang2020learning} (also referred as FusionNet in the literature) that transfers and aggregates features among actors and lane nodes. 
 
@@ -263,7 +263,7 @@ FusionNet makes use of a stack of four fusion modules to capture all information
 	
 	\item Then, in L2L module \ac{HDmap} information of a particular node is propagated to immediate neighbours.
 	
-	\item After updating the map information based of message propagation, further agents are updated (L2A module) with the information of surrounding map nodes, which were previously updated by neighboring nodes.
+	\item After updating the map information based of message-propagation, further agents are updated (L2A module) with the information of surrounding map nodes, which were previously updated by neighboring nodes.
 	
 	\item Finally, A2A module concludes the actor-map fusion cycle handling the interactions between actors and produces the output actor features.
 	
@@ -282,50 +282,36 @@ The context nodes are defined to be the lane nodes whose $\ell_2$ distance from 
 
 Nevertheless, as observed in our model (Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}), once implemented FusionNet to compute actor-map interactions, we substitute the final module that models Actor to Actor interactions with a Crystal-\ac{GCN}, inspired in the efficient baselines proposed in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}. %Further results (Section \ref{sec:5_motion_prediction_datasets}) will illustrate that replacing the final spatial attention among agents by an efficient graph operator preserves global agent interaction while enhances the whole model in terms of computational complexity and inference time.
 
-\begin{comment}
-	\subsection{Decoding Module}
-	
-	\subsubsection{Goals Prediction and Filtering}
-	
-	\paragraph{Goals predictions}
-	
-	Since we use GANet~\cite{wang2022ganet} as baseline method, we follow the same approach to predict goal points \ie potential destination points for each agent in the scene.
-	
-	We train the goal predictor as~\cite{wang2022ganet} -following the same network architecture- using a combination of classification loss and regression loss. Given $E$ predicted goals, we find a positive goal $\hat{e}$ that has the minimum $\mathcal{L}_2$ distance \emph{w.r.t} the ground truth trajectory's endpoint --- making the predicted goal close to the actual goal as much as possible.
-	
-	This goal prediction module serves to locate goal areas (\eg plausible areas of movement within the lanes). In practice, a drivers behaviour is highly multi-modal and stochastic \eg the driver can stop, go ahead, turn left or right when approaching an intersection, or accelerate. Therefore, we try to make a multiple-goals prediction. 
-	
-	\paragraph{GoICrop}
-	
-	Following GANet~\cite{wang2022ganet}, we choose the predicted goal with the highest confidence among $E$ goals as an anchor. This anchor, by definition, approximates the destination of the agent with the highest probability based on its past trajectories and the scene context.
-	
-	Hence, we use the predicted anchors and apply a GoICrop~\cite{wang2022ganet} filtering to implicitly model actors interactions in the future. This ROI (Regions of Interest) filter allows to select the goal points (anchors) for each agent, considering the their probable interations.
-	
-	\subsubsection{Trajectory Prediction}
-	
-	Finally, we take the updated actor features $X$ as input to predict $K$ final future trajectories and their confidence scores. Following our baseline~\cite{wang2022ganet} we use a standard multi-modal decoder  with one regression branch estimating the trajectories, and one classification branch predicting the corresponding confidences.
-\end{comment}
-
 \subsection{Goal Areas estimation}
 \label{subsec:7_improving_efficiency_goal_areas_estimation}
 
-So far, the proposed model includes a social encoder to process past trajectories, agents metadata and heuristic lane proposals, map encoder to extract deep physical features from the \ac{HDmap} and an actor-map fusion cycle to perform features interaction. Nevertheless, as stated by GANet \cite{wang2022ganet}, since the traveling mode of an actor is highly diverse, the fixed size stride proposed by LaneGCN cannot effectively model distant relevant map features and thus limits the prediction performance.
+So far, the proposed model includes a social encoder to process past trajectories, agents metadata and heuristic lane proposals, map encoder to extract deep physical features from the \ac{HDmap} and an actor-map fusion cycle to perform features interaction. Nevertheless, as stated by GANet \cite{wang2022ganet} (CVPR 2022 Argoverse Motion Forecasting challenge winner), since the traveling mode of an actor is highly diverse, the fixed size stride proposed by LaneGCN cannot effectively model distant relevant map features and thus limits the prediction performance.
 
-While most works \cite{mercat2020multi,casas2018intentnet,chai2019multipath,liang2020learning} focus on map encoding and motion history modeling, another family methods \cite{zhao2021tnt,gu2021densetnt, dendorfer2020goal}, which is built on \ac{DL} goal-based prediction, captures the agent intentions in the future explicitly. Note that this is different from our proposed interpretable plausible future centerlines in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}, since they are extracted by means of physics-based heuristics, while these methods employ deep features to decode potential goals, which is a more accurate but computationally more expensive and less interpretable.
+While most works \cite{mercat2020multi,casas2018intentnet,chai2019multipath,liang2020learning,gomez2022exploring} focus on map encoding and motion history modeling, another family methods \cite{zhao2021tnt,gu2021densetnt, dendorfer2020goal}, which is built on \ac{DL} goal-based prediction, captures the agent intentions in the future explicitly. Note that this is different from our proposed interpretable plausible future centerlines in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}, since they are extracted by means of physics-based heuristics, while these methods employ deep features to decode potential goals, which is a more accurate but computationally more expensive and less interpretable.
 
 Specifically, as discussed in \cite{wang2022ganet}, these goal-based prediction methods follow a three-stage scheme. First, candidate goals are sampled from the lane centerlines. Second, a set of goals are selected by goal prediction. Third, trajectories are estimated conditioning on selected goals. Although these methods have achieved competitive results (in our particular case Argoverse 1 and 2), there present two main drawbacks:
 
 \begin{enumerate}
 	
-	\item These methods merely use a limited number of isolated goal coordinates as conditions, which contain limited information and hinder accurate motion forecasting. As goal coordinates of different distances to the road edge carry different information, using a limited number of goal coordinates as conditions constrains the full utilization of a road context.
+	\item Previous methods merely use a \textbf{limited number of isolated goal coordinates} as conditions, which contain limited information and hinder accurate motion forecasting. As goal coordinates of different distances to the road edge carry different information, using a limited number of goal coordinates as conditions constrains the full utilization of a road context.
 	
-	\item The competitive performance of these methods heavily depends on the well-designed goal space, which may be violated in practice. Well-designed goal space is required for sampling, refining, and scoring candidate goals,
-	due to the difficulty of predicting and evaluating accurate goal coordinates. For example, vehicles candidate goals are sampled from the lane centerlines while \acp{VRU} candidate goals (particularly regarding pedestrians) are sampled from a virtual grid around themselves in TNT~\cite{zhao2021tnt}. These hard-encoded candidate goals abide by driving rules, \eg \, never depart far from lanes or go beyond the road's edge. However, these methods may fail once these hard-encoded candidate goals are violated in the real world. 
+	\item The competitive performance of these methods heavily depends on the well-designed goal space, which may be violated in practice. Well-designed goal space is required for sampling, refining, and scoring candidate goals, due to the difficulty of predicting and evaluating accurate goal coordinates. For example, vehicles candidate goals are sampled from the lane centerlines while \acp{VRU} candidate goals (particularly regarding pedestrians) are sampled from a virtual grid around themselves in TNT \cite{zhao2021tnt}. These hard-encoded candidate goals abide by driving rules, \eg \ never depart far from lanes or go beyond the road edge. However, these methods may fail once these hard-encoded candidate goals are violated in the real world. 
+	
 \end{enumerate}
 
 Compared with accurate goal coordinates, a potential goal area with a relatively richer context of the road is able to provide more tolerance and better guidance for accurate \ac{MP} through a soft constraint. Also, as driving history of actors is critical for goal area estimation, GANet \cite{wang2022ganet} make full use of this clue for accurate localization of goal areas. For example, a fast-moving vehicle goal area may be far away, while the goal area of a stationary vehicle should be limited around itself.
 
-Motivated by these observations, GANet builds upon LaneGCN pipeline proposing a Goal Area Network framework to predict potential goal areas and aggregate their surrounding information as conditions for \ac{MP}. As aforementioned, we adopt GANet as baseline in this Chapter, including \ac{DL} based goal areas estimation (Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}).
+Motivated by these observations, GANet builds upon LaneGCN pipeline proposing a Goal Area Network framework to predict potential goal areas and aggregate their surrounding information as conditions for \ac{MP}. As aforementioned, we adopt GANet as baseline in this Chapter, including \ac{DL} based goal areas estimation (Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}). In that sense, GANet \cite{wang2022ganet} proposes three main contributions:
+
+\begin{enumerate}
+	
+	\item \textbf{Potential goal} are \ac{DL} predicted in an efficient way, aggregating \textbf{local maps} (\aka \ goal areas) to the corresponding actors, to provide more robust information that standard goal coordinates embedding (\eg \ our target points proposed in Chapter \ref{cha:exploring_gan_for_vehicle_mp}).
+	
+	\item GANet \cite{wang2022ganet} employs a \textbf{GoICrop operator to extract rich semantic map features} in goal areas. It implicitly captures the interactions between maps and trajectories in goal areas and constrains the trajectories to follow driving rules and map topology in a data-driven manner.
+	
+	\item Goal points and associated goal areas are used to model agents future interactions in a preliminary way, which is specially crucial in traffic maneuvers such as collision avoidance or lane change.
+	
+\end{enumerate}
 
 \subsubsection{Estimate goals and context}
 \label{subsubsec:7_improving_efficiency_estimate_goals}
@@ -371,48 +357,42 @@ where $\alpha_1 = 1$, $\beta_1 = 0.2$ and $\rho_1 = 0.1$, as proposed in \cite{w
 
 Once different potential destinations have been predicted, we choose the predicted goal with the highest confidence among $E$ goals as an anchor. This anchor is the approximate destination with the highest possibility that the actor may reach based on its motion history and driving context.
 
-% CONTINUARRRRRRRRRRRRRRR
+Since the actors future behaviour is highly uncertain, we adopt the same hyperparameter as proposed by GANet \cite{wang2022ganet} to crop \ac{HDmap} information within 6 meters of the anchor as the goal area of interest, which relaxes the strict goal prediction requirement. The actual endpoint is more likely to appear in candidate areas compared with being hit by scattered endpoint predictions.
 
-Since the actors future behaviour is highly uncertain, we adopt the same hyperparameter than  crop maps within 6 meters of the anchor as the goal area of interest, which relaxes the strict goal prediction requirement. The actual endpoint is more likely to appear in candidate areas compared with being hit by scattered endpoint predictions.
-Moreover, the actor's behavior highly depends on its destination area's context, i.e., the maps and other actors. Although previous works have explored the interactions between actors, the interactions between actors and maps in goal areas and the interactions among actors in the future have received less attention. 
-
-Thus, we retrieve the lane nodes in goal areas and apply a GoICrop module to aggregate these map node features as follows:
+Moreover, due to the fact that the agent behavior highly depends on its destination area context, \ie \ the maps and other actors. Then, as observed in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}, the next step is to retrieve the lane nodes in goal areas and apply a $GoICrop$ operator (as proposed by GANet \cite{wang2022ganet}) to aggregate these map node features as follows:
 
 \begin{equation}
 	x'_i = \phi_1(x_iW_0+\sum_j\phi_2(concat(x_iW_1,\Delta_{i,j},y_j)W_2))W_3
 	\label{att}
 \end{equation}
 
-where $x_i$ is the feature of $i$-th actor and and $y_j$ is the feature of $j$-th lane node, $W_i$ is a weight matrix, $\phi_i$ is a layer normalization with ReLU function, and $\Delta_{i,j}=\phi(MLP(v_i-v_j))$, where $v_i$ denotes the anchor's coordinates of $i$-th actor and $v_j$ denotes the $j$-th lane node's coordinates.
+where $x_i$ is the feature of $i$-th actor and and $y_j$ is the feature of $j$-th lane node, $W_i$ is a weight matrix, $\phi_i$ is a layer normalization with \ac{ReLU} function, and $\Delta_{i,j}=\phi(MLP(v_i-v_j))$, where $v_i$ denotes the anchor's coordinates of $i$-th actor and $v_j$ denotes the $j$-th lane node's coordinates.
  
-GoICrop serves as spatial distance-based attention and updates the goal area lane nodes' features back to the actors. We transpose $x_i$ with $W_1$ as a query embedding. The relative distance feature between the anchor of $i$-th actor and $j$-th lane node are extracted by $\Delta_{i,j}$. Then, we concatenate the query embedding, relative distance feature, and lane node feature. An $MLP$ is employed to transpose and encode these features. Finally, the goal area features are aggregated for $i$-th actor.
+As observed, the $GoICrop$ operator serves as spatial distance-based attention and updates the goal area lane nodes features back to the actors. We transpose $x_i$ with $W_1$ as a query embedding. The relative distance feature between the anchor of $i$-th actor and $j$-th lane node are extracted by $\Delta_{i,j}$. Then, we concatenate the query embedding, relative distance feature, and lane node feature. An \ac{MLP} is employed to transpose and encode these features. Finally, the goal area features are aggregated for $i$-th actor.
+
+So far, at this point in our proposed pipeline (Add deep context to agents block, from Goal Areas estimation module in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}) every actor has interacted with surrounding agents (in terms of past history and physics-based preliminary intentions) and map nodes. Nevertheless, since in this module (Goal Areas estimation) we have performed predictive goal prediction and gotten possible goals for each actor, the overall pipeline will be able to model from the \ac{DL} perspective (\ie \ error can be backpropagated) actors future interactions (not only the past) in order to follow meet the corresponding traffic rules, such as avoiding collisions.
 
 Previous motion forecasting methods usually focus on the interactions in the observation history. 
 However, actors will interact with each other in the future to follow driving etiquette, such as avoiding collisions. 
+ 
+In that sense, we make use of the predicted anchor positions and apply another $GoICrop$ module as observed in Equation \ref{att} to implicitly model actors interactions in the future. We consider the other actors whose future anchor distance from the anchor of $i$-th actor is smaller than 100 meters. In this case, $y_j$ in Equation \ref{att} denotes the features of $j$-th actor, $v_i$ denotes the anchor's coordinates of $i$-th actor, and $v_j$ denotes the anchor's coordinates of $j$-th actor in $\Delta_{i,j}=\phi(MLP(v_i-v_j))$.
 
-Since we have performed predictive goal predictions and gotten possible goals for each actor, our framework can model the actors' future interactions.
-
-Hence, we utilize the predicted anchor positions and apply a GoICrop module as equation~\ref{att} to implicitly model actors' interactions in the future. We consider the other actors whose future anchor's distance from the anchor of $i$-th actor is smaller than 100 meters. In this case, $y_j$ in equation~\ref{att} denotes the features of $j$-th actor, $v_i$ denotes the anchor's coordinates of $i$-th actor, and $v_j$ denotes the anchor's coordinates of $j$-th actor in $\Delta_{i,j}=\phi(MLP(v_i-v_j))$.
-
-Finally, as performed at the end of the fusion cycle, we conduct message-passing among actor nodes by means of a Crystal-\ac{GCN} block, inspired in the efficient baselines proposed in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}, to update their corresponding surrounding information.
+Finally, as performed at the end of the fusion cycle, in order to enhance the baseline proposed by GANet \cite{wang2022ganet}, we conduct message-passing among actor nodes by means of a Crystal-\ac{GCN} block, inspired in the efficient baselines proposed in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}, to update their corresponding surrounding information.
 
 \subsection{Decoding module}
 \label{subsec:7_improving_efficiency_decoding_module}
 
-In order to get the future trajectories with corresponding scores, as observed in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}, we take the updated actor features $X$ as input to predict $K$ final future trajectories and their confidence scores in stage three. 
-Specifically, we construct a two-branch multi-modal prediction header similar to the goal prediction stage, with one regression branch estimating the trajectories and one classification branch scoring the trajectories.
+In order to get the future trajectories with corresponding scores, as observed in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}, we take the latent actors with deep area context from the Goal Areas estimation module as input to predict $K$ (modes) final future trajectories and their associated confidence. Despite the fact that our previous baselines (Chapters \ref{cha:exploring_gan_for_vehicle_mp} and \ref{cha:efficient_baseline_for_mp_in_ad}) propose \ac{LSTM}-based decoders, in this model we follow the experimental setup proposed in the literature (\eg \ LaneGCN \cite{liang2020learning}, GANet \cite{wang2022ganet}, LaneRCNN \cite{zeng2021lanercnn}, CRAT-Pred \cite{schmidt2022crat}, etc.) which constructs a two-branch multi-modal prediction header (similar to the goal prediction stage in the Goal Areas estimation module in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}), with one regression branch estimating the trajectories and one classification branch scoring the trajectories.
 
 For each actor, we regress $K$ sequences of \ac{BEV} coordinates 
 $A_{n,F}=\{(a_{n,1}^k,a_{n,2}^k,...,a_{n,T}^k)\}_{k \in [0,K-1]}$,
 where $a_{n,t}^k$ denotes the $n$-th actor's future coordinates of the $k$-th mode at $t$-th step. 
 
-For the classification branch, we output $K$ confidence scores $    C_{n,cls} = \{c_n^k\}_{k \in [0,K-1]}
-$ corresponding to $K$ modes.
+For the classification branch, we output $K$ confidence scores $C_{n,cls} = \{c_n^k\}_{k \in [0,K-1]}$ corresponding to $K$ modes.
 
-We find a positive trajectory of mode $\hat{k}$, whose endpoint has the minimum Euclidean distance with the ground truth endpoint.
+We find a positive trajectory of mode $\hat{k}$, whose endpoint has the minimum $\mathcal{L}_2$ distance with the ground truth endpoint.
 
-For classification, we use the margin loss  $L_{cls}$ similar to the goal prediction stage. 
-For regression, we apply the smooth L1 loss on all predicted steps of the positive trajectories:
+In terms of losses, for classification, we use the Hinge (\aka \ max-margin) loss $L_{cls}$, as proposed in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}, whilst for regression, we apply the Smooth $\mathcal{L}_1$ loss on all predicted steps of the positive trajectories:
 
 \begin{equation}
 	L_{reg}=\frac{1}{NT}\sum_{n=1}^N\sum_{t=1}^T{reg(a_{n,t}^{\hat{k}}-a^{*}_{n,t})}
@@ -420,7 +400,7 @@ For regression, we apply the smooth L1 loss on all predicted steps of the positi
 
 where $a^{*}_{n,t}$ is the $n$-th actor's ground truth coordinates.
 
-To emphasize the importance of the goal, we add a loss term stressing the penalty at the endpoint:
+To emphasize the importance of the goal areas, we add a loss term stressing the penalty at the endpoint:
 
 \begin{equation}
 	L_{end}=\frac{1}{N}\sum_{n=1}^N{reg(a_{n,end}^{\hat{k}}-a^{*}_{n,end})}
@@ -428,31 +408,38 @@ To emphasize the importance of the goal, we add a loss term stressing the penalt
 
 where $a^{*}_{n,end}$ is the $n$-th actor's ground truth endpoint coordinates and $a_{n,end}^{\hat{k}}$ is the $n$-th actor's predicted positive trajectory's endpoint.
 
-The loss function for training at this stage is given by:
+Then, the final loss function ($\mathcal{L}_2$) for training the first stage (\ie \ map encoder, social encoder, actor-map fusion cycle and goal areas estimation modules) is given by:
 
 \begin{equation}
-	L_{2} = \alpha_2 L_{cls} + \beta_2 L_{reg} + \rho_2 L_{end}
+	L_{first_{stage}} = \alpha_2 L_{cls} + \beta_2 L_{reg} + \rho_2 L_{end}
 \end{equation}
-where $\alpha_2=2$, $\beta_2=1$ and $\rho_2=1$.
+
+where $\mathcal{L}_{cls}$ is the loss associated to the confidences, $\mathcal{L}_{ref}$ is the loss associated to the regressions and $\mathcal{L}_{end}$ is to the \ac{DL}-based potential goals calculation. Moreover, $\alpha_2=2$, $\beta_2=1$ and $\rho_2=1$.
 
 \subsection{Motion refinement}
 \label{subsec:refinement}
 
-A second-stage motion refinement, as proposed by \cite{liu2023laformer}, is introduced to further explore the temporal consistency for predicting more accurate future trajectories. The goal is to reduce the offset between ground truth trajectory $Y$ and predicted trajectory $\hat{Y}$. We define this offset as $\Delta{Y} = Y - \hat{Y}$. In this stage, we leverage three sources of information: 1. Preliminary predictions computed in the decoding module, 2. Prior latent information to the decoding module and 3. Past observations. Using this approach, an MLP model is trained to minimize the offset by predicting a residual $R$ that is added to the original trajectory \ie we use $L_2$ loss to optimize the offset as follows:
+As illustrated in Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}, after the multi-modal decoder we obtain some preliminary multi-modal predictions with their corresponding confidences. In that sense, we apply a second-stage motion refinement based on \cite{liu2023laformer} to further explore the temporal consistency for predicting more accurate future trajectories. The goal is to reduce the offset between \ac{GT} trajectory $Y$ and predicted trajectory $\hat{Y}$. We define this offset as $\Delta{Y} = Y - \hat{Y}$. In this stage, we leverage three sources of information: 1. Preliminary predictions computed in the multi-modal module, 2. Prior latent information to the decoding module (\ie \ latent actors with deep area context) and 3. Past observations. Using this approach, an \ac{MLP} model is trained to minimize the offset by predicting a residual $R$ that is added to the original trajectory \ie we use $L_2$ loss to optimize the offset as follows:
 
 \begin{equation}
 	\label{eq:5_pose_error}
 	\mathcal{L}_\text{off}= ||{Y} - \hat{Y} - \hat{R}||_2 = ||\Delta{Y} - \hat{R}||_2.
 \end{equation}
 
-Furthermore, we use a cosine function, denoted by Equation \ref{eq:5_cosine_error}, to explicitly aid the model in learning the turning angle from the last observed position. It measures the difference between the ground truth angle $\theta_{t}= \text{arctan2}(Y_{t}-{X}_{0})$ and the predicted angle $\hat{\theta}_{t}= \text{arctan2}(\hat{Y}_{t}-{X}_{0})$:
+Furthermore, we use a cosine function, denoted by Equation \ref{eq:7_cosine_error}, to explicitly aid the model in learning the turning angle from the last observed position. It measures the difference between the ground truth angle $\theta_{t}= \text{arctan2}(Y_{t}-{X}_{0})$ and the predicted angle $\hat{\theta}_{t}= \text{arctan2}(\hat{Y}_{t}-{X}_{0})$:
 
 \begin{equation}
 	\mathcal{L}_{\text{angle}}=\frac{1}{t_{f}}\sum^{t_{f}}_{t=1}-cos(\hat{\theta}_{t}-\theta_{t})
-	\label{eq:5_cosine_error}
+	\label{eq:7_cosine_error}
 \end{equation}
 
-Note that this method can be applied to the pre-trained model from previous stages, which is completely functional, as the main function is to improve the output trajectories.
+Finally, considering the motion refinement module, the final loss function ($\mathcal{L}_2$) for training the overall model (Figure \ref{fig:chapter_7_Improving_Multi_Agent/CVPR_2023}) at this stage is given by:
+
+\begin{equation}
+	L_{model} = \alpha_3 L_{first_{stage}} + \beta_3 L_{off} + \rho_3 L_{angle}
+\end{equation}
+
+where $\mathcal{L}_{cls}$ is the loss associated to the confidences, $\mathcal{L}_{ref}$ is the loss associated to the regressions and $\mathcal{L}_{end}$ is to the \ac{DL}-based potential goals calculation. Moreover, $\alpha_3=1$, $\beta_3=0.4$ and $\rho_3=0.2$. Note that this second stage can be applied to the pre-trained model from the first stage, which is completely functional, as the main function is to improve the output trajectories.
 
 \section{Experimental Results}
 \label{sec:7_experimental_results}
@@ -465,33 +452,26 @@ We use the Argoverse 2 \cite{wilson2023argoverse} dataset described in Section \
 \subsection{Metrics}
 \label{subsec:7_experimental_results_metrics}
 
-We follow the widely used evaluation metrics \cite{zeng2021lanercnn,gu2021densetntwaymo,ye2021tpcn}. We follow the benchmark settings and adopt widely used metrics. Table \ref{table:7_argoverse_2_validation} illustrates standard metrics proposed in previous chapter (\ac{minADE} and \ac{minFDE} both in the uni-modal and multi-modal scenarios). Moreover, regarding the Argoverse 2 Motion Forecasting Leaderboard, we additionally study the MR, which is the ratio of predictions where none of the predicted $K$ trajectories is within 2.0 meters of ground truth according to the endpoint's displacement error, and the Brier minimum Final Displacement Error (brier-\ac{minFDE} K=6), which adds a probability-related penalty to the endpoint $\mathcal{L}_2$ distance error. 
+We follow the widely used evaluation metrics \cite{zeng2021lanercnn,gu2021densetnt,ye2021tpcn}. We follow the benchmark settings and adopt widely used metrics. Table \ref{table:7_argoverse_2_validation} illustrates standard metrics proposed in previous chapter (\ac{minADE} and \ac{minFDE} both in the uni-modal and multi-modal scenarios). Moreover, regarding the Argoverse 2 Motion Forecasting Leaderboard, we additionally study the MR, which is the ratio of predictions where none of the predicted $K$ trajectories is within 2.0 meters of ground truth according to the endpoint's displacement error, and the Brier minimum Final Displacement Error (brier-\ac{minFDE} K=6), which adds a probability-related penalty to the endpoint $\mathcal{L}_2$ distance error. 
 
 \subsection{Implementation details}
 \label{subsec:7_experimental_results_implementation_details}
 
-We train our model on 2 A100 GPUs using a batch size of 128 with the \ac{ADAM} optimizer for 42 epochs. The initial learning rate is 1 x 10-3, decaying to 1 x 10-4 at 32 epochs. The latent dimension (regarding map and social features) in most of our experiments is 128. The number of attention heads in the social encoder and motion refinement is 8. The training setup including loss functions follows GANet \cite{wang2022ganet} official implementation as our baseline.
+We train our model on 2 A100 GPUs using a batch size of 128 with the \ac{ADAM} optimizer for 42 epochs. The initial learning rate is 1 x 10-3, decaying to 1 x 10-4 at 32 epochs. The latent dimension (regarding map and social features) in most of our experiments is 128. The number of attention heads in the social encoder and motion refinement is 8. The training setup including loss functions and hyperparameters follows GANet \cite{wang2022ganet} official implementation as our baseline, as stated throughout this Chapter.
 
 In terms of augmentations, we apply (i) Dropout and swapping random points from the past trajectory, (ii) point location perturbations under a $\mathcal{N}(0, 0.2)$ [m] noise distribution \cite{ye2021tpcn}.
 
 \subsection{Comparative with the state-of-the-art}
 \label{subsec:7_experimental_results_comparative_sota}
 
-% CONTINUARRRRRRRRRRRRRRR
+In this Section we compare our proposal against other \ac{SOTA} approaches in the Argoverse 2 Motion Forecasting benchmark. Tables \ref{table:7_argoverse_2_validation} and \ref{table:7_argoverse_2_test} present the results obtained on the Argoverse 2 Motion Forecasting validation and test sets, respectively. We achieve near \ac{SOTA} performance in both sets, which is on-pair with the most promising pipelines, while using notably less parameters. As stated throughout this work, we focus on applying efficient methods to help understand future interactions among the different agents, reducing the number of parameters and inference time. 
 
-Tables \ref{table:7_argoverse_2_validation} and \ref{table:7_argoverse_2_test} present the results obtained on the Argoverse 2 Motion Forecasting validation and test sets, respectively. We achieve near \ac{SOTA} performance in both sets, which is on-pair with the most promising pipelines, while using notably less parameters. As stated throughout this work, we focus on applying efficient methods to help understand future interactions among the different agents, reducing the number of parameters and inference time. 
+%\subsubsection{Ablation studies}
+%\label{subsubsec:7_experimental_results_ablation_study}
 
-We can appreciate in Table \ref{table:7_argoverse_2_validation} the huge influence of the physical context both in terms of accuracy and runtime. GANet \cite{wang2022ganet} shows the best multimodal prediction metrics, with an approximate amount of 6.2M of parameters of 1612 ms given a batch size of 128 traffic scenarios and an average number of 30 agents per scene. As expected, progressively removing the map influence (remove map from decoder, remove goal areas estimation) in the model we decrease the MP performance with a noticeable parameter decrease. 
+Table \ref{table:7_argoverse_2_validation} illustrates the huge influence of the physical context both in terms of accuracy and runtime. Regarding other \ac{SOTA} approaches, GANet \cite{wang2022ganet} shows the best multi-modal prediction metrics, with an approximate amount of 6.2M of parameters and a runtime of 1612 ms given a batch size of 128 traffic scenarios, and an average number of 30 agents per scene. As expected, progressively removing the map influence (remove map from decoder, remove goal areas estimation, remove map encoder) in GANet we decrease the prediction performance with a noticeable parameter and runtime decrease. Moreover, CRAT-Pred \cite{schmidt2022crat}, as stated in Chapter \ref{cha:efficient_baseline_for_mp_in_ad}, presents a multi-modal and non-rasterization-based trajectory prediction model, specifically designed to effectively model social interactions between vehicles, without relying on map information. It shows the lowest number of parameters and runtime inference, but the MP results are not up-to-pair with the GANet social approach. 
 
-%\cite{schmidt2022crat} proposes a non-probabilistic model to reduce model complexity and avoid turning the learning process into a multitask problem. It shows the lowest number of parameters and runtime inference, but the MP results are not up-to-pair with the GANet social approach. 
-
-In our case, we study the influence of substituting the modified ActorNet~\cite{wang2022ganet, liang2020learning} social encoder proposed by GANet, which uses RNNs. Our proposal replaces these by a Linear embedding, a Positional Encoding and Encoder Transformer. Moreover, we add the aforementioned agent metadata (object type and track category), and we substitute the Actor to Actor attention of the fusion cycle for a GCN~\cite{schmidt2022crat} operator to enhance agents global interaction. 
-%
-It can be appreciated how we obtained a similar performance (both with 128 latent dimension in \textit{Ours-m}, and 64 latent in \textit{Ours-s}), reducing the parameters and inference time. 
-
-Finally, our best model, which includes heuristic proposals that serve as a preliminar multi-modal guidance for the model and motion refinement to improve the quality of the final predictions, obtains a performance on pair with \cite{wang2022ganet}, reducing the number of parameters and inference time about 21\% and 41\% respectively. We can appreciate in Table \ref{table:7_argoverse_2_test} how our model generalizes well in the test set, with results (both in uni-modal and multi-modal prediction) up-to-pair with other state-of-the-art algorithms.
-
-\begin{table*}[h]
+\begin{table*}[]
 	\centering
 	\captionsetup{justification=justified}
 	\caption[Comparison of methods in the Argoverse 2 Validation Set]{Comparison of methods in the Argoverse 2 Validation Set. We show the number of parameters for each model, prediction metrics (minADE, minFDE and brier-minFDE) for the multimodal scenario (k=6) and runtime. Runtime was measured on a single GPU A100-SXM4 (using batch 128). Our experiments are indicated using $\dagger$. We use as baseline method GANet~\cite{wang2022ganet}. We bold the best results in \textbf{black} and the second best in \boldblue{blue} for each metric.}
@@ -500,29 +480,33 @@ Finally, our best model, which includes heuristic proposals that serve as a prel
 			\toprule
 			Method & Map & \# Par.~(M) & minADE~(m) $\downarrow$ & minFDE~(m) $\downarrow$ & brier-minFDE~(m) $\downarrow$ & Runtime~(ms) $\downarrow$ \\
 			\midrule
-			GANet~\cite{wang2022ganet}                & Yes & 6.2 & 0.806 & 1.402 & 2.02 & 1612 \\
+			GANet~\cite{wang2022ganet}                & Yes & 6.2 & \textbf{0.806} & \textbf{1.402} & \textbf{2.02} & 1612 \\
 			GANet w/o Map Decoder~\cite{wang2022ganet} & Yes & 5.7 & 0.84 & 1.55 & 2.18 & 1353 \\
 			GANet w/o Goal Areas~\cite{wang2022ganet} & Yes & 4.5 & 0.87 & 1.66 & 2.29 & 1134 \\
 			GANet w/o map~\cite{wang2022ganet}        & No & 1.79 & 1.034 & 2.212 & 2.825 & 838 \\
 			%social only
-			$\dagger$ CRAT-Pred~\cite{schmidt2022crat} & No & 0.53 & 1.31 & 2.78 & 3.65 & 223 \\
+			CRAT-Pred~\cite{schmidt2022crat} & No & \textbf{0.53} & 1.31 & 2.78 & 3.65 & \boldblue{223} \\
 			\midrule
-			$\dagger$ Ours-social: GANet w/o map~\cite{wang2022ganet} ~~~ActorNet $\rightarrow$ Attention Transformer & No & 0.86 & 1.19 & 2.34 & 3.19 & 193 \\
-			$\dagger$ Ours-base: GANet~\cite{wang2022ganet} ~~~ActorNet $\rightarrow$ Attention Transformer & Yes & 5.0 & 0.83 & 1.45 & 2.07 & 923 \\
-			$\dagger$ Ours-m: Ours-base + A2A $\rightarrow$ C-GCN + Metadata  & Yes & 4.74 & 0.82 & 1.43 & 2.05 & 892 \\
+			$\dagger$ Ours-social: GANet w/o map~\cite{wang2022ganet} + Metadata ~ActorNet $\rightarrow$ Attention Transformer & No & \boldblue{0.86} & 1.19 & 2.34 & 3.19 & \textbf{193} \\
+			$\dagger$ Ours-base: GANet~\cite{wang2022ganet} ~ActorNet $\rightarrow$ Attention Transformer & Yes & 5.0 & 0.83 & 1.45 & 2.07 & 923 \\
+			$\dagger$ Ours-m: Ours-base + A2A $\rightarrow$ Crystal-\ac{GCN} + Metadata  & Yes & 4.74 & 0.82 & 1.43 & 2.05 & 892 \\
 			% Ours-s = dim=64 --> smaller version
-			$\dagger$ Ours-s: Ours-base + A2A $\rightarrow$ C-GCN + Metadata (64 latent size) & Yes & 1.2 & 0.88 & 1.53 & 2.15 & 893 \\
+			$\dagger$ Ours-s: Ours-base + A2A $\rightarrow$ Crystal-\ac{GCN} + Metadata (64 latent size) & Yes & 1.2 & 0.88 & 1.53 & 2.15 & 562 \\
 			% Ours final
-			$\dagger$ \textbf{Ours:} Ours-m + Proposals + Motion Refinement & Yes & 4.92 & 0.81 & 1.42 & 2.04 & 946 \\
+			$\dagger$ \textbf{Ours:} Ours-m + Proposals + Motion Refinement & Yes & 4.92 & \boldblue{0.81} & \boldblue{1.42} & \boldblue{2.04} & 946 \\
 			\bottomrule
 		\end{tabular}
 	}
 	\label{table:7_argoverse_2_validation}
 \end{table*}
 
-We provide advanced qualitative samples in Figure \ref{fig:chapter_7_Improving_Multi_Agent/argoverse_2_qualitative_results}, where we show the HD Map of real traffic scenes, heuristic trajectory proposals in the form of centerlines, and the multimodal predictions from our model including their respective confidences (the higher, the most probable). 
+In our case, we first propose a social-only model (\text{Ours-social} in Table \ref{table:7_argoverse_2_validation}), studying the influence of substituting the modified ActorNet \cite{wang2022ganet, liang2020learning} social encoder proposed by GANet, which uses \acp{RNN}. Our social-only proposal replaces ActorNet by a combination of Linear Encoder (\ac{FC}), Positional Encoding and Transformer encoder. The input to our proposed social encoder is the concatenation of the past trajectories (as relative displacements, agents metadata and track category). Moreover, this social baseline includes several Crystal-\ac{GCN} layer to model agents interactions and the corresponding multi-modal decoder aforementioned. As expected, the number of parameters is considerably reduced \wrt \ GANet without map information (1.79 to 0.86) and despite the fact that GANet without map information achieves lower error, the runtime of our proposal is reduced in approximately in 76 \%. In the same way, compared with CRAT-Pred, we obtain similar number of parameters and runtime metrics, but the prediction error is greatly reduced due to the enhanced codification of the Transformer encoder and agents additional metadata.
 
-As we discussed throughout this Chapter, we designed our model to ensure realistic predictions. We can appreciate that all the predictions are plausible and constrained to the scene geometry \eg \ lane distribution and centerlines. We believe our heuristic proposals help to regularize the model and produce realistic predictions that would ensure traffic safety. For simplicity, we only illustrate the heuristic proposals for the focal agent and ego-vehicle. We believe our software for qualitative analysis of MP models on the well-known Argoverse 2 \cite{wilson2023argoverse} is fundamental and a core contribution.
+Moreover, \text{Ours-base} makes use of GANet (including map encoder and goal areas estimation) as baseline. Note that in \text{Ours-base}, additional agents metadata and track category are not considered. It can be appreciated that the model drastically reduces the number of parameters (from 6.2M to 5.0M) and runtime (from 1612 ms to 923 ms) while achieving results up-to-pair with GANet baseline (including all modules). The reason is simple: As stated in Section \ref{subsec:7_improving_efficiency_social_encoder}, GANet \cite{wang2022ganet} proposes as social encoder ActorNet which consists of a network with $3$ groups/scales of 1D convolutions to process the trajectory input for its effectiveness in extracting multi-scale features and efficiency in parallel computing. The output is a well-structured feature map, whose element at $t=0$ is used as the actor feature. The network has $3$ groups/scales of 1D convolutions. Then, a Feature Pyramid Network (FPN) to fuse the multi-scale features, and another residual block to obtain the output tensor is applied. Furthermore, GANet applies an \ac{LSTM} network on FPN output features and use two identical parallel networks to enhance the motion history encoding. 
+
+In that sense, as discussed in Chapter \ref{cha:theoretical_background}, our transformer employs the attention mechanism (particularly self-attention in the present case) that allows to capture relationships between elements in the sequence (\ie \ past trajectories) more effectively. Moreover, even though attention based approaches usually have more parameters than \acp{RNN}-based, the original ActorNet has several group/scales of 1D convolutions and residual connections which drastically increases the number of parameters and inference time. Finally, transformers are highly parallelizable, meaning that they can process inputs in parallel, which accelerates training and inference. In contrast, \ac{LSTM} networks are inherently sequential in nature, as the recurrent connections require information from previous time steps to be processed before moving on to the next step. Then, it can be concluded that substituting the original social encoder with our proposed solution achieves a better trade-off between computation complexity and prediction error. 
+
+Based on \text{Ours-base}, we study the influence of replacing the original A2A (Actor-to-Actor) block from the actor-map fusion cycle \cite{liang2020learning} with a Crystal-\ac{GCN} \cite{schmidt2022crat} operator to enhance agents global interaction. This \ac{GCN} module is also integrated at the end of the Goal Areas estimation module, once the $GoICrop$ has been applied. As observed, \text{Ours-m} is able to reduce the number of parameters, runtime and prediction error because the \ac{GCN} layers achieve agents interactions in a more efficient way than standard spatial attention proposed in LaneGCN \cite{liang2020learning}. Furthermore, reducing the latent dimension from 128 to 64 (\text{Ours-s}) obtains a similar performance while reducing the parameters and inference time.
 
 \begin{table*}[h]
 	\small
@@ -531,7 +515,7 @@ As we discussed throughout this Chapter, we designed our model to ensure realist
 	\label{test}
 	\centering
 	\resizebox{\linewidth}{!}{
-		\begin{tabular}{cccccccc}
+		\begin{tabular}{c|ccccccc}
 			\toprule
 			Method     &\makecell[c]{b-\ac{minFDE} $\downarrow$ \\(K=6)} &\makecell[c]{MR $\downarrow$ \\ ($K$=6)} &\makecell[c]{\ac{minFDE} $\downarrow$ \\($K$=6)} &\makecell[c]{\ac{minADE} $\downarrow$ \\($K$=6)} &\makecell[c]{\ac{minFDE} $\downarrow$ \\($K$=1)} &\makecell[c]{\ac{minFDE} $\downarrow$ \\($K$=1)} &\makecell[c]{MR $\downarrow$ \\($K$=1)} \\
 			\midrule
@@ -541,21 +525,36 @@ As we discussed throughout this Chapter, we designed our model to ensure realist
 			LGU	&2.77 & 0.37 & 2.15 &1.05 &6.91 & 2.77 & 0.73 \\
 			Autowise.AI(GNA) &2.45	&0.29 &1.82	&0.91 &6.27	& 2.47  &	0.71\\
 			Timeformer~\cite{gilles2021thomas}   &2.16	&0.20 &1.51 & 0.88 &4.71	&1.95 &0.64\\
-			QCNet    &2.14	&0.24 &1.58 &0.76	&4.79 & 1.89 &0.63 \\
-			\textit{OPPred w/o Ensemble}~\cite{zhang2022banet} 	&2.03	&0.180 & 1.389		&0.733	&4.70	&1.84  &0.615\\
+			QCNet \cite{zhou2023query}   &2.14	&0.24 &1.58 &0.76	&4.79 & 1.89 &0.63 \\
+			\textit{OPPred w/o Ensemble}~\cite{zhang2022banet} 	&2.03	& \boldblue{0.180} & 1.389		&0.733	&4.70	&1.84  &0.615\\
 			\textit{TENET w/o Ensemble}~\cite{wang2022tenet}&2.01&- &-	&-	&-	&-&-\\
 			Polkach(VILaneIter)  &2.00	&0.19 & 1.39	&\textbf{0.71}	&4.74	&1.82	&0.61 \\
-			GANet &\textbf{1.969}	& \textbf{0.171} &\textbf{1.352}	&0.728 &\textbf{4.475} &\textbf{1.775} &\textbf{0.597}	 \\
+			GANet \cite{wang2022ganet} &\textbf{1.969}	& \textbf{0.171} &\textbf{1.352}	& \boldblue{0.728} &\textbf{4.475} &\textbf{1.775} &\textbf{0.597}	 \\
 			\midrule
-			Ours & 1.98 & 0.185 & 1.37 & 0.73 & 4.53 & 1.79 & 0.608 \\
+			Ours & \boldblue{1.98} & 0.185 & \boldblue{1.37} & 0.73 & \boldblue{4.53} & \boldblue{1.79} & \boldblue{0.608} \\
 			\bottomrule
 	\end{tabular}}
 	\label{table:7_argoverse_2_test}
 \end{table*}
 
-% of 0.0001. 
+Considering that 898 ms (using a batch 128) represent an average time of 7 ms per traffic scenario (142 Hz), we implement the heuristic lanes proposals as preliminary multi-modal guidance for the model and motion refinement to improve the quality of the final predictions and confidences. In that sense, we use on $Ours-m$ as base model and 128 as latent size. As observed in Table \ref{table:7_argoverse_2_validation}, the final model obtains a performance on pair with GANet \cite{wang2022ganet} with all modules (\ie \ CVPR 2022 Argoverse Motion Forecasting challenge winner), reducing the number of parameters and inference time about 21\% and 41\% respectively. 
 
-% Where $\alpha=1.0$ , $\beta=0.1$ and $\gamma=0.65$ initially, and can be manually adjusted during training (especially $\gamma$).
+Finally, as observed in Table \ref{table:7_argoverse_2_test}, our final model generalizes well in the test set (\ie \ Argoverse 2 Motion Forecasting leaderboard), with results (both in uni-modal and multi-modal prediction) up-to-pair with other \ac{SOTA} algorithms. Note that there are some methods without references, \ie \ they have been submitted to the public leaderboard but at the moment of writing this thesis (2023) they are not associated to any conference or journal paper.
+
+\subsection{Qualitative results}
+\label{subsec:7_efficient_baselines_qualitative_results}
+
+We provide advanced qualitative samples in Figure \ref{fig:chapter_7_Improving_Multi_Agent/argoverse_2_qualitative_results}. For each traffic, we show (from left to right) the input data (\ie \ \ac{HDmap} information including centerlines, boundaries of different types and pedestrian crossing locations, as well as the past trajectories of those agents which have been observed in $t=0$), heuristic lanes proposals and the multi-modal predictions computed by our model including their respective confidences (the higher, the most probable). For visualization purposes, we only plot the centerlines of the ego-vehicle (ours, \ie \ the agent which is capturing the data) and the focal agent (also referred as target agent in Argoverse 1), which is the agent of interest to be predicted. Note that even though Argoverse 2 presents several types of agents (\eg \ car, van, cyclist, pedestrian, etc.), and the focal agent may be any of these types, Figure \ref{fig:chapter_7_Improving_Multi_Agent/argoverse_2_qualitative_results} focuses on vehicles predictions which are more challenging in terms of sudden accelerations, emergency breaks or completely different directions in terms of an intersection.
+
+As observed, the focal agent faces quite interesting situations where powerful social and map encoding are required. First row illustrates a 4-ways intersection where the model correctly understands that the focal agent is approaching an intersection. Then, turn right and keep straight future behaviours are predicted with several velocity profiles in each direction, as expected from standard human reasoning. 
+
+Second row shows a quite interesting scenario where the focal agent was driving relatively slow, probably due to presence of a previous red traffic traffic light (since no pedestrians are found in the pedestrian crossing). Then, the model is able to deduce the future direction of the agent given the previous relative displacements but what is more impressive return the predictions with a completely different velocity profiles, \ie \ assuming from constant velocity to a progressive increase of the agent acceleration.
+
+Third row depicts the focal agent which is already at the 4-ways intersection going straight. Then, the model performs all predictions in the same direction with exactly the same curvature than the lane ahead, being the multi-modal prediction focused on different velocity profiles.
+
+Finally, fourth is similar to the previous use scenario (third row) since the focal agent is already at the intersection. Even though the past trajectory is clearly straight, the model successfully computes all predictions towards the correct direction (nevertheless, an interesting prediction with score 0.09 may be appreciated on the same site, so the model tried to predict that the agent would remain in the same place).
+
+To sum up, these qualitative results clearly illustrate how the model greatly benefits from incorporating map information such as heuristic lane proposals, \ac{DL}-based \ac{HDmap} encoding and deep goal areas estimation to compute quite accurate predictions. Furthermore, we may observe in the third column of all rows how the mode with the highest confidence ($K$=1) is usually the mode which is closest to the \ac{GT}, what means the max-margen (Hinge) loss is doing its work correctly.
 
 \begin{figure}[h]
 	\centering
@@ -590,4 +589,8 @@ As we discussed throughout this Chapter, we designed our model to ensure realist
 \section{Summary}
 \label{sec:7_summary}
 
-In this Chapter we solve the challenging problem of Multi-Agent \ac{MP} in real driving scenarios. We present an end-to-end pipeline that combines \ac{DL} and heuristic scene understanding. Our model uses as input the map of the scene, the past trajectories of the agents, and additional information about the scene geometry and agents \eg \, type of agent, lane distribution. We propose a model that integrates attention mechanisms with \acp{GNN}, heuristic goals, and a motion refinement module to further improve temporal consistency. We achieve \ac{SOTA} results on the Argoverse 2 Motion Forecasting Benchmark reducing in millions of parameters previous methods such as GANet, and improving over LaneGCN. Our code is publicly available. %As future works, we plan to include map-adaptive lane-loss to improve diverse multiple motion prediction and explore knowledge-distillation to improve the efficiency for real-world deployment.
+% REDO
+
+In this Chapter we solve the challenging problem of Multi-Agent \ac{MP} in real driving scenarios. We present an end-to-end pipeline that combines \ac{DL} and heuristic scene understanding. Our model uses as input the map of the scene, the past trajectories of the agents, and additional information about the scene geometry and agents, such as type of lane boundaries (dashed, solid, yellow, etc.), type of agent (pedestrian, vehicle, cyclists, etc.) and track category (\ie \ relevancy of the agent, from focal to non-scored). We propose a model that builds upon a \ac{SOTA} pipeline (particularly GANet, CVPR 2022 Argoverse challenge winner), enhancing this method by means of attention mechanisms, \acp{GNN}, heuristic lane proposals, and a motion refinement module to further improve temporal consistency. 
+
+We achieve \ac{SOTA} results on the well-known Argoverse 2 Motion Forecasting Benchmark reducing in millions of parameters previous methods such as GANet, and improving over LaneGCN. We believe our software for qualitative analysis of \ac{MP} models on Argoverse 2 is fundamental and a core contribution. Our code is publicly available.
