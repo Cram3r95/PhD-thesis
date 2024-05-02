@@ -178,8 +178,12 @@ Considering the RobeSafe (Robotics and eSafety) research group and the main proj
 	
 \end{itemize}
 
-Note that, regarding the perception layer, most authors \cite{yurtsever2020survey, }
- 
+Note that in an \ac{ADS} the organization of the different layers such as perception, control or planning can differ based on how developers and researchers conceptualize the flow of information and secondary processes. For example, even though object tracking is very frequently associated to the perception layer, the prediction module, which is the main topic covered in this doctoral thesis, can be associated either to the perception layer \cite{yurtsever2020survey} \cite{schwarting2018planning} \cite{paden2016survey} or the planning layer \cite{cunningham2015mpdm} \cite{werling2010optimal}, being largely depending on the specific architecture of the system and the theoretical framework adopted by researchers and developers. 
+
+Including prediction in the perception layer is often based on the idea that the ability to anticipate future states of dynamic objects (like cars and pedestrians) is a direct extension of sensing and interpreting the environment. This view suggests that prediction is integral to effectively understanding and reacting to immediate sensory inputs. On the other hand, positioning prediction within the planning layer is based on the notion that strategic decisions about the vehicle maneuvers are directly influenced by forecasts about the environment dynamics. This alignment suggests that prediction is primarily a tool for decision-making rather than just environmental interpretation.
+
+As observed, there is not an universally correct classification where prediction should be placed, since it depends on the design and operation philosophy of the \ac{ADS}. If prediction is seen primarily as an extension of the sensory capabilities, it fits well within the perception layer. Conversely, if prediction is viewed as a basis for making driving decisions and strategic planning, it aligns more with the planning layer. Both perspectives are valid and are chosen based on the specific requirements and architectures of different \ac{AD} projects. Regarding this doctoral thesis and the previous experience of the research group, we will consider that the prediction module is the latest step of the perception layer in the \ac{ADS}, where the previous steps are represented by object detection and tracking respectively.
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.7\linewidth]{chapter_1_intro/pylot_architecture.png}

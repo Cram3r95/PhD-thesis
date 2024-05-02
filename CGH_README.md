@@ -2,23 +2,18 @@ Qué tengo:
 
 1. Horas:
 	Transversales 100 -> 521,5
-	Específicas 150 -> 1176,5
+	Específicas 150   -> 1176,5
 2. Título de inglés: Sí (Aptis 22/12/2017 = C). No caduca
 3. Estancias: 
 - KIT (Autorización de mención internacional, firmado por tutores y comisión)
 - UCB (Autorización de mención internacional, firmado por tutores y comisión)
 4. El título ya se cambió de "Predictive Techniques for Scene Understanding by using Deep Learning" a "Predictive Techniques for Scene Understanding by using Deep Learning in Autonomous Driving"
 5. Expertos internacionales: Kailun y Stephany
-
---------------------------------------------------------------------
-
-Qué me falta:
-
-1. Memorial final (en inglés)
-2. Tribunal: TBD
-3. Fecha final de la defensa
-4. Certificado original de Estancia (KIT)
-5. Turnitin
+6. Memoria final (en inglés)
+7. Tribunal (Miguel Ángel Sotelo Vázquez, Cristina Olaverri Monrreal, Abdulla Hussein Al-Kaff)
+8. Fecha final de la defensa (20 de octubre de 2023)
+9. Certificado original de Estancia (KIT)
+10. Certificado de originalidad (Turnitin)
 
 -------------------------------------
 
